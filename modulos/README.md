@@ -9,3 +9,4 @@ Reúne funcionalidades centrais da aplicação.
 - `notificacoes.js`: envio de notificações.
 - `relatorios.js`: geração de relatórios.
 - `sugestoes.html` / `sugestoes.js`: sistema de sugestões.
+- `estilos.css`: estilos globais da interface.
