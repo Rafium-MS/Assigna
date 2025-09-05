@@ -3,7 +3,6 @@ import { api } from '../services/api';
 import type { Territorio, Endereco } from '../types';
 import TerritoriosTable from './TerritoriosTable';
 import HistoricoTerritorio from './HistoricoTerritorio';
-import Agrupamentos from './Agrupamentos';
 
 export default function TerritoriosPage(){
   const [lista, setLista] = useState<Territorio[]>([]);

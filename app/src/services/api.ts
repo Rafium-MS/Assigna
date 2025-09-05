@@ -20,15 +20,13 @@ export const api = {
     historicoSaida: (id:number) => window.api.designacoes.historicoSaida(id),
   },
   territorios: {
-    listar:      async ():Promise<Territorio[]> => w.territorios.listar(),
-    adicionar:   (descricao:string, ) =>
-                   w.territorios.adicionar(descricao),
-    editar:      (id:number, descricao:string, ) =>
-                   w.territorios.editar(id, descricao),
-    deletar:     (id:number) => w.territorios.deletar(id),
-    importarCSV: (filePath:string) => w.territorios.importarCSV(filePath),
-    exportarCSV: () => w.territorios.exportarCSV(),
-    agruparProximos: (raioKm=1) => w.territorios.agruparProximos(raioKm),
+    listar:      async ():Promise<Territorio[]> => window.api.territorios.listar(),
+    adicionar:   (...args:any[]) => window.api.territorios.adicionar(...args),
+    editar:      (...args:any[]) => window.api.territorios.editar(...args),
+    deletar:     (id:number) => window.api.territorios.deletar(id),
+    importarCSV: (filePath:string) => window.api.territorios.importarCSV(filePath),
+    exportarCSV: () => window.api.territorios.exportarCSV(),
+    agruparProximos: (raioKm=1) => window.api.territorios.agruparProximos(raioKm),
   },
   saidas: {
     listar:      async ():Promise<Saida[]> => window.api.saidas.listar(),
@@ -42,7 +40,12 @@ export const api = {
     abrirDialogoCSV: () => window.api.app.abrirDialogoCSV(),
   },
 pdf: {
-    gerarRelatorio: (dados:any[], periodo:string) => w.pdf.gerarRelatorio(dados, periodo),
-    gerar: (titulo:string) => w.pdf.gerar(titulo),
+    gerarRelatorio: (dados:any[], periodo:string) => window.api.pdf.gerarRelatorio(dados, periodo),
+    gerar: (titulo:string) => window.api.pdf.gerar(titulo),
+  },
+  visitas: {
+    listar:   (...args:any[]) => window.api.visitas.listar(...args),
+    contagens:(...args:any[]) => window.api.visitas.contagens(...args),
+    registrar:(...args:any[]) => window.api.visitas.registrar(...args),
   }
 };
