@@ -1,4 +1,4 @@
-const Designacao = require('../models/Designacao');
+const Designacao = require('./Designacao');
 
 function register(ipcMain) {
   ipcMain.handle('designacoes:listar', () => Designacao.listar());

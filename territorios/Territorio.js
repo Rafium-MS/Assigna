@@ -2,7 +2,7 @@ const { dialog } = require('electron');
 const fs = require('fs');
 const { parse } = require('csv-parse/sync');
 const loadTerritories = require('../utils/loadTerritories');
-const db = require('./db');
+const db = require('../modulos/db');
 const logger = require('../logger');
 
 

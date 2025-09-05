@@ -1,4 +1,4 @@
-const db = require('./db');
+const db = require('../modulos/db');
 
 function verificarRegrasDesignacao(territorio_id, saida_id, data_designacao, data_devolucao) {
   return new Promise((resolve, reject) => {
