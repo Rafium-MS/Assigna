@@ -1,4 +1,4 @@
-const Territorio = require('../models/Territorio');
+const Territorio = require('./Territorio');
 
 function register(ipcMain) {
   ipcMain.handle('territorios:listar', () => Territorio.listar());

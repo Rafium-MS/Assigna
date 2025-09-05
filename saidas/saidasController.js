@@ -1,4 +1,4 @@
-const Saida = require('../models/Saida');
+const Saida = require('./Saida');
 
 function register(ipcMain) {
   ipcMain.handle('saidas:listar', () => Saida.listar());

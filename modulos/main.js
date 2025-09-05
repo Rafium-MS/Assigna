@@ -2,13 +2,13 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const bcrypt = require('bcrypt');
-const db = require('./models/db');
-const logger = require('./logger');
+const db = require('./db');
+const logger = require('../logger');
 const { execFile } = require('child_process');
 const { parse } = require('csv-parse/sync');
 const cron = require('node-cron');
-const { agrupar } = require('./utils/geocluster');
-const loadTerritories = require('./utils/loadTerritories');
+const { agrupar } = require('../utils/geocluster');
+const loadTerritories = require('../utils/loadTerritories');
 let autoBackupInterval = null;
 let scraperInterval = null;
 let checkCronJob = null;
@@ -35,7 +35,7 @@ function createWindow() {
     const win = new BrowserWindow({
         width: 1000,
         height: 800,
-        icon: path.join(__dirname, 'icon.png'),
+        icon: path.join(__dirname, '..', 'icon.png'),
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -77,11 +77,11 @@ ipcMain.handle('app:fechar', () => {
     app.quit();
 });
 
-const territoriosController = require('./controllers/territoriosController');
-const saidasController = require('./controllers/saidasController');
-const designacoesController = require('./controllers/designacoesController');
-const visitasController = require('./controllers/visitasController');
-const logsController = require('./controllers/logsController');
+const territoriosController = require('../territorios/territoriosController');
+const saidasController = require('../saidas/saidasController');
+const designacoesController = require('../designacoes/designacoesController');
+const visitasController = require('../visitas/visitasController');
+const logsController = require('../logs/logsController');
 territoriosController.register(ipcMain);
 saidasController.register(ipcMain);
 designacoesController.register(ipcMain);
@@ -97,7 +97,7 @@ async function backupDB() {
         filters: [{ name: 'SQLite DB', extensions: ['sqlite'] }]
     });
     if (canceled || !filePath) return { canceled: true };
-    const src = path.join(__dirname, 'db.sqlite');
+    const src = path.join(__dirname, '..', 'db.sqlite');
     fs.copyFileSync(src, filePath);
     logger.info(`Backup salvo em ${filePath}`);
     return { canceled: false, filePath };
@@ -107,11 +107,11 @@ ipcMain.handle('app:backupDB', backupDB);
 
 function autoBackupToFolder() {
     try {
-        const dir = path.join(__dirname, 'Backup');
+        const dir = path.join(__dirname, '..', 'Backup');
         if (!fs.existsSync(dir)) fs.mkdirSync(dir);
         const stamp = new Date().toISOString().replace(/[:.]/g, '-');
         const dest = path.join(dir, `db_${stamp}.sqlite`);
-        fs.copyFileSync(path.join(__dirname, 'db.sqlite'), dest);
+        fs.copyFileSync(path.join(__dirname, '..', 'db.sqlite'), dest);
         logger.info(`Auto-backup salvo em ${dest}`);
     } catch (err) {
         logger.error(`Erro no auto-backup: ${err.message}`);
@@ -140,7 +140,7 @@ ipcMain.handle('app:scheduleAutoBackup', (event, enable) => {
 ////////////////////////////////////
 function runScraper() {
     return new Promise((resolve, reject) => {
-        const script = path.join(__dirname, 'scripts', 'scrapeTerritorios.js');
+        const script = path.join(__dirname, '..', 'scripts', 'scrapeTerritorios.js');
         execFile('node', [script], { env: { ...process.env, SAVE_TO_DB: 'true' } }, (err) => {
             if (err) {
                 logger.error(`Erro ao executar scraper: ${err.message}`);

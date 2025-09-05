@@ -1,9 +1,9 @@
 const { dialog } = require('electron');
 const fs = require('fs');
 const { parse } = require('csv-parse/sync');
-const db = require('./db');
+const db = require('../modulos/db');
 const logger = require('../logger');
-const { verificarRegrasDesignacao } = require('./helpers');
+const { verificarRegrasDesignacao } = require('../utils/helpers');
 
 async function listar() {
   return new Promise((resolve, reject) => {
