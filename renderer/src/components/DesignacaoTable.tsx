@@ -1,4 +1,4 @@
-import type { Designacao } from '../types';
+import type { Designacao } from '../../../app/src/types';
 
 type Props = {
   data: Designacao[];

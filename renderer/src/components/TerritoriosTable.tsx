@@ -1,4 +1,4 @@
-import type { Territorio, Endereco } from '../types';
+import type { Territorio, Endereco } from '../../../app/src/types';
 
 type Props = {
   data: Territorio[];

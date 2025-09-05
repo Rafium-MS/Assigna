@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { api } from '../services/api';
-import type { Saida } from '../types';
+import { api } from '../../../app/src/services/api';
+import type { Saida } from '../../../app/src/types';
 import SaidasTable from './SaidasTable';
 import HistoricoSaida from './HistoricoSaida';
 

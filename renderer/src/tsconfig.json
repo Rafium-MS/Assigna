@@ -16,6 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "App.tsx", "main.tsx"],
+  "include": ["src", "App.tsx", "main.tsx", "../renderer/src/react-shim.d.ts"],
   "references": []
 }

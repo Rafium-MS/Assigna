@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback } from 'react';
 import FullCalendar, { EventDropArg, EventResizeDoneArg } from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { api } from '../services/api';
-import type { Designacao } from '../types';
+import { api } from '../../../app/src/services/api';
+import type { Designacao } from '../../../app/src/types';
 
 type EventType = {
   id: string;
