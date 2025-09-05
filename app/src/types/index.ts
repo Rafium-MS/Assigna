@@ -15,4 +15,18 @@ export type HistoricoSaida = { territorio:string; data_designacao:string; data_d
 export type Territorio = {
   id: number;
   descricao: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  enderecos?: Endereco[];
+};
+
+export type HistoricoLinha = {
+  saida: string;
+  data_designacao: string;
+  data_devolucao: string;
+};
+
+export type Endereco = {
+  rua: string;
+  numero: string;
 };
