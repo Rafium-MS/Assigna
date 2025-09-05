@@ -12,5 +12,9 @@
   "license": "MIT",
   "devDependencies": {
     "electron": "^31.4.0"
+  },
+  "dependencies": {
+    "csv-parse": "^6.1.0",
+    "sqlite3": "^5.1.7"
   }
 }
