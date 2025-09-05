@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/toast.css">
+    <script defer src="js/ui.js"></script>
+  <script>
+        if (localStorage.getItem('modo-tema') === 'dark') {
+      document.body.classList.add('dark');
+    }
+    if (!localStorage.getItem('usuarioLogado')) {
+    window.location.href = 'login.html';
+    }
+    if (!localStorage.getItem('usuarioLogado')) {
+        window.location.href = 'login.html';
+    }
+  </script>
+</head>
+<body>
+
+<nav>
+    <h2>📍 Territórios</h2>
+    <button onclick="toggleTema()">🌓 Tema</button>
+    <button onclick="fecharApp()">❌ Fechar</button>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+    <ul>
+        <li><a href="index.html">🏠 Início</a></li>
+        <li><a href="territorios.html">📄 Territórios</a></li>
+        <li><a href="saidas.html">🚶‍♂️ Saídas</a></li>
+        <li><a href="designacoes.html">📌 Designações</a></li>
+        <li><a href="sugestoes.html">💡 Sugestões</a></li>
+        <li><a href="relatorios.html">📊 Relatórios</a></li>
+        <li><a href="dashboard.html">📈 Dashboard</a></li>
+        <li><a href="auditoria.html">📝 Auditoria</a></li>
+        <li><a href="ajuda.html">❓ Ajuda</a></li>
+        <li><a href="sobre.html">ℹ️ Sobre</a></li>
+    </ul>
+</nav>
+
+<main>
+    <h1>📊 Relatórios</h1>
+
+    <div class="card">
+        <h2>🔍 Filtros</h2>
+        <label>Filtrar por Saída:</label>
+        <select id="filtroSaida"></select>
+        <label>Filtrar por Território:</label>
+        <select id="filtroTerritorio"></select>
+        <label>Data Início:</label>
+        <input type="date" id="filtroDataInicio">
+        <label>Data Fim:</label>
+        <input type="date" id="filtroDataFim">
+        <button onclick="filtrarRelatorio()">Filtrar</button>
+    </div>
+
+    <div class="card">
+        <h2>📋 Dados do Relatório</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Território</th>
+                    <th>Saída</th>
+                    <th>Designação</th>
+                    <th>Devolução</th>
+                </tr>
+            </thead>
+            <tbody id="relatorio-table"></tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>📤 Exportar</h2>
+        <button onclick="exportarRelatorio()">Exportar Relatório em PDF</button>
+        <button onclick="gerarPDF()">Exportar como PDF Simples</button>
+    </div>
+</main>
+
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<script src="js/toast.js"></script>
+<script src="js/relatorios.js"></script>
+</body>
+</html>

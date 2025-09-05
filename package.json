@@ -1,21 +1,16 @@
 {
   "name": "assigna",
   "version": "1.0.0",
-  "description": "<div align=\"center\">\r   <h1 align=\"center\">📍 Assigna</h1>\r   <p align=\"center\">\r     A desktop application built with Electron and Node.js to efficiently manage territory assignments and field service records.\r   </p>\r </div>",
-  "main": "index.js",
+  "private": true,
+  "description": "Aplicação Electron",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron .",
+    "dev": "electron ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rafium-MS/Assigna.git"
-  },
-  "keywords": [],
   "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Rafium-MS/Assigna/issues"
-  },
-  "homepage": "https://github.com/Rafium-MS/Assigna#readme"
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^31.4.0"
+  }
 }
