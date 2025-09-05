@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" href="../icon.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Designações</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css">
+    <script defer src="js/ui.js"></script>
+    <script defer src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+    <script defer src="js/tour.js"></script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Pular para o conteúdo</a>
+<header>
+    <button class="menu-toggle" onclick="toggleMenu()"><span class="material-icons">menu</span></button>
+    <div class="top-actions" data-intro="Ações rápidas">
+        <button title="Alterar tema" onclick="toggleTema()"><span class="material-icons">brightness_6</span></button>
+        <button title="Fechar aplicativo" onclick="fecharApp()"><span class="material-icons">close</span></button>
+    </div>
+</header>
+<nav data-intro="Navegue pelas seções">
+    <h2><span class="material-icons">settings</span> Configurações</h2>
+    <ul>
+        <li><a href="index.html" title="Início"><span class="material-icons">home</span> Início</a></li>
+        <li><a href="territorios.html" title="Territórios"><span class="material-icons">description</span> Territórios</a></li>
+        <li><a href="mapa.html" title="Mapa"><span class="material-icons">map</span> Mapa</a></li>
+        <li><a href="saidas.html" title="Saídas"><span class="material-icons">directions_walk</span> Saídas</a></li>
+        <li><a href="designacoes.html" title="Designações"><span class="material-icons">push_pin</span> Designações</a></li>
+        <li><a href="calendario.html" title="Calendário"><span class="material-icons">event</span> Calendário</a></li>
+        <li><a href="sugestoes.html" title="Sugestões"><span class="material-icons">lightbulb</span> Sugestões</a></li>
+        <li><a href="relatorios.html" title="Relatórios"><span class="material-icons">bar_chart</span> Relatórios</a></li>
+        <li><a href="dashboard.html" title="Dashboard"><span class="material-icons">show_chart</span> Dashboard</a></li>
+        <li><a href="coleta.html" title="Coleta"><span class="material-icons">cloud_download</span> Coleta</a></li>
+        <li><a href="logs.html"><span class="material-icons">bug_report</span> Logs</a></li>
+        <li><a href="configuracoes.html" title="Configurações"><span class="material-icons">settings</span> Configurações</a></li>
+        <li><a href="ajuda.html" title="Ajuda"><span class="material-icons">help</span> Ajuda</a></li>
+        <li><a href="sobre.html" title="Sobre"><span class="material-icons">info</span> Sobre</a></li>
+    </ul>
+</nav>
+
+<main id="main-content" data-intro="Gerencie designações aqui">
+    <h1><span class="material-icons">push_pin</span> Gerenciar Designações</h1>
+
+    <div class="card">
+        <h2><span class="material-icons">add</span> Nova Designação</h2>
+        <select id="comboTerritorio"></select>
+        <select id="comboSaida"></select>
+        <input type="date" id="dataDesignacao">
+        <input type="date" id="dataDevolucao">
+        <button onclick="addDesignacao()">Designar</button>
+    </div>
+
+    <div class="card">
+        <h2><span class="material-icons">list</span> Lista de Designações</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th onclick="ordenarPor('id')">ID ⬍</th>
+                    <th onclick="ordenarPor('territorio')">Território ⬍</th>
+                    <th onclick="ordenarPor('saida')">Saída ⬍</th>
+                    <th onclick="ordenarPor('dia_semana')">Dia ⬍</th>
+                    <th onclick="ordenarPor('data_designacao')">Designação ⬍</th>
+                    <th onclick="ordenarPor('data_devolucao')">Devolução ⬍</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="designacao-table"></tbody>
+        </table>
+        <div id="paginacao" class="paginacao"></div>
+    </div>
+
+    <div class="card">
+        <h2><span class="material-icons">file_upload</span> Exportar Dados</h2>
+        <button onclick="exportarTerritorios()"><span class="material-icons">file_upload</span> Exportar Territórios em PDF</button>        
+        <button onclick="exportarTerritorios()"><span class="material-icons">file_upload</span> Exportar Territórios em CSV</button>
+        <button onclick="importarCSV()"><span class="material-icons">file_download</span> Importar CSV</button>
+    </div>
+
+    <div class="card">
+    <h2><span class="material-icons">description</span> Gerar Texto das Designações</h2>
+
+    <label>De: <input type="date" id="filtroInicio"></label>
+    <label>Até: <input type="date" id="filtroFim"></label>
+    <button onclick="gerarTextoDesignacoes()">
+        <span class="material-icons">article</span> Gerar Texto
+    </button>
+
+    <textarea id="textoDesignacoes" rows="10" style="width: 100%; margin-top: 10px;"></textarea>
+    </div>
+
+
+    <button id="voltarTopo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <span class="material-icons">arrow_upward</span>
+    </button>
+
+</main>
+
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+<footer id="barra-status">
+    <span id="status-usuario">👤 Usuário: ...</span>
+    <span id="status-nivel">🔐 Nível: ...</span>
+    <span id="status-acao">📌 Aguardando ações...</span>
+    <span id="status-conexao">🟢 Conectado</span>
+</footer>
+<script src="js/toast.js"></script>
+<script src="js/notificacoes.js"></script>
+<script src="js/designacoes.js"></script>
+</body>
+</html>

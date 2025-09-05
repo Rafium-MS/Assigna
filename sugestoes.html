@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugestões de Designações</title>
+    <link rel="icon" href="../icon.png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script defer src="js/ui.js"></script>
+</head>
+<body>
+<header>
+    <button class="menu-toggle" onclick="toggleMenu()"><span class="material-icons">menu</span></button>
+    <div class="top-actions">
+        <button title="Alterar tema" onclick="toggleTema()"><span class="material-icons">brightness_6</span></button>
+        <button title="Fechar aplicativo" onclick="fecharApp()"><span class="material-icons">close</span></button>
+    </div>
+</header>
+
+<nav>
+        <h2><span class="material-icons">lightbulb</span> Sugestões</h2>
+    <ul>
+        <li><a href="index.html" title="Início"><span class="material-icons">home</span> Início</a></li>
+        <li><a href="territorios.html" title="Territórios"><span class="material-icons">description</span> Territórios</a></li>
+        <li><a href="mapa.html" title="Mapa"><span class="material-icons">map</span> Mapa</a></li>
+        <li><a href="saidas.html" title="Saídas"><span class="material-icons">directions_walk</span> Saídas</a></li>
+        <li><a href="designacoes.html" title="Designações"><span class="material-icons">push_pin</span> Designações</a></li>
+        <li><a href="calendario.html" title="Calendário"><span class="material-icons">event</span> Calendário</a></li>
+        <li><a href="sugestoes.html" title="Sugestões"><span class="material-icons">lightbulb</span> Sugestões</a></li>
+        <li><a href="relatorios.html" title="Relatórios"><span class="material-icons">bar_chart</span> Relatórios</a></li>
+        <li><a href="dashboard.html" title="Dashboard"><span class="material-icons">show_chart</span> Dashboard</a></li>
+        <li><a href="coleta.html" title="Coleta"><span class="material-icons">cloud_download</span> Coleta</a></li>
+        <li><a href="logs.html"><span class="material-icons">bug_report</span> Logs</a></li>
+        <li><a href="configuracoes.html" title="Configurações"><span class="material-icons">settings</span> Configurações</a></li>
+        <li><a href="ajuda.html" title="Ajuda"><span class="material-icons">help</span> Ajuda</a></li>
+        <li><a href="sobre.html" title="Sobre"><span class="material-icons">info</span> Sobre</a></li>
+    </ul>
+</nav>>
+</nav>
+
+<main>
+    <h1><span class="material-icons">lightbulb</span> Sugestões de Designações</h1>
+
+    <div class="card">
+        <h2><span class="material-icons">event</span> Gerar Sugestões</h2>
+        <label>Período de Designação:</label>
+        <input type="date" id="dataDesignacao">
+        <input type="date" id="dataDevolucao">
+        <button onclick="gerarSugestoes()">Gerar Sugestões</button>
+    </div>
+
+    <div class="card">
+        <h2><span class="material-icons">list</span> Sugestões Geradas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Saída</th>
+                    <th>Territórios Sugeridos</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="sugestoes-table"></tbody>
+        </table>
+    </div>
+
+    <button id="voltarTopo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <span class="material-icons">arrow_upward</span>
+    </button>
+    
+</main>
+
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+<footer id="barra-status">
+    <span id="status-usuario">👤 Usuário: ...</span>
+    <span id="status-nivel">🔐 Nível: ...</span>
+    <span id="status-acao">📌 Aguardando ações...</span>
+    <span id="status-conexao">🟢 Conectado</span>
+</footer>
+<script src="js/toast.js"></script>
+<script src="js/sugestoes.js"></script>
+</body>
+</html>
