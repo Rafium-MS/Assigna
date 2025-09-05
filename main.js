@@ -17,10 +17,16 @@ function createWindow() {
   });
 
   const appPath = app.getAppPath();
-  const indexPath = path.join(appPath, 'index.html');
+  const rendererDist = path.join(appPath, 'renderer', 'dist', 'index.html');
+  const rendererHtml = path.join(appPath, 'renderer', 'index.html');
+  const legacyIndex = path.join(appPath, 'index.html');
 
-  if (fs.existsSync(indexPath)) {
-    win.loadFile(indexPath);
+  if (fs.existsSync(rendererDist)) {
+    win.loadFile(rendererDist);
+  } else if (fs.existsSync(rendererHtml)) {
+    win.loadFile(rendererHtml);
+  } else if (fs.existsSync(legacyIndex)) {
+    win.loadFile(legacyIndex);
   } else {
     const html = `<!doctype html>
       <html lang="pt-br">
@@ -88,4 +94,3 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
-

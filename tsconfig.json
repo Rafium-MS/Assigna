@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@db/*": ["electron/main/db/*"],
+      "@controllers/*": ["electron/main/controllers/*"]
+    }
+  }
+}
