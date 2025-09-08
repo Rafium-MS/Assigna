@@ -1,4 +1,4 @@
-import type { Designacao, Territorio, Saida, HistoricoSaida } from '../types';
+import type { Designacao, Territorio, Saida, HistoricoSaida } from '../../../models';
 
 declare global {
   interface Window {

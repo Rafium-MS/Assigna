@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../../../app/src/services/api';
-import type { Designacao, Territorio, Saida } from '../../../app/src/types';
+import { api } from '../services/api';
+import type { Designacao, Territorio, Saida } from '../../../models';
 import DesignacaoTable from './DesignacaoTable';
 import Pagination from './Pagination';
 

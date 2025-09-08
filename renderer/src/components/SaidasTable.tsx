@@ -1,4 +1,4 @@
-import type { Saida } from '../../../app/src/types';
+import type { Saida } from '../../../models';
 
 type Props = {
   data: Saida[];
