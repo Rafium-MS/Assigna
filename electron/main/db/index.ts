@@ -1,6 +1,7 @@
-// Reexporta o módulo real do DB, mas em ESM/TS, e já tipa a interface.
-// Ajuste o caminho real do seu módulo DB aqui:
+// Reexporta o módulo consolidado do banco de dados (implementado em JS
+// convencional) garantindo tipagem para uso nos módulos em TypeScript.
 import * as RealDB from '../../../db';
+import type { DB } from './types';
 
 export type { DB, QueryResult, Tx } from './types';
 
@@ -17,4 +18,5 @@ ensure(RealDB as any, [
   // 'migrate', 'seed', ... se existirem
 ]);
 
-export const db = RealDB;
+// Exporta a instância já tipada para os demais módulos.
+export const db: DB = RealDB as unknown as DB;
