@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('api', {
     listar:        () => ipcRenderer.invoke('territorios:listar'),
     adicionar:     (descricao:string) =>
                      ipcRenderer.invoke('territorios:adicionar', descricao),
-    editar:        (id:number, descricao:string,  ) =>
+    editar:        (id:number, descricao:string) =>
                      ipcRenderer.invoke('territorios:editar', id, descricao),
     deletar:       (id:number) => ipcRenderer.invoke('territorios:deletar', id),
     importarCSV:   (filePath:string) => ipcRenderer.invoke('territorios:importarCSV', filePath),

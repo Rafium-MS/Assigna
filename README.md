@@ -47,7 +47,7 @@ Built with Electron, Node.js, and SQLite, the app is fully offline and uses a lo
 - ✅ **Toasts & Sounds**: Instant feedback on user actions.
 - ✅ **Multi-language Support**: Switch between English and Portuguese.
 - ✅ **Audit & Error Logs**: Export system and error logs to PDF/CSV.
-- ✅ **Assignment History**: See which group handled each territory in the last 12 months. & Error Logs**: Export system and error logs to PDF/CSV.
+- ✅ **Assignment History**: See which group handled each territory in the last 12 months.
 - ✅ **Data Collection**: Trigger the territory scraper from the app and store the results.
 
 ## 🚀 Getting Started
