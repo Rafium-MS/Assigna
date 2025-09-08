@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Saida, Territorio } from '../../../app/src/types';
+import type { Saida, Territorio } from '../../../models';
 
 export type Sugestao = {
   saida: Saida;

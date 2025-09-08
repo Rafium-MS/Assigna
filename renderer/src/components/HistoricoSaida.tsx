@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { api } from '../../../app/src/services/api';
-import type { Saida, HistoricoSaida } from '../../../app/src/types';
+import { api } from '../services/api';
+import type { Saida, HistoricoSaida } from '../../../models';
 
 function formatBR(iso:string){
   const [y,m,d] = iso.split('-');

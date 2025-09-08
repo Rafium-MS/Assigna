@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../../../app/src/services/api';
-import type { Territorio, HistoricoLinha } from '../../../app/src/types';
+import { api } from '../services/api';
+import type { Territorio, HistoricoLinha } from '../../../models';
 
 function formatBR(iso:string){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 

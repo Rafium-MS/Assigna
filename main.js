@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Módulos da aplicação
-const saidas = require('./saidas/Saida');
+const saidas = require('./services/saidas');
 
 function createWindow() {
   const win = new BrowserWindow({

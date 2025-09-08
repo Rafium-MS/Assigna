@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { api } from '../../../app/src/services/api';
-import type { Territorio, Endereco } from '../../../app/src/types';
+import { api } from '../services/api';
+import type { Territorio, Endereco } from '../../../models';
 import TerritoriosTable from './TerritoriosTable';
 import HistoricoTerritorio from './HistoricoTerritorio';
 

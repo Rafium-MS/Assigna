@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../../../app/src/services/api';
-import type { Designacao, Saida, Territorio } from '../../../app/src/types';
+import { api } from '../services/api';
+import type { Designacao, Saida, Territorio } from '../../../models';
 import ReportsTable from './ReportsTable';
 
 function formatBR(iso:string){

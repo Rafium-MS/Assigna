@@ -1,4 +1,4 @@
-import type { Designacao } from '../../../app/src/types';
+import type { Designacao } from '../../../models';
 
 function formatBR(iso:string){
   const d = new Date(iso);

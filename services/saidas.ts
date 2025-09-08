@@ -1,32 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-const { dialog } = require('electron');
-const { all, run } = require('../db');
+import fs from 'fs';
+import path from 'path';
+import { dialog } from 'electron';
+import { all, run } from '../db';
 
-async function listar() {
+export async function listar(): Promise<any[]> {
   return await all('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
 }
 
-async function adicionar(nome, dia_semana) {
+export async function adicionar(nome: string, dia_semana: string) {
   if (!nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
   await run('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
   return { ok: true };
 }
 
-async function editar(id, nome, dia_semana) {
+export async function editar(id: number, nome: string, dia_semana: string) {
   if (!id || !nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
   await run('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
   return { ok: true };
 }
 
-async function deletar(id) {
+export async function deletar(id: number) {
   if (!id) throw new Error('ID inválido');
   await run('DELETE FROM saidas WHERE id = ?', [id]);
   return { ok: true };
 }
 
 // Importa CSV simples com colunas: nome,dia_semana (com ou sem cabeçalho)
-async function importarCSV(filePath) {
+export async function importarCSV(filePath: string) {
   if (!filePath) throw new Error('Caminho do arquivo CSV não informado');
   const content = fs.readFileSync(filePath, 'utf8');
   const lines = content.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -49,7 +49,7 @@ async function importarCSV(filePath) {
   return { imported };
 }
 
-async function exportarCSV() {
+export async function exportarCSV() {
   const rows = await listar();
   const csv = ['nome,dia_semana', ...rows.map(r => `${escapeCSV(r.nome)},${escapeCSV(r.dia_semana)}`)].join('\n');
 
@@ -64,20 +64,10 @@ async function exportarCSV() {
   return { canceled: false, filePath: res.filePath };
 }
 
-function escapeCSV(value) {
+function escapeCSV(value: string) {
   const s = String(value ?? '');
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
     return '"' + s.replace(/"/g, '""') + '"';
   }
   return s;
 }
-
-module.exports = {
-  listar,
-  adicionar,
-  editar,
-  deletar,
-  importarCSV,
-  exportarCSV,
-};
-
