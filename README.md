@@ -27,8 +27,6 @@
 
 ## About the Project
 
-![App Screenshot](./assets/screenshots/inicio.png)
-
 **Territory Manager** is a desktop app to manage territory assignments for field work, track return dates, generate suggestions, and monitor activities with full audit logs and analytics dashboards.
 
 Built with Electron, Node.js, and SQLite, the app is fully offline and uses a local database.
