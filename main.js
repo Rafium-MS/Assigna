@@ -16,10 +16,13 @@ function createWindow() {
     },
   });
 
-  const appPath = app.getAppPath();
-  const rendererDist = path.join(appPath, 'renderer', 'dist', 'index.html');
-  const rendererHtml = path.join(appPath, 'renderer', 'index.html');
-  const legacyIndex = path.join(appPath, 'index.html');
+  // Determina o caminho base relativo a este arquivo. Usar __dirname evita
+  // problemas em ambientes onde app.getAppPath() aponta para um diretório que
+  // não contém os arquivos estáticos da interface.
+  const basePath = __dirname;
+  const rendererDist = path.join(basePath, 'renderer', 'dist', 'index.html');
+  const rendererHtml = path.join(basePath, 'renderer', 'index.html');
+  const legacyIndex = path.join(basePath, 'index.html');
 
   if (fs.existsSync(rendererDist)) {
     win.loadFile(rendererDist);
