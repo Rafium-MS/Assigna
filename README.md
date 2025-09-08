@@ -89,8 +89,8 @@ npm test
 npm start
 ```
 
-When you run the app for the first time it will create a local `db.sqlite`
-database in the project directory. All application logs are stored under the
+When you run the app for the first time it will create a local `db/db.sqlite`
+database inside the `db/` directory. All application logs are stored under the
 `logs/` folder and any CSV or database backups are saved inside `Backup/`.
 
 ### Scraping Territories

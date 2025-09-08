@@ -1,6 +1,6 @@
 // Reexporta o módulo real do DB, mas em ESM/TS, e já tipa a interface.
 // Ajuste o caminho real do seu módulo DB aqui:
-import * as RealDB from '../../../db/db';
+import * as RealDB from '../../../db';
 
 export type { DB, QueryResult, Tx } from './types';
 

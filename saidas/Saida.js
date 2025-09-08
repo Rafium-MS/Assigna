@@ -1,25 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { dialog } = require('electron');
-const db = require('../db/db');
-
-function all(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.all(sql, params, (err, rows) => {
-      if (err) return reject(err);
-      resolve(rows || []);
-    });
-  });
-}
-
-function run(sql, params = []) {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, function (err) {
-      if (err) return reject(err);
-      resolve({ changes: this.changes, lastID: this.lastID });
-    });
-  });
-}
+const { all, run } = require('../db');
 
 async function listar() {
   return await all('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
