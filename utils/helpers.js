@@ -1,9 +1,8 @@
-const db = require('../modulos/db');
+const { all, get } = require('../db');
 
-function verificarRegrasDesignacao(territorio_id, saida_id, data_designacao, data_devolucao) {
-  return new Promise((resolve, reject) => {
-    db.all(
-      `
+async function verificarRegrasDesignacao(territorio_id, saida_id, data_designacao, data_devolucao) {
+  const conflitos = await all(
+    `
             SELECT * FROM designacoes
             WHERE territorio_id = ?
             AND (
@@ -13,45 +12,39 @@ function verificarRegrasDesignacao(territorio_id, saida_id, data_designacao, dat
                 (data_devolucao BETWEEN ? AND ?)
             )
         `,
-      [
-        territorio_id,
-        data_designacao,
-        data_devolucao,
-        data_designacao,
-        data_devolucao,
-        data_designacao,
-        data_devolucao,
-      ],
-      (err, conflitos) => {
-        if (err) return reject(err);
-        if (conflitos.length > 0) {
-          return reject(new Error('❌ Território já está designado nesse período.'));
-        }
+    [
+      territorio_id,
+      data_designacao,
+      data_devolucao,
+      data_designacao,
+      data_devolucao,
+      data_designacao,
+      data_devolucao,
+    ]
+  );
+  if (conflitos.length > 0) {
+    throw new Error('❌ Território já está designado nesse período.');
+  }
 
-        db.get(
-          `
+  const ultima = await get(
+    `
                 SELECT * FROM designacoes
                 WHERE territorio_id = ? AND saida_id = ?
                 ORDER BY data_devolucao DESC
                 LIMIT 1
             `,
-          [territorio_id, saida_id],
-          (err, ultima) => {
-            if (err) return reject(err);
-            if (ultima) {
-              const dataUltima = new Date(ultima.data_devolucao);
-              const dataNova = new Date(data_designacao);
-              const mesesDiferenca = (dataNova.getFullYear() - dataUltima.getFullYear()) * 12 + (dataNova.getMonth() - dataUltima.getMonth());
-              if (mesesDiferenca < 3) {
-                return reject(new Error('❌ Esse território não pode ser designado para a mesma saída antes de 3 meses.'));
-              }
-            }
-            resolve(true);
-          }
-        );
-      }
-    );
-  });
+    [territorio_id, saida_id]
+  );
+  if (ultima) {
+    const dataUltima = new Date(ultima.data_devolucao);
+    const dataNova = new Date(data_designacao);
+    const mesesDiferenca = (dataNova.getFullYear() - dataUltima.getFullYear()) * 12 + (dataNova.getMonth() - dataUltima.getMonth());
+    if (mesesDiferenca < 3) {
+      throw new Error('❌ Esse território não pode ser designado para a mesma saída antes de 3 meses.');
+    }
+  }
+  return true;
 }
 
 module.exports = { verificarRegrasDesignacao };
+
