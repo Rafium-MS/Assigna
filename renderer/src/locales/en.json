@@ -1,0 +1,54 @@
+{
+  "app": {
+    "title": "Assigna"
+  },
+  "tabs": {
+    "designacoes": "Assignments",
+    "saidas": "Outings",
+    "territorios": "Territories",
+    "calendario": "Calendar",
+    "relatorios": "Reports",
+    "sugestoes": "Suggestions"
+  },
+  "error": {
+    "pageLoadFail": "Failed to load page.",
+    "checkImports": "Check internal imports. E.g., use \"@/services/api\" and \"@/types\"."
+  },
+  "loading": "Loading...",
+  "landing": {
+    "title": "Assigna",
+    "subtitle": "Choose a module to start.",
+    "territories": {
+      "title": "Territories",
+      "desc": "Manage territories and related data.",
+      "dev": "Module under development."
+    },
+    "saidas": {
+      "title": "Outings",
+      "desc": "Manage field outings.",
+      "dev": "Module under development.",
+      "loading": "Loading information…",
+      "total": "Total registered outings: {{total}}"
+    },
+    "designacoes": {
+      "title": "Assignments",
+      "desc": "Create and track assignments.",
+      "dev": "Module under development."
+    },
+    "relatorios": {
+      "title": "Reports",
+      "desc": "Generate reports and exports.",
+      "dev": "Module under development."
+    },
+    "mapa": {
+      "title": "Map",
+      "desc": "View data on the map.",
+      "dev": "Module under development."
+    },
+    "calendario": {
+      "title": "Calendar",
+      "desc": "Check the calendar.",
+      "dev": "Module under development."
+    }
+  }
+}
