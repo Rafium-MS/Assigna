@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Assigna</title>
   <!-- Arquivo de estilos será adicionado futuramente -->
-  <!-- NodeIntegration está habilitado no BrowserWindow -->
+  <!-- APIs do Electron expostas via preload -->
 </head>
 <body>
   <h1>Assigna</h1>
@@ -51,23 +51,20 @@
   </div>
 
   <script>
-    // Mostra um pequeno status usando IPC já exposto em main.js
+    // Mostra um pequeno status usando a API exposta pelo preload
     (function () {
-      try {
-        const { ipcRenderer } = require('electron');
-        ipcRenderer.invoke('saidas:listar').then((lista) => {
-          const el = document.getElementById('saidas-info');
-          if (!el) return;
+      const el = document.getElementById('saidas-info');
+      if (!el) return;
+      if (window.api?.saidas?.listar) {
+        window.api.saidas.listar().then((lista) => {
           const total = Array.isArray(lista) ? lista.length : 0;
           el.textContent = `Total de saídas cadastradas: ${total}`;
         }).catch((err) => {
-          const el = document.getElementById('saidas-info');
-          if (el) el.textContent = 'Não foi possível carregar as saídas.';
+          el.textContent = 'Não foi possível carregar as saídas.';
           console.error(err);
         });
-      } catch (e) {
-        const el = document.getElementById('saidas-info');
-        if (el) el.textContent = 'IPC indisponível.';
+      } else {
+        el.textContent = 'IPC indisponível.';
       }
     })();
   </script>
