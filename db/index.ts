@@ -1,4 +1,4 @@
-import path from 'path';
+import * as path from 'path';
 import logger from '../logger';
 import { sqliteAdapter, SQLiteDB } from '../electron/main/db/adapters';
 import type { QueryParams, QueryResult, Tx } from '../electron/main/db/types';

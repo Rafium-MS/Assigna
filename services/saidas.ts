@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import * as fs from 'fs';
+import * as path from 'path';
 import { dialog } from 'electron';
 import db from '../db';
 import logger from '../logger';
