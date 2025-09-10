@@ -2,29 +2,50 @@ import fs from 'fs';
 import path from 'path';
 import { dialog } from 'electron';
 import db from '../db';
+import logger from '../logger';
 import type { Saida } from '../models';
 
 export async function listar(): Promise<Saida[]> {
-  const { rows } = await db.query<Saida>('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
-  return rows;
+  try {
+    const { rows } = await db.query<Saida>('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
+    return rows;
+  } catch (err) {
+    logger.error(`Erro ao listar saídas: ${(err as Error).message}`);
+    throw new Error('Erro ao listar saídas');
+  }
 }
 
 export async function adicionar(nome: string, dia_semana: string): Promise<{ ok: true }> {
   if (!nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
-  await db.query('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
-  return { ok: true };
+  try {
+    await db.query('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
+    return { ok: true };
+  } catch (err) {
+    logger.error(`Erro ao adicionar saída: ${(err as Error).message}`);
+    throw new Error('Erro ao adicionar saída');
+  }
 }
 
 export async function editar(id: number, nome: string, dia_semana: string): Promise<{ ok: true }> {
   if (!id || !nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
-  await db.query('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
-  return { ok: true };
+  try {
+    await db.query('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
+    return { ok: true };
+  } catch (err) {
+    logger.error(`Erro ao editar saída: ${(err as Error).message}`);
+    throw new Error('Erro ao editar saída');
+  }
 }
 
 export async function deletar(id: number): Promise<{ ok: true }> {
   if (!id) throw new Error('ID inválido');
-  await db.query('DELETE FROM saidas WHERE id = ?', [id]);
-  return { ok: true };
+  try {
+    await db.query('DELETE FROM saidas WHERE id = ?', [id]);
+    return { ok: true };
+  } catch (err) {
+    logger.error(`Erro ao deletar saída: ${(err as Error).message}`);
+    throw new Error('Erro ao deletar saída');
+  }
 }
 
 // Importa CSV simples com colunas: nome,dia_semana (com ou sem cabeçalho)
