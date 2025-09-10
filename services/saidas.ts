@@ -2,32 +2,33 @@ import fs from 'fs';
 import path from 'path';
 import { dialog } from 'electron';
 import db from '../db';
+import type { Saida } from '../models';
 
-export async function listar(): Promise<any[]> {
-  const { rows } = await db.query('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
+export async function listar(): Promise<Saida[]> {
+  const { rows } = await db.query<Saida>('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
   return rows;
 }
 
-export async function adicionar(nome: string, dia_semana: string) {
+export async function adicionar(nome: string, dia_semana: string): Promise<{ ok: true }> {
   if (!nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
   await db.query('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
   return { ok: true };
 }
 
-export async function editar(id: number, nome: string, dia_semana: string) {
+export async function editar(id: number, nome: string, dia_semana: string): Promise<{ ok: true }> {
   if (!id || !nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
   await db.query('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
   return { ok: true };
 }
 
-export async function deletar(id: number) {
+export async function deletar(id: number): Promise<{ ok: true }> {
   if (!id) throw new Error('ID inválido');
   await db.query('DELETE FROM saidas WHERE id = ?', [id]);
   return { ok: true };
 }
 
 // Importa CSV simples com colunas: nome,dia_semana (com ou sem cabeçalho)
-export async function importarCSV(filePath: string) {
+export async function importarCSV(filePath: string): Promise<{ imported: number }> {
   if (!filePath) throw new Error('Caminho do arquivo CSV não informado');
   const content = await fs.promises.readFile(filePath, 'utf8');
   const lines = content.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
@@ -50,7 +51,7 @@ export async function importarCSV(filePath: string) {
   return { imported };
 }
 
-export async function exportarCSV() {
+export async function exportarCSV(): Promise<{ canceled: boolean; filePath?: string }> {
   const rows = await listar();
   const csv = ['nome,dia_semana', ...rows.map(r => `${escapeCSV(r.nome)},${escapeCSV(r.dia_semana)}`)].join('\n');
 
@@ -65,7 +66,7 @@ export async function exportarCSV() {
   return { canceled: false, filePath: res.filePath };
 }
 
-function escapeCSV(value: string) {
+function escapeCSV(value: string): string {
   const s = String(value ?? '');
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
     return '"' + s.replace(/"/g, '""') + '"';
