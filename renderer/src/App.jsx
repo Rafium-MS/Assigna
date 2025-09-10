@@ -50,7 +50,6 @@ export default function App() {
           <h1 className="text-xl font-semibold"><Link to="/">Assigna</Link></h1>
           <nav className="flex gap-2 flex-wrap">
 
-
           </nav>
         </div>
       </header>
