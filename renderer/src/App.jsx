@@ -49,15 +49,8 @@ export default function App() {
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold"><Link to="/">Assigna</Link></h1>
           <nav className="flex gap-2 flex-wrap">
-            {TABS.map(t => (
-              <Button
-                asChild
-                key={t.id}
-                variant={location.pathname === t.path ? 'default' : 'secondary'}
-              >
-                <Link to={t.path}>{t.label}</Link>
-              </Button>
-            ))}
+
+
           </nav>
         </div>
       </header>
