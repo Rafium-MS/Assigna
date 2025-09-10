@@ -5,13 +5,16 @@ import './index.css'
 import { ToastProvider } from './components/ui/toast'
 import { ConfirmProvider } from './components/ui/confirm-dialog'
 import { BrowserRouter } from 'react-router-dom'
+import { I18nProvider } from './lib/i18n'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ToastProvider>
       <ConfirmProvider>
         <BrowserRouter>
-          <App />
+          <I18nProvider>
+            <App />
+          </I18nProvider>
         </BrowserRouter>
       </ConfirmProvider>
     </ToastProvider>

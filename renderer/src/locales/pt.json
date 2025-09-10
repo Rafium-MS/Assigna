@@ -1,0 +1,54 @@
+{
+  "app": {
+    "title": "Assigna"
+  },
+  "tabs": {
+    "designacoes": "Designações",
+    "saidas": "Saídas",
+    "territorios": "Territórios",
+    "calendario": "Calendário",
+    "relatorios": "Relatórios",
+    "sugestoes": "Sugestões"
+  },
+  "error": {
+    "pageLoadFail": "Falha ao carregar a página.",
+    "checkImports": "Verifique os imports internos. Ex.: use \"@/services/api\" e \"@/types\"."
+  },
+  "loading": "Carregando...",
+  "landing": {
+    "title": "Assigna",
+    "subtitle": "Escolha um módulo para começar.",
+    "territories": {
+      "title": "Territórios",
+      "desc": "Gerencie territórios e dados relacionados.",
+      "dev": "Módulo em desenvolvimento."
+    },
+    "saidas": {
+      "title": "Saídas",
+      "desc": "Gerencie saídas de campo.",
+      "dev": "Módulo em desenvolvimento.",
+      "loading": "Carregando informações…",
+      "total": "Total de saídas cadastradas: {{total}}"
+    },
+    "designacoes": {
+      "title": "Designações",
+      "desc": "Crie e acompanhe designações.",
+      "dev": "Módulo em desenvolvimento."
+    },
+    "relatorios": {
+      "title": "Relatórios",
+      "desc": "Gere relatórios e exportações.",
+      "dev": "Módulo em desenvolvimento."
+    },
+    "mapa": {
+      "title": "Mapa",
+      "desc": "Visualize dados no mapa.",
+      "dev": "Módulo em desenvolvimento."
+    },
+    "calendario": {
+      "title": "Calendário",
+      "desc": "Consulte o calendário.",
+      "dev": "Módulo em desenvolvimento."
+    }
+  }
+}
