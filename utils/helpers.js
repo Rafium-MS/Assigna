@@ -1,7 +1,7 @@
-const { all, get } = require('../db');
+const db = require('../db');
 
 async function verificarRegrasDesignacao(territorio_id, saida_id, data_designacao, data_devolucao) {
-  const conflitos = await all(
+  const { rows: conflitos } = await db.query(
     `
             SELECT * FROM designacoes
             WHERE territorio_id = ?
@@ -26,7 +26,7 @@ async function verificarRegrasDesignacao(territorio_id, saida_id, data_designaca
     throw new Error('❌ Território já está designado nesse período.');
   }
 
-  const ultima = await get(
+  const { rows } = await db.query(
     `
                 SELECT * FROM designacoes
                 WHERE territorio_id = ? AND saida_id = ?
@@ -35,6 +35,7 @@ async function verificarRegrasDesignacao(territorio_id, saida_id, data_designaca
             `,
     [territorio_id, saida_id]
   );
+  const ultima = rows[0];
   if (ultima) {
     const dataUltima = new Date(ultima.data_devolucao);
     const dataNova = new Date(data_designacao);

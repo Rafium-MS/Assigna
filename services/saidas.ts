@@ -1,27 +1,28 @@
 import fs from 'fs';
 import path from 'path';
 import { dialog } from 'electron';
-import { all, run } from '../db';
+import db from '../db';
 
 export async function listar(): Promise<any[]> {
-  return await all('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
+  const { rows } = await db.query('SELECT id, nome, dia_semana FROM saidas ORDER BY id');
+  return rows;
 }
 
 export async function adicionar(nome: string, dia_semana: string) {
   if (!nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
-  await run('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
+  await db.query('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia_semana]);
   return { ok: true };
 }
 
 export async function editar(id: number, nome: string, dia_semana: string) {
   if (!id || !nome || !dia_semana) throw new Error('Campos obrigatórios ausentes');
-  await run('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
+  await db.query('UPDATE saidas SET nome = ?, dia_semana = ? WHERE id = ?', [nome, dia_semana, id]);
   return { ok: true };
 }
 
 export async function deletar(id: number) {
   if (!id) throw new Error('ID inválido');
-  await run('DELETE FROM saidas WHERE id = ?', [id]);
+  await db.query('DELETE FROM saidas WHERE id = ?', [id]);
   return { ok: true };
 }
 
@@ -43,7 +44,7 @@ export async function importarCSV(filePath: string) {
     const nome = parts[0].trim();
     const dia = parts[1].trim();
     if (!nome || !dia) continue;
-    await run('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia]);
+    await db.query('INSERT INTO saidas (nome, dia_semana) VALUES (?, ?)', [nome, dia]);
     imported++;
   }
   return { imported };
