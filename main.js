@@ -1,9 +1,10 @@
+require('./register-ts');
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 // Módulos da aplicação
-const saidas = require('./services/saidas');
+const saidas = require('./services/saidas.ts');
 
 function createWindow() {
   const win = new BrowserWindow({
