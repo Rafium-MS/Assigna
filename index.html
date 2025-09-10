@@ -4,70 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Assigna</title>
-  <!-- Arquivo de estilos será adicionado futuramente -->
-  <!-- APIs do Electron expostas via preload -->
+  <link rel="stylesheet" href="/dist/tailwind.css">
 </head>
 <body>
-  <h1>Assigna</h1>
-  <p class="muted">Escolha um módulo para começar.</p>
-
-  <div class="grid">
-    <div class="card">
-      <h2>Territórios</h2>
-      <p>Gerencie territórios e dados relacionados.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-    </div>
-
-    <div class="card">
-      <h2>Saídas</h2>
-      <p>Gerencie saídas de campo.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-      <p class="muted" id="saidas-info">Carregando informações…</p>
-    </div>
-
-    <div class="card">
-      <h2>Designações</h2>
-      <p>Crie e acompanhe designações.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-    </div>
-
-    <div class="card">
-      <h2>Relatórios</h2>
-      <p>Gere relatórios e exportações.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-    </div>
-
-    <div class="card">
-      <h2>Mapa</h2>
-      <p>Visualize dados no mapa.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-    </div>
-
-    <div class="card">
-      <h2>Calendário</h2>
-      <p>Consulte o calendário.</p>
-      <p class="muted">Módulo em desenvolvimento.</p>
-    </div>
-  </div>
-
-  <script>
-    // Mostra um pequeno status usando a API exposta pelo preload
-    (function () {
-      const el = document.getElementById('saidas-info');
-      if (!el) return;
-      if (window.api?.saidas?.listar) {
-        window.api.saidas.listar().then((lista) => {
-          const total = Array.isArray(lista) ? lista.length : 0;
-          el.textContent = `Total de saídas cadastradas: ${total}`;
-        }).catch((err) => {
-          el.textContent = 'Não foi possível carregar as saídas.';
-          console.error(err);
-        });
-      } else {
-        el.textContent = 'IPC indisponível.';
-      }
-    })();
-  </script>
+  <div id="root"></div>
+  <script src="/dist/main.js"></script>
 </body>
 </html>
 
