@@ -1,4 +1,4 @@
-import { findConflitos, findUltimaPorTerritorioESaida } from '../repositories/designacoesRepository';
+import { designacoesRepository } from '../repositories/designacoesRepository';
 
 export async function verificarRegrasDesignacao(
   territorioId: number,
@@ -6,12 +6,19 @@ export async function verificarRegrasDesignacao(
   dataDesignacao: string,
   dataDevolucao: string,
 ): Promise<boolean> {
-  const conflitos = await findConflitos(territorioId, dataDesignacao, dataDevolucao);
+  const conflitos = await designacoesRepository.findConflitos(
+    territorioId,
+    dataDesignacao,
+    dataDevolucao,
+  );
   if (conflitos.length > 0) {
     throw new Error('❌ Território já está designado nesse período.');
   }
 
-  const ultima = await findUltimaPorTerritorioESaida(territorioId, saidaId);
+  const ultima = await designacoesRepository.findUltimaPorTerritorioESaida(
+    territorioId,
+    saidaId,
+  );
   if (ultima) {
     const dataUltima = new Date(ultima.data_devolucao);
     const dataNova = new Date(dataDesignacao);

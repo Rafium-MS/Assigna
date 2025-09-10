@@ -2,8 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@db/*": ["electron/main/db/*"],
-      "@controllers/*": ["controllers/*"]
+      "@db/*": ["electron/main/db/*"]
     },
     "jsx": "react-jsx",
     "esModuleInterop": true,
