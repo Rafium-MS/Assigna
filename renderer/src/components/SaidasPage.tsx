@@ -3,6 +3,8 @@ import { api } from '../services/api';
 import type { Saida } from '../../../models';
 import SaidasTable from './SaidasTable';
 import HistoricoSaida from './HistoricoSaida';
+import { useToast } from './ui/toast';
+import { useConfirm } from './ui/confirm-dialog';
 
 const DIAS = ['Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado','Domingo'];
 
@@ -12,6 +14,8 @@ export default function SaidasPage(){
   const [dia, setDia] = useState('');
   const [editId, setEditId] = useState<number|null>(null);
   const [loading, setLoading] = useState(false);
+  const { toast, dismiss } = useToast();
+  const confirm = useConfirm();
 
   async function carregar(){ setSaidas(await api.saidas.listar()); }
   useEffect(()=>{ carregar(); }, []);
@@ -19,48 +23,72 @@ export default function SaidasPage(){
   function resetForm(){ setNome(''); setDia(''); setEditId(null); }
 
   async function add(){
-    if (!nome || !dia) { alert('Preencha todos os campos.'); return; }
+    if (!nome || !dia) { toast('Preencha todos os campos.', 'error'); return; }
     setLoading(true);
+    const t = toast('Adicionando saída...', 'loading');
     try{
       await api.saidas.adicionar(nome, dia);
-      alert('Saída adicionada!');
+      toast('Saída adicionada!', 'success');
       resetForm(); await carregar();
-    } finally { setLoading(false); }
+    } catch(err:any){
+      toast(`Erro ao adicionar: ${err.message||err}`, 'error');
+    } finally { dismiss(t); setLoading(false); }
   }
 
   async function salvar(){
-    if (!editId || !nome || !dia) { alert('Preencha todos os campos.'); return; }
+    if (!editId || !nome || !dia) { toast('Preencha todos os campos.', 'error'); return; }
     setLoading(true);
+    const t = toast('Salvando...', 'loading');
     try{
       await api.saidas.editar(editId, nome, dia);
-      alert('Saída atualizada!');
+      toast('Saída atualizada!', 'success');
       resetForm(); await carregar();
-    } finally { setLoading(false); }
+    } catch(err:any){
+      toast(`Erro ao atualizar: ${err.message||err}`, 'error');
+    } finally { dismiss(t); setLoading(false); }
   }
 
   async function onEditar(id:number){
     const item = saidas.find(s=>s.id===id);
-    if (!item) { alert('Saída não encontrada.'); return; }
+    if (!item) { toast('Saída não encontrada.', 'error'); return; }
     setEditId(item.id); setNome(item.nome); setDia(item.dia_semana);
   }
 
   async function onDeletar(id:number){
-    if (!confirm('Deseja realmente excluir esta saída?')) return;
-    await api.saidas.deletar(id);
-    alert('Saída excluída!'); await carregar();
+    const ok = await confirm({ title: 'Excluir saída?', description: 'Esta ação não pode ser desfeita.' });
+    if (!ok) return;
+    const t = toast('Excluindo...', 'loading');
+    try{
+      await api.saidas.deletar(id);
+      toast('Saída excluída!', 'success');
+      await carregar();
+    } catch(err:any){
+      toast(`Erro ao excluir: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   async function importarCSV(){
     const { canceled, filePaths } = await api.app.abrirDialogoCSV();
     if (!canceled && filePaths?.length){
-      await api.saidas.importarCSV(filePaths[0]);
-      alert('Importação concluída!'); await carregar();
+      const t = toast('Importando...', 'loading');
+      try{
+        await api.saidas.importarCSV(filePaths[0]);
+        toast('Importação concluída!', 'success');
+        await carregar();
+      } catch(err:any){
+        toast(`Erro na importação: ${err.message||err}`, 'error');
+      } finally { dismiss(t); }
     }
   }
 
   async function exportarCSV(){
-    const r = await api.saidas.exportarCSV();
-    alert(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.');
+    const t = toast('Exportando...', 'loading');
+    try{
+      const r = await api.saidas.exportarCSV();
+      toast(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.', r && !r.canceled ? 'success' : 'error');
+    } catch(err:any){
+      toast(`Erro na exportação: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   return (

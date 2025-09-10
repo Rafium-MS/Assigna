@@ -4,6 +4,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { api } from '../services/api';
 import type { Designacao } from '../../../models';
+import { useToast } from './ui/toast';
 
 type EventType = {
   id: string;
@@ -15,6 +16,7 @@ type EventType = {
 
 export default function CalendarPage(){
   const [events, setEvents] = useState<EventType[]>([]);
+  const { toast, dismiss } = useToast();
 
   const carregarEventos = useCallback(async ()=>{
     const dados: Designacao[] = await api.designacoes.listar();
@@ -31,6 +33,7 @@ export default function CalendarPage(){
 
   async function atualizarDesignacao(e:EventDropArg|EventResizeDoneArg){
     const ev = e.event;
+    const t = toast('Atualizando...', 'loading');
     try{
       await api.designacoes.editar(
         Number(ev.id),
@@ -39,11 +42,11 @@ export default function CalendarPage(){
         ev.startStr,
         ev.endStr
       );
-      alert('Designação atualizada!');
+      toast('Designação atualizada!', 'success');
     } catch(err:any){
-      alert(`Erro ao atualizar: ${err.message||err}`);
+      toast(`Erro ao atualizar: ${err.message||err}`, 'error');
       ev.revert(); // desfaz se erro
-    }
+    } finally { dismiss(t); }
   }
 
   return (

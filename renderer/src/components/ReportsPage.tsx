@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 import type { Designacao, Saida, Territorio } from '../../../models';
 import ReportsTable from './ReportsTable';
+import { useToast } from './ui/toast';
 
 function formatBR(iso:string){
   const d = new Date(iso);
@@ -26,6 +27,7 @@ export default function ReportsPage(){
     const fim = dataFim ? formatBR(dataFim) : '';
     return `${ini} - ${fim}`.trim();
   }, [dataIni, dataFim]);
+  const { toast, dismiss } = useToast();
 
   useEffect(()=>{ // carregar dados e filtros
     (async ()=>{
@@ -64,15 +66,23 @@ export default function ReportsPage(){
       devolucao:  formatBR(item.data_devolucao),
     }));
 
-    await api.pdf.gerarRelatorio(dados, periodoHuman);
-    // aqui você já mostra toast no main; mantive simples
-    alert('PDF gerado (Relatório).');
+    const t = toast('Gerando PDF...', 'loading');
+    try {
+      await api.pdf.gerarRelatorio(dados, periodoHuman);
+      toast('PDF gerado (Relatório).', 'success');
+    } catch(err:any){
+      toast(`Erro ao gerar PDF: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   async function exportarPDFSimples(){
-    // mapeia seu gerarPDF() atual (pdf.gerar('Relatorio')). :contentReference[oaicite:7]{index=7}
-    await api.pdf.gerar('Relatorio');
-    alert('PDF simples gerado.');
+    const t = toast('Gerando PDF...', 'loading');
+    try {
+      await api.pdf.gerar('Relatorio');
+      toast('PDF simples gerado.', 'success');
+    } catch(err:any){
+      toast(`Erro ao gerar PDF: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   function gerarFormularioS13(){

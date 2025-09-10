@@ -3,6 +3,8 @@ import { api } from '../services/api';
 import type { Territorio, Endereco } from '../../../models';
 import TerritoriosTable from './TerritoriosTable';
 import HistoricoTerritorio from './HistoricoTerritorio';
+import { useToast } from './ui/toast';
+import { useConfirm } from './ui/confirm-dialog';
 
 export default function TerritoriosPage(){
   const [lista, setLista] = useState<Territorio[]>([]);
@@ -12,6 +14,8 @@ export default function TerritoriosPage(){
   const [lat, setLat] = useState<string>('');
   const [lon, setLon] = useState<string>('');
   const [edit, setEdit] = useState<Territorio|null>(null);
+  const { toast, dismiss } = useToast();
+  const confirm = useConfirm();
 
   async function carregar(){ setLista(await api.territorios.listar()); }
   useEffect(()=>{ carregar(); }, []);
@@ -21,19 +25,23 @@ export default function TerritoriosPage(){
   }
 
   async function adicionarOuSalvar(){
-    if (!descricao.trim()){ alert('Preencha a descrição.'); return; }
+    if (!descricao.trim()){ toast('Preencha a descrição.', 'error'); return; }
     const endereco:Endereco[] = rua ? [{ rua, numero }] : [];
     const nlat = lat.trim()==='' ? null : Number(lat);
     const nlon = lon.trim()==='' ? null : Number(lon);
-
-    if (edit){
-      await api.territorios.editar(edit.id, descricao.trim(), isNaN(nlat as any)?null:nlat, isNaN(nlon as any)?null:nlon, endereco);
-      alert('Território atualizado!');
-    } else {
-      await api.territorios.adicionar(descricao.trim(), isNaN(nlat as any)?null:nlat, isNaN(nlon as any)?null:nlon, endereco);
-      alert('Território adicionado!');
-    }
-    resetForm(); await carregar();
+    const t = toast(edit ? 'Atualizando...' : 'Adicionando...', 'loading');
+    try{
+      if (edit){
+        await api.territorios.editar(edit.id, descricao.trim(), isNaN(nlat as any)?null:nlat, isNaN(nlon as any)?null:nlon, endereco);
+        toast('Território atualizado!', 'success');
+      } else {
+        await api.territorios.adicionar(descricao.trim(), isNaN(nlat as any)?null:nlat, isNaN(nlon as any)?null:nlon, endereco);
+        toast('Território adicionado!', 'success');
+      }
+      resetForm(); await carregar();
+    } catch(err:any){
+      toast(`Erro: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   function onEditar(t:Territorio){
@@ -46,24 +54,40 @@ export default function TerritoriosPage(){
   }
 
   async function onDeletar(id:number){
-    if (!confirm('Tem certeza que deseja excluir este território?')) return;
-    await api.territorios.deletar(id);
-    alert('Território excluído!');
-    await carregar();
+    const ok = await confirm({ title: 'Excluir território?', description: 'Esta ação não pode ser desfeita.' });
+    if (!ok) return;
+    const t = toast('Excluindo...', 'loading');
+    try{
+      await api.territorios.deletar(id);
+      toast('Território excluído!', 'success');
+      await carregar();
+    } catch(err:any){
+      toast(`Erro ao excluir: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   async function importarCSV(){
     const { canceled, filePaths } = await api.app.abrirDialogoCSV();
     if (!canceled && filePaths?.length){
-      await api.territorios.importarCSV(filePaths[0]);
-      alert('Importação concluída!');
-      await carregar();
+      const t = toast('Importando...', 'loading');
+      try{
+        await api.territorios.importarCSV(filePaths[0]);
+        toast('Importação concluída!', 'success');
+        await carregar();
+      } catch(err:any){
+        toast(`Erro na importação: ${err.message||err}`, 'error');
+      } finally { dismiss(t); }
     }
   }
 
   async function exportarCSV(){
-    const r = await api.territorios.exportarCSV();
-    alert(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.');
+    const t = toast('Exportando...', 'loading');
+    try{
+      const r = await api.territorios.exportarCSV();
+      toast(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.', r && !r.canceled ? 'success' : 'error');
+    } catch(err:any){
+      toast(`Erro na exportação: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   return (
