@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button } from '@/components/ui/button'
+import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 const DesignacoesPage = React.lazy(() => import('@/components/DesignacoesPage'))
 const SaidasPage = React.lazy(() => import('@/components/SaidasPage'))
@@ -9,12 +10,12 @@ const ReportsPage = React.lazy(() => import('@/components/ReportsPage'))
 const SugestoesPage = React.lazy(() => import('@/components/SugestoesPage'))
 
 const TABS = [
-  { id: 'designacoes', label: 'Designações', Comp: DesignacoesPage },
-  { id: 'saidas', label: 'Saídas', Comp: SaidasPage },
-  { id: 'territorios', label: 'Territórios', Comp: TerritoriosPage },
-  { id: 'calendario', label: 'Calendário', Comp: CalendarPage },
-  { id: 'relatorios', label: 'Relatórios', Comp: ReportsPage },
-  { id: 'sugestoes', label: 'Sugestões', Comp: SugestoesPage },
+  { id: 'designacoes', label: 'Designações', path: '/designacoes', Comp: DesignacoesPage },
+  { id: 'saidas', label: 'Saídas', path: '/saidas', Comp: SaidasPage },
+  { id: 'territorios', label: 'Territórios', path: '/territorios', Comp: TerritoriosPage },
+  { id: 'calendario', label: 'Calendário', path: '/calendario', Comp: CalendarPage },
+  { id: 'relatorios', label: 'Relatórios', path: '/relatorios', Comp: ReportsPage },
+  { id: 'sugestoes', label: 'Sugestões', path: '/sugestoes', Comp: SugestoesPage },
 ]
 
 class ErrorBoundary extends React.Component {
@@ -39,8 +40,7 @@ class ErrorBoundary extends React.Component {
 }
 
 export default function App() {
-  const [tab, setTab] = React.useState('designacoes')
-  const Active = (TABS.find(t => t.id === tab)?.Comp) || DesignacoesPage
+  const location = useLocation()
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
@@ -50,11 +50,11 @@ export default function App() {
           <nav className="flex gap-2 flex-wrap">
             {TABS.map(t => (
               <Button
+                asChild
                 key={t.id}
-                variant={t.id === tab ? 'default' : 'secondary'}
-                onClick={() => setTab(t.id)}
+                variant={location.pathname === t.path ? 'default' : 'secondary'}
               >
-                {t.label}
+                <Link to={t.path}>{t.label}</Link>
               </Button>
             ))}
           </nav>
@@ -64,7 +64,12 @@ export default function App() {
       <main className="max-w-6xl mx-auto px-4 py-6">
         <React.Suspense fallback={<div>Carregando...</div>}>
           <ErrorBoundary>
-            <Active />
+            <Routes>
+              {TABS.map(t => (
+                <Route key={t.id} path={t.path} element={<t.Comp />} />
+              ))}
+              <Route path="*" element={<Navigate to="/designacoes" replace />} />
+            </Routes>
           </ErrorBoundary>
         </React.Suspense>
       </main>
