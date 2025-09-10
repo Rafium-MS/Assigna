@@ -62,8 +62,8 @@ npm -v
 ### Installation
 
 ```bash
-git clone https://github.com/Rafium-MS/designacoes_territorios.git
-cd designacoes_territorios
+git clone https://github.com/Rafium-MS/Assigna.git
+cd Assigna
 npm install
 npm run rebuild
 ```
@@ -78,6 +78,7 @@ export ADMIN_PASSWORD=yourStrongPassword
 
 ```bash
 npm install
+npm run lint
 npm test
 ```
 
@@ -118,6 +119,8 @@ You can also run the scraper inside the application on the **Coleta** screen, wh
 ## 🤝 Contributing
 
 Feel free to fork and improve. Pull requests are welcome!
+
+See [AGENTS.md](./AGENTS.md) for contribution guidelines and required checks.
 
 ## ⚖️ License
 
