@@ -1,7 +1,8 @@
 process.env.DB_PATH = ':memory:';
+require('../register-ts');
 const test = require('node:test');
 const assert = require('node:assert');
-const { adicionar, listar, deletar } = require('../services/saidas');
+const { adicionar, listar, deletar } = require('../services/saidas.ts');
 const db = require('../db');
 
 test('adiciona e lista saidas', async () => {
