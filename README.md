@@ -48,6 +48,25 @@ Built with Electron, Node.js, and SQLite, the app is fully offline and uses a lo
 - ✅ **Assignment History**: See which group handled each territory in the last 12 months.
 - ✅ **Data Collection**: Trigger the territory scraper from the app and store the results.
 
+## 🏗️ Project Structure
+
+The codebase is organized in a simple layered architecture:
+
+- `db/` – low level database helpers
+- `models/` – TypeScript models
+- `repositories/` – data access layer (e.g. `designacoesRepository`)
+- `services/` – business logic
+- `utils/` – shared utilities
+
+The previous `controllers/` layer was removed in favor of direct service calls.
+
+Repositories expose contracts instead of raw functions. Example:
+
+```ts
+import { designacoesRepository } from './repositories/designacoesRepository';
+await designacoesRepository.findConflitos(1, '2024-01-01', '2024-02-01');
+```
+
 ## 🚀 Getting Started
 
 ### Prerequisites
