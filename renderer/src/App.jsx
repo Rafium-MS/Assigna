@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from '@/components/ui/button'
 import { Link, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
+const LandingPage = React.lazy(() => import('@/components/LandingPage'))
 const DesignacoesPage = React.lazy(() => import('@/components/DesignacoesPage'))
 const SaidasPage = React.lazy(() => import('@/components/SaidasPage'))
 const TerritoriosPage = React.lazy(() => import('@/components/TerritoriosPage'))
@@ -46,7 +47,7 @@ export default function App() {
     <div className="min-h-dvh bg-background text-foreground">
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold">Assigna</h1>
+          <h1 className="text-xl font-semibold"><Link to="/">Assigna</Link></h1>
           <nav className="flex gap-2 flex-wrap">
             {TABS.map(t => (
               <Button
@@ -65,10 +66,11 @@ export default function App() {
         <React.Suspense fallback={<div>Carregando...</div>}>
           <ErrorBoundary>
             <Routes>
+              <Route path="/" element={<LandingPage />} />
               {TABS.map(t => (
                 <Route key={t.id} path={t.path} element={<t.Comp />} />
               ))}
-              <Route path="*" element={<Navigate to="/designacoes" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ErrorBoundary>
         </React.Suspense>
