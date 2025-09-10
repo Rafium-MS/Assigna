@@ -11,9 +11,10 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      // Para protótipos é mais simples; considere usar preload + contextIsolation em produção
-      nodeIntegration: true,
-      contextIsolation: false,
+      // Usa preload com contextIsolation para expor APIs seguras ao renderer
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
