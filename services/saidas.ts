@@ -28,7 +28,7 @@ export async function deletar(id: number) {
 // Importa CSV simples com colunas: nome,dia_semana (com ou sem cabeçalho)
 export async function importarCSV(filePath: string) {
   if (!filePath) throw new Error('Caminho do arquivo CSV não informado');
-  const content = fs.readFileSync(filePath, 'utf8');
+  const content = await fs.promises.readFile(filePath, 'utf8');
   const lines = content.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   if (lines.length === 0) return { imported: 0 };
 
@@ -60,7 +60,7 @@ export async function exportarCSV() {
     filters: [{ name: 'CSV', extensions: ['csv'] }],
   });
   if (res.canceled) return { canceled: true };
-  fs.writeFileSync(res.filePath, csv, 'utf8');
+  await fs.promises.writeFile(res.filePath!, csv, 'utf8');
   return { canceled: false, filePath: res.filePath };
 }
 
