@@ -3,6 +3,8 @@ import { api } from '../services/api';
 import type { Designacao, Territorio, Saida } from '../../../models';
 import DesignacaoTable from './DesignacaoTable';
 import Pagination from './Pagination';
+import { useToast } from './ui/toast';
+import { useConfirm } from './ui/confirm-dialog';
 
 type SortKey = keyof Pick<Designacao,'id'|'territorio'|'saida'|'dia_semana'|'data_designacao'|'data_devolucao'>;
 
@@ -22,6 +24,8 @@ export default function DesignacoesPage() {
   const [dataDesignacao, setDataDesignacao] = useState('');
   const [dataDevolucao, setDataDevolucao] = useState('');
   const [editId, setEditId] = useState<number|null>(null);
+  const { toast, dismiss } = useToast();
+  const confirm = useConfirm();
 
   const totalPages = Math.max(1, Math.ceil(designacoes.length / itensPorPagina));
   const start = (page - 1) * itensPorPagina;
@@ -61,18 +65,23 @@ export default function DesignacoesPage() {
 
   async function onSubmit() {
     if (!territorioId || !saidaId || !dataDesignacao || !dataDevolucao) {
-      alert('Preencha todos os campos.'); return;
+      toast('Preencha todos os campos.', 'error'); return;
     }
-    if (editId) {
-      await api.designacoes.editar(editId, Number(territorioId), Number(saidaId), dataDesignacao, dataDevolucao);
-      alert('Designação atualizada!');
-    } else {
-      await api.designacoes.adicionar(Number(territorioId), Number(saidaId), dataDesignacao, dataDevolucao);
-      alert('Designação adicionada!');
-    }
-    const ds = await api.designacoes.listar();
-    setDesignacoes(ds);
-    resetForm();
+    const t = toast(editId ? 'Atualizando...' : 'Adicionando...', 'loading');
+    try {
+      if (editId) {
+        await api.designacoes.editar(editId, Number(territorioId), Number(saidaId), dataDesignacao, dataDevolucao);
+        toast('Designação atualizada!', 'success');
+      } else {
+        await api.designacoes.adicionar(Number(territorioId), Number(saidaId), dataDesignacao, dataDevolucao);
+        toast('Designação adicionada!', 'success');
+      }
+      const ds = await api.designacoes.listar();
+      setDesignacoes(ds);
+      resetForm();
+    } catch(err:any){
+      toast(`Erro: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   async function onEditar(id:number) {
@@ -86,25 +95,41 @@ export default function DesignacoesPage() {
   }
 
   async function onDeletar(id:number) {
-    if (!confirm('Deseja realmente excluir esta designação?')) return;
-    await api.designacoes.deletar(id);
-    alert('Designação excluída!');
-    const ds = await api.designacoes.listar();
-    setDesignacoes(ds);
+    const ok = await confirm({ title:'Excluir designação?', description:'Esta ação não pode ser desfeita.' });
+    if (!ok) return;
+    const t = toast('Excluindo...', 'loading');
+    try{
+      await api.designacoes.deletar(id);
+      toast('Designação excluída!', 'success');
+      const ds = await api.designacoes.listar();
+      setDesignacoes(ds);
+    } catch(err:any){
+      toast(`Erro ao excluir: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   async function onImportarCSV() {
     const { canceled, filePaths } = await api.app.abrirDialogoCSV();
     if (!canceled && filePaths?.length) {
-      await api.designacoes.importarCSV(filePaths[0]);
-      alert('Importação concluída!');
-      setDesignacoes(await api.designacoes.listar());
+      const t = toast('Importando...', 'loading');
+      try{
+        await api.designacoes.importarCSV(filePaths[0]);
+        toast('Importação concluída!', 'success');
+        setDesignacoes(await api.designacoes.listar());
+      } catch(err:any){
+        toast(`Erro na importação: ${err.message||err}`, 'error');
+      } finally { dismiss(t); }
     }
   }
 
   async function onExportarCSV() {
-    const r = await api.designacoes.exportarCSV();
-    alert(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.');
+    const t = toast('Exportando...', 'loading');
+    try{
+      const r = await api.designacoes.exportarCSV();
+      toast(r && !r.canceled ? 'Exportação concluída!' : 'Exportação cancelada.', r && !r.canceled ? 'success' : 'error');
+    } catch(err:any){
+      toast(`Erro na exportação: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   // geração de texto por período (mesma lógica, agora em React)
@@ -117,9 +142,9 @@ export default function DesignacoesPage() {
   }
 
   function gerarTexto() {
-    if (!filtroInicio || !filtroFim) { alert('Selecione o período desejado.'); return; }
+    if (!filtroInicio || !filtroFim) { toast('Selecione o período desejado.', 'error'); return; }
     const filtradas = designacoes.filter(d => d.data_designacao >= filtroInicio && d.data_designacao <= filtroFim);
-    if (!filtradas.length) { setTexto(''); alert('Nenhuma designação encontrada no período.'); return; }
+    if (!filtradas.length) { setTexto(''); toast('Nenhuma designação encontrada no período.', 'error'); return; }
     const linhas = filtradas.map(d =>
       `📍 Território: ${d.territorio}\n🚶 Saída: ${d.saida} (${d.dia_semana})\n📅 De ${formatBR(d.data_designacao)} até ${formatBR(d.data_devolucao)}`
     );

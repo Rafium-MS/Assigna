@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 import type { Designacao, Saida, Territorio } from '../../../models';
 import SugestoesTable, { Sugestao } from './SugestoesTable';
+import { useToast } from './ui/toast';
 
 const MESES_LIMITE = 5;
 
@@ -13,6 +14,7 @@ export default function SugestoesPage() {
   const [designacoes, setDesignacoes] = useState<Designacao[]>([]);
   const [sugestoes, setSugestoes] = useState<Sugestao[]>([]);
   const [aplicandoId, setAplicandoId] = useState<string|null>(null);
+  const { toast, dismiss } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -40,7 +42,7 @@ export default function SugestoesPage() {
   }
 
   function gerar() {
-    if (!periodoValido) { alert('Selecione as datas de designação e devolução.'); return; }
+    if (!periodoValido) { toast('Selecione as datas de designação e devolução.', 'error'); return; }
 
     // Último uso por saida-territorio (data_devolucao mais recente)
     const ultimoUso = new Map<string, Date>();
@@ -88,18 +90,19 @@ export default function SugestoesPage() {
 
   async function aplicar(saidaId:number, territorioId:number) {
     if (!periodoValido) return;
+    const t = toast('Aplicando designação...', 'loading');
     try {
       setAplicandoId(String(saidaId));
       await api.designacoes.adicionar(Number(territorioId), Number(saidaId), dataDesignacao, dataDevolucao);
-      // Recarrega base e regenera
       const ds = await api.designacoes.listar();
       setDesignacoes(ds);
       gerar();
-      alert('Designação aplicada!');
+      toast('Designação aplicada!', 'success');
     } catch (err:any) {
-      alert(`Erro ao aplicar: ${err?.message ?? String(err)}`);
+      toast(`Erro ao aplicar: ${err?.message ?? String(err)}`,'error');
     } finally {
       setAplicandoId(null);
+      dismiss(t);
     }
   }
 

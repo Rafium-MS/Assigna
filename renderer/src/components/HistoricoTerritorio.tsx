@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 import type { Territorio, HistoricoLinha } from '../../../models';
+import { useToast } from './ui/toast';
 
 function formatBR(iso:string){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return `${d}/${m}/${y}`; }
 
@@ -11,6 +12,7 @@ export default function HistoricoTerritorio(){
   const [dataVisita, setDataVisita] = useState('');
   const [visitas, setVisitas] = useState<{data_visita:string}[]>([]);
   const [percentStr, setPercentStr] = useState('0%');
+  const { toast, dismiss } = useToast();
 
   useEffect(()=>{ (async ()=>{
     const ts = await api.territorios.listar();
@@ -37,11 +39,16 @@ export default function HistoricoTerritorio(){
   }
 
   async function registrar(){
-    if (!hasId || !dataVisita){ alert('Selecione o território e a data.'); return; }
-    await api.visitas.registrar(Number(territorioId), dataVisita);
-    await carregarHistorico();
-    setDataVisita('');
-    alert('Visita registrada!');
+    if (!hasId || !dataVisita){ toast('Selecione o território e a data.', 'error'); return; }
+    const t = toast('Registrando...', 'loading');
+    try{
+      await api.visitas.registrar(Number(territorioId), dataVisita);
+      await carregarHistorico();
+      setDataVisita('');
+      toast('Visita registrada!', 'success');
+    } catch(err:any){
+      toast(`Erro ao registrar: ${err.message||err}`, 'error');
+    } finally { dismiss(t); }
   }
 
   return (
