@@ -19,7 +19,7 @@ import { StatusBadge } from "./components/Badge";
   returned?: boolean;
 };
  type SuggestionRuleConfig = {
-  avoidRepeatMonths: number; // avoid repeating same territory for the same exit within N months
+  avoidLastAssignments: number; // avoid repeating same territory within last N assignments
   defaultDurationDays: number; // default assignment length
  };
 
@@ -32,7 +32,11 @@ import { StatusBadge } from "./components/Badge";
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0,10);
  };
- const monthsDiff = (a: Date, b: Date) => (a.getFullYear()-b.getFullYear())*12 + (a.getMonth()-b.getMonth());
+ const nextDateForDay = (baseIso: string, day: number) => {
+  const d = new Date(baseIso + 'T00:00:00');
+  while (d.getDay() !== day) d.setDate(d.getDate() + 1);
+  return d.toISOString().slice(0,10);
+ };
 
  // ---------- Local Storage Hook ----------
  function useLocalStorage<T>(key: string, initial: T) {
@@ -56,7 +60,7 @@ function useStore() {
   const [territories, setTerritories] = useLocalStorage<Territory[]>("tm.territories", []);
   const [exits, setExits] = useLocalStorage<FieldExit[]>("tm.exits", []);
   const [assignments, setAssignments] = useLocalStorage<Assignment[]>("tm.assignments", []);
-  const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", { avoidRepeatMonths: 2, defaultDurationDays: 30 });
+  const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", { avoidLastAssignments: 5, defaultDurationDays: 30 });
 
   // CRUD helpers
   const addTerritory = (t: Omit<Territory, 'id'>) => {
@@ -364,14 +368,39 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
  }
 
  const AssignmentsPage: React.FC = () => {
-  const { territories, exits, assignments, addAssignment, delAssignment, updateAssignment } = useStoreContext();
+  const { territories, exits, assignments, addAssignment, delAssignment, updateAssignment, rules } = useStoreContext();
   const confirm = useConfirm();
   const toast = useToast();
   const [territoryId, setTerritoryId] = useState<ID>("");
   const [exitId, setExitId] = useState<ID>("");
   const todayIso = new Date().toISOString().slice(0,10);
   const [startDate, setStartDate] = useState<string>(todayIso);
-  const [endDate, setEndDate] = useState<string>(addDays(todayIso, 30));
+  const [endDate, setEndDate] = useState<string>(addDays(todayIso, rules.defaultDurationDays));
+
+  const generateSuggestion = () => {
+    const exit = exits.find(e => e.id === exitId);
+    if (!exit) { toast.error('Selecione uma saída'); return; }
+    const recent = new Set([...assignments]
+      .sort((a,b)=> b.startDate.localeCompare(a.startDate))
+      .slice(0, rules.avoidLastAssignments)
+      .map(a => a.territoryId));
+    const candidates = territories
+      .filter(t => !recent.has(t.id))
+      .sort((t1, t2) => {
+        const d1 = getLastAssignmentDate(t1.id, assignments);
+        const d2 = getLastAssignmentDate(t2.id, assignments);
+        if (!d1 && d2) return -1;
+        if (!d2 && d1) return 1;
+        if (!d1 && !d2) return 0;
+        return d1.getTime() - d2.getTime();
+      });
+    const chosen = candidates[0];
+    if (!chosen) { toast.error('Sem territórios disponíveis'); return; }
+    const s = nextDateForDay(startDate, exit.dayOfWeek);
+    setTerritoryId(chosen.id);
+    setStartDate(s);
+    setEndDate(addDays(s, rules.defaultDurationDays));
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -405,7 +434,8 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
             <Label>Data Devolução</Label>
             <Input type="date" value={endDate} onChange={e=>setEndDate(e.target.value)} />
           </div>
-          <div className="flex items-end justify-end">
+          <div className="flex items-end justify-end gap-2">
+            <Button type="button" onClick={generateSuggestion} className="bg-blue-600 text-white">Gerar sugestão</Button>
             <Button type="submit" className="bg-black text-white">Salvar</Button>
           </div>
         </form>
@@ -453,9 +483,9 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
  // ---------- Suggestions Engine ----------
  type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate: string };
 
- function getLastAssignmentDateFor(territoryId: ID, fieldExitId: ID, assignments: Assignment[]): Date | undefined {
+ function getLastAssignmentDate(territoryId: ID, assignments: Assignment[]): Date | undefined {
   const arr = assignments
-    .filter(a => a.territoryId === territoryId && a.fieldExitId === fieldExitId)
+    .filter(a => a.territoryId === territoryId)
     .map(a => new Date(a.startDate + 'T00:00:00'))
     .sort((a,b)=> b.getTime()-a.getTime());
   return arr[0];
@@ -466,36 +496,34 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
   const toast = useToast();
   const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
-  const [avoidMonths, setAvoidMonths] = useState<number>(rules.avoidRepeatMonths);
+  const [avoidCount, setAvoidCount] = useState<number>(rules.avoidLastAssignments);
   const [generated, setGenerated] = useState<Suggestion[] | null>(null);
 
   const generate = () => {
     if (territories.length === 0 || exits.length === 0) { setGenerated([]); return; }
     const suggestions: Suggestion[] = [];
-    const start = new Date(startDate + 'T00:00:00');
-
-    const rankedForExit = (exitId: ID) => {
-      const candidates = territories.filter(t => {
-        const last = getLastAssignmentDateFor(t.id, exitId, assignments);
-        if (!last) return true;
-        const diff = (start.getFullYear()-last.getFullYear())*12 + (start.getMonth()-last.getMonth());
-        return diff >= avoidMonths;
-      });
-      // Sort by oldest last assignment (undefined first)
-      return [...candidates].sort((t1, t2) => {
-        const d1 = getLastAssignmentDateFor(t1.id, exitId, assignments);
-        const d2 = getLastAssignmentDateFor(t2.id, exitId, assignments);
-        if (!d1 && d2) return -1;
-        if (!d2 && d1) return 1;
-        if (!d1 && !d2) return 0;
-        return (d1!.getTime() - d2!.getTime());
-      });
-    };
+    const recent = new Set([...assignments]
+      .sort((a,b)=> b.startDate.localeCompare(a.startDate))
+      .slice(0, avoidCount)
+      .map(a => a.territoryId));
+    const used = new Set<ID>();
 
     exits.forEach(exit => {
-      const ranked = rankedForExit(exit.id);
-      if (ranked[0]) {
-        suggestions.push({ fieldExitId: exit.id, territoryId: ranked[0].id, startDate, endDate: addDays(startDate, duration) });
+      const candidates = territories
+        .filter(t => !recent.has(t.id) && !used.has(t.id))
+        .sort((t1, t2) => {
+          const d1 = getLastAssignmentDate(t1.id, assignments);
+          const d2 = getLastAssignmentDate(t2.id, assignments);
+          if (!d1 && d2) return -1;
+          if (!d2 && d1) return 1;
+          if (!d1 && !d2) return 0;
+          return d1.getTime() - d2.getTime();
+        });
+      const chosen = candidates[0];
+      if (chosen) {
+        used.add(chosen.id);
+        const s = nextDateForDay(startDate, exit.dayOfWeek);
+        suggestions.push({ fieldExitId: exit.id, territoryId: chosen.id, startDate: s, endDate: addDays(s, duration) });
       }
     });
 
@@ -511,7 +539,7 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
     toast.success('Designações aplicadas');
   };
 
-  const saveRuleDefaults = () => setRules({ avoidRepeatMonths: avoidMonths, defaultDurationDays: duration });
+  const saveRuleDefaults = () => setRules({ avoidLastAssignments: avoidCount, defaultDurationDays: duration });
 
   return (
     <div className="grid gap-4">
@@ -526,8 +554,8 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
             <Input type="number" min={1} value={duration} onChange={e=>setDuration(Number(e.target.value) || 1)} />
           </div>
           <div className="grid gap-1">
-            <Label>Evitar repetição por (meses)</Label>
-            <Input type="number" min={0} value={avoidMonths} onChange={e=>setAvoidMonths(Number(e.target.value) || 0)} />
+            <Label>Evitar repetição (últimas N)</Label>
+            <Input type="number" min={0} value={avoidCount} onChange={e=>setAvoidCount(Number(e.target.value) || 0)} />
           </div>
           <div className="flex items-end"><Button onClick={generate} className="bg-black text-white w-full">Gerar Sugestões</Button></div>
         </div>
