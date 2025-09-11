@@ -51,6 +51,7 @@ Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminh
 ![Tela inicial](docs/screenshots/home.png)
 ![Territorios](docs/screenshots/territorios.png)
 ![Sugestoes](docs/screenshots/sugestoes.png)
+![Designacoes](docs/screenshots/designacoes.png)
 
 ## Suporte
 Abra uma issue no [rastreador de problemas](../../issues) para relatar bugs ou solicitar recursos.
