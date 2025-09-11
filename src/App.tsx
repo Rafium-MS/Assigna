@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useLayoutEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -215,11 +215,16 @@ const ImagePicker: React.FC<{ value?: string; onChange: (dataUrl?: string) => vo
  };
 
 function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; setTab:(t:string)=>void}){
- const [dark, setDark] = useState<boolean>(()=> window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
- useEffect(()=>{
+ const [dark, setDark] = useState<boolean>(()=>{
+    const stored = localStorage.getItem('dark');
+    if(stored !== null) return JSON.parse(stored);
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+ useLayoutEffect(()=>{
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.classList.add('min-h-full');
     document.body.classList.add('bg-neutral-50','dark:bg-neutral-950');
+    localStorage.setItem('dark', JSON.stringify(dark));
   },[dark]);
   return (
     <div className="min-h-screen text-neutral-900 dark:text-neutral-100 flex">
