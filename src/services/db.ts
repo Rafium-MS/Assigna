@@ -3,10 +3,19 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
+import type { Street } from '../types/street';
+import type { PropertyType } from '../types/property-type';
+import type { Address } from '../types/address';
+import type { DerivedTerritory } from '../types/derived-territory';
 
 export interface Metadata {
   key: string;
   value: number;
+}
+
+interface DerivedTerritoryAddress {
+  derivedTerritoryId: number;
+  addressId: number;
 }
 
 class AppDB extends Dexie {
@@ -14,24 +23,38 @@ class AppDB extends Dexie {
   saidas!: Table<Saida, string>;
   designacoes!: Table<Designacao, string>;
   sugestoes!: Table<Sugestao, string>;
+  streets!: Table<Street, number>;
+  propertyTypes!: Table<PropertyType, number>;
+  addresses!: Table<Address, number>;
+  derivedTerritories!: Table<DerivedTerritory, number>;
+  derivedTerritoryAddresses!: Table<DerivedTerritoryAddress, [number, number]>;
   metadata!: Table<Metadata, string>;
 
   constructor() {
     super('assigna');
-    this.version(1).stores({
+    this.version(2).stores({
       territorios: 'id, nome',
       saidas: 'id, nome, diaDaSemana',
       designacoes: 'id, territorioId, saidaId',
       sugestoes: '[territorioId+saidaId]',
-      metadata: 'key'
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]'
     });
+    this.propertyTypes = this.table('property_types');
+    this.derivedTerritories = this.table('derived_territories');
+    this.derivedTerritoryAddresses = this.table('derived_territory_addresses');
   }
 }
 
 export const db = new AppDB();
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export async function getSchemaVersion(): Promise<number> {
+  await db.open();
   const meta = await db.metadata.get('schemaVersion');
   return meta?.value ?? 0;
 }
@@ -42,6 +65,9 @@ export async function setSchemaVersion(version: number): Promise<void> {
 
 export async function migrate(): Promise<void> {
   const current = await getSchemaVersion();
+  if (current < 2) {
+    // no data migrations necessary yet
+  }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
   }
