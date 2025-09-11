@@ -102,6 +102,20 @@ function useStore() {
     toast.success('Saída atualizada');
   };
 
+  const notifyReturn = (territoryName: string) => {
+    const endpoint = localStorage.getItem('pushEndpoint');
+    if (!endpoint) return;
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        endpoint,
+        title: 'Território devolvido',
+        body: `${territoryName} foi devolvido`,
+      }),
+    }).catch(() => {});
+  };
+
   const addAssignment = (a: Omit<Assignment,'id'>) => {
     setAssignments(prev => [{ id: uid(), returned:false, ...a }, ...prev]);
     toast.success('Designação salva');
@@ -111,7 +125,17 @@ function useStore() {
     toast.success('Designação removida');
   };
   const updateAssignment = (id: ID, a: Omit<Assignment,'id'>) => {
-    setAssignments(prev => prev.map(x => (x.id === id ? { ...x, ...a } : x)));
+    setAssignments(prev => prev.map(x => {
+      if (x.id === id) {
+        const updated = { ...x, ...a };
+        if (!x.returned && updated.returned) {
+          const terr = territories.find(t => t.id === x.territoryId);
+          notifyReturn(terr ? terr.name : 'Território');
+        }
+        return updated;
+      }
+      return x;
+    }));
     toast.success('Designação atualizada');
   };
 
