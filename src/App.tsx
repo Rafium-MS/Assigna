@@ -7,6 +7,7 @@ import { useToast } from "./components/Toast";
 import { useConfirm } from "./components/ConfirmDialog";
 import { StatusBadge } from "./components/Badge";
 import { Modal } from "./components/Modal";
+import { SchedulerControls } from "./components/SchedulerControls";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -803,6 +804,7 @@ export default function App(){
         {tab==='assignments' && <AssignmentsPage />}
         {tab==='calendar' && <CalendarPage />}
         {tab==='suggestions' && <SuggestionsPage />}
+        <SchedulerControls />
         <div className="flex justify-end">
           <Button onClick={async()=>{ if(await confirm('Limpar TODOS os dados?')) store.clearAll(); }} className="mt-4 bg-red-600 text-white">Limpar TODOS os dados</Button>
         </div>
