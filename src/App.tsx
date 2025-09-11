@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -55,15 +58,21 @@ import React, { useEffect, useState } from "react";
     setTerritories(prev => prev.filter(t => t.id !== id));
     setAssignments(prev => prev.filter(a => a.territoryId !== id));
   };
+  const updateTerritory = (id: ID, t: Omit<Territory, 'id'>) =>
+    setTerritories(prev => prev.map(x => (x.id === id ? { ...x, ...t } : x)));
 
   const addExit = (e: Omit<FieldExit, 'id'>) => setExits(prev => [{ id: uid(), ...e }, ...prev]);
   const delExit = (id: ID) => {
     setExits(prev => prev.filter(e => e.id !== id));
     setAssignments(prev => prev.filter(a => a.fieldExitId !== id));
   };
+  const updateExit = (id: ID, e: Omit<FieldExit, 'id'>) =>
+    setExits(prev => prev.map(x => (x.id === id ? { ...x, ...e } : x)));
 
   const addAssignment = (a: Omit<Assignment,'id'>) => setAssignments(prev => [{ id: uid(), ...a }, ...prev]);
   const delAssignment = (id: ID) => setAssignments(prev => prev.filter(a => a.id !== id));
+  const updateAssignment = (id: ID, a: Omit<Assignment,'id'>) =>
+    setAssignments(prev => prev.map(x => (x.id === id ? { ...x, ...a } : x)));
 
   const clearAll = () => {
     if (confirm('Tem certeza que deseja limpar TODOS os dados?')) {
@@ -71,8 +80,8 @@ import React, { useEffect, useState } from "react";
     }
   };
 
-  return { territories, exits, assignments, rules, setRules, addTerritory, delTerritory, addExit, delExit, addAssignment, delAssignment, clearAll };
- }
+  return { territories, exits, assignments, rules, setRules, addTerritory, delTerritory, updateTerritory, addExit, delExit, updateExit, addAssignment, delAssignment, updateAssignment, clearAll };
+}
 
  // ---------- UI Primitives ----------
  const Card: React.FC<{ className?: string, title?: string, children?: React.ReactNode, actions?: React.ReactNode }>=({ className='', title, children, actions })=> (
@@ -169,57 +178,108 @@ import React, { useEffect, useState } from "react";
 
  // ---------- Pages ----------
  const TerritoriesPage: React.FC = () => {
-  const { territories, addTerritory, delTerritory } = useStoreContext();
-  const [name, setName] = useState("");
-  const [image, setImage] = useState<string | undefined>();
+  const { territories, addTerritory, delTerritory, updateTerritory } = useStoreContext();
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if(!name.trim()) return;
-    addTerritory({ name: name.trim(), image });
-    setName(""); setImage(undefined);
+  const territorySchema = z.object({
+    name: z.string().min(1, 'Nome obrigatório'),
+    image: z.string().optional(),
+  });
+  type TerritoryForm = z.infer<typeof territorySchema>;
+
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<TerritoryForm>({
+    resolver: zodResolver(territorySchema),
+    defaultValues: { name: '', image: undefined },
+  });
+  const [editingId, setEditingId] = useState<ID | null>(null);
+
+  const onSubmit = (data: TerritoryForm) => {
+    if (editingId) {
+      updateTerritory(editingId, data);
+    } else {
+      addTerritory(data);
+    }
+    reset();
+    setEditingId(null);
   };
+
+  const startEdit = (t: Territory) => {
+    setEditingId(t.id);
+    reset({ name: t.name, image: t.image });
+  };
+
+  const [search, setSearch] = useState('');
+  const [onlyWithImage, setOnlyWithImage] = useState(false);
+  const filtered = territories.filter(t =>
+    t.name.toLowerCase().includes(search.toLowerCase()) && (!onlyWithImage || t.image)
+  );
+  const pageSize = 5;
+  const [page, setPage] = useState(1);
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="grid gap-4">
-      <Card title="Cadastrar Território">
-        <form onSubmit={submit} className="grid md:grid-cols-3 gap-3">
+      <Card title={editingId ? 'Editar Território' : 'Cadastrar Território'}>
+        <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-3 gap-3">
           <div className="grid gap-1">
             <Label>Nome</Label>
-            <Input value={name} onChange={e=>setName(e.target.value)} placeholder="Ex.: Território 12 – Centro" />
+            <Input {...register('name')} placeholder="Ex.: Território 12 – Centro" />
+            {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
           </div>
           <div className="grid gap-1 md:col-span-2">
             <Label>Imagem (opcional)</Label>
-            <ImagePicker value={image} onChange={setImage} />
+            <ImagePicker value={watch('image')} onChange={v => setValue('image', v)} />
           </div>
-          <div className="md:col-span-3 flex justify-end">
-            <Button type="submit" className="bg-black text-white">Salvar Território</Button>
+          <div className="md:col-span-3 flex justify-end gap-2">
+            {editingId && <Button type="button" onClick={() => { reset(); setEditingId(null); }} className="bg-neutral-100">Cancelar</Button>}
+            <Button type="submit" className="bg-black text-white">{editingId ? 'Atualizar' : 'Salvar Território'}</Button>
           </div>
         </form>
       </Card>
 
-      <Card title={`Territórios (${territories.length})`}>
-        {territories.length === 0 ? (
+      <Card title={`Territórios (${filtered.length})`} actions={
+        <div className="flex gap-2 items-center">
+          <Input placeholder="Buscar..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }} className="max-w-xs" />
+          <label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={onlyWithImage} onChange={e => { setOnlyWithImage(e.target.checked); setPage(1); }} /> Com imagem</label>
+        </div>
+      }>
+        {filtered.length === 0 ? (
           <p className="text-neutral-500">Nenhum território cadastrado.</p>
         ) : (
-          <div className="grid md:grid-cols-3 gap-3">
-            {territories.map(t => (
-              <div key={t.id} className="rounded-xl border overflow-hidden bg-white dark:bg-neutral-950">
-                {t.image && <img src={t.image} alt={t.name} className="h-36 w-full object-cover"/>}
-                <div className="p-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{t.name}</p>
-                  </div>
-                  <Button onClick={()=>delTerritory(t.id)} className="bg-red-50 text-red-700">Excluir</Button>
-                </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left border-b"><th className="py-2">Nome</th><th>Imagem</th><th></th></tr>
+              </thead>
+              <tbody>
+                {paginated.map(t => (
+                  <tr key={t.id} className="border-b last:border-0">
+                    <td className="py-2">{t.name}</td>
+                    <td>{t.image ? <img src={t.image} alt={t.name} className="w-16 h-16 object-cover rounded-lg border" /> : '—'}</td>
+                    <td className="py-2 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button onClick={() => startEdit(t)} className="bg-neutral-100">Editar</Button>
+                        <Button onClick={() => delTerritory(t.id)} className="bg-red-50 text-red-700">Excluir</Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex justify-between items-center mt-3">
+              <span className="text-sm text-neutral-500">Página {page} de {pageCount}</span>
+              <div className="flex gap-2">
+                <Button type="button" disabled={page===1} onClick={()=>setPage(p=>p-1)}>Anterior</Button>
+                <Button type="button" disabled={page===pageCount} onClick={()=>setPage(p=>p+1)}>Próxima</Button>
               </div>
-            ))}
+            </div>
           </div>
         )}
       </Card>
     </div>
   );
- }
+ };
 
  const ExitsPage: React.FC = () => {
   const { exits, addExit, delExit } = useStoreContext();
