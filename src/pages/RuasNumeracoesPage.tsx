@@ -7,6 +7,7 @@ import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import { db } from '../services/db';
+import ImageAnnotator from '../components/ImageAnnotator';
 
 // schema and form types
 export const addressSchema = z.object({
@@ -218,7 +219,7 @@ interface ImageAnnotatorProps {
   onDelete?: (id: number) => void;
 }
 
-function ImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
+function PlaceholderImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
   return (
     <div className="w-full h-full grid place-items-center bg-neutral-100 text-sm">
       {/* Placeholder component - actual implementation should annotate the image */}
@@ -229,4 +230,4 @@ function ImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
       )}
     </div>
   );
-
+}
