@@ -29,6 +29,15 @@ const AssignIcon = () => (
   </svg>
 );
 
+const CalendarIcon = () => (
+  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="4" width="18" height="18" rx="2" />
+    <path d="M16 2v4" />
+    <path d="M8 2v4" />
+    <path d="M3 10h18" />
+  </svg>
+);
+
 const SuggestIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 18h6" />
@@ -41,6 +50,7 @@ const items = [
   { id: 'territories', label: 'Territórios', icon: <MapIcon /> },
   { id: 'exits', label: 'Saídas', icon: <ExitIcon /> },
   { id: 'assignments', label: 'Designações', icon: <AssignIcon /> },
+  { id: 'calendar', label: 'Calendário', icon: <CalendarIcon /> },
   { id: 'suggestions', label: 'Sugestões', icon: <SuggestIcon /> },
 ];
 

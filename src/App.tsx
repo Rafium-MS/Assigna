@@ -6,6 +6,7 @@ import { Sidebar } from "./components/Sidebar";
 import { useToast } from "./components/Toast";
 import { useConfirm } from "./components/ConfirmDialog";
 import { StatusBadge } from "./components/Badge";
+import { Modal } from "./components/Modal";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -61,6 +62,7 @@ function useStore() {
   const [exits, setExits] = useLocalStorage<FieldExit[]>("tm.exits", []);
   const [assignments, setAssignments] = useLocalStorage<Assignment[]>("tm.assignments", []);
   const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", { avoidLastAssignments: 5, defaultDurationDays: 30 });
+  const [warningDays, setWarningDays] = useLocalStorage<number>("tm.warningDays", 2);
 
   // CRUD helpers
   const addTerritory = (t: Omit<Territory, 'id'>) => {
@@ -109,7 +111,7 @@ function useStore() {
     toast.success('Dados limpos');
   };
 
-  return { territories, exits, assignments, rules, setRules, addTerritory, delTerritory, updateTerritory, addExit, delExit, updateExit, addAssignment, delAssignment, updateAssignment, clearAll };
+  return { territories, exits, assignments, rules, setRules, warningDays, setWarningDays, addTerritory, delTerritory, updateTerritory, addExit, delExit, updateExit, addAssignment, delAssignment, updateAssignment, clearAll };
 }
 
  // ---------- UI Primitives ----------
@@ -478,10 +480,106 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
       </Card>
     </div>
   );
- }
+}
 
- // ---------- Suggestions Engine ----------
- type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate: string };
+ const CalendarPage: React.FC = () => {
+  const { assignments, territories, warningDays, setWarningDays } = useStoreContext();
+  const [month, setMonth] = useState(() => new Date());
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const today = new Date();
+  const toIso = (d: Date) => d.toISOString().slice(0,10);
+
+  const startOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
+  const gridStart = new Date(startOfMonth);
+  gridStart.setDate(gridStart.getDate() - gridStart.getDay());
+  const days: Date[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    days.push(d);
+  }
+
+  const open = (iso: string) => setSelectedDay(iso);
+  const close = () => setSelectedDay(null);
+
+  return (
+    <div className="grid gap-4">
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="bg-neutral-100">◀</Button>
+            <h2 className="font-semibold">{month.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+            <Button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="bg-neutral-100">▶</Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label>Alerta (dias)</Label>
+            <Input type="number" min={0} value={warningDays} onChange={e=>setWarningDays(Number(e.target.value)||0)} className="w-16" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 text-sm font-medium text-center mb-1">
+          {weekdays.map(w => <div key={w}>{w.slice(0,3)}</div>)}
+        </div>
+        <div className="grid grid-cols-7 gap-px bg-neutral-200 rounded overflow-hidden">
+          {days.map(d => {
+            const iso = toIso(d);
+            const inMonth = d.getMonth() === month.getMonth();
+            const startItems = assignments.filter(a => a.startDate === iso);
+            const dueToday = assignments.filter(a => a.endDate === iso && !a.returned);
+            let cellCls = inMonth ? 'bg-white' : 'bg-neutral-50 text-neutral-400';
+            const dueDiffs = dueToday.map(a => Math.ceil((new Date(a.endDate).getTime() - today.getTime())/86400000));
+            if (dueDiffs.some(n => n < 0)) cellCls += ' bg-red-100';
+            else if (dueDiffs.some(n => n <= warningDays)) cellCls += ' bg-yellow-100';
+            return (
+              <div key={iso} className={`min-h-24 p-1 cursor-pointer ${cellCls}`} onClick={() => open(iso)} onDragStart={() => open(iso)} draggable>
+                <div className="text-xs text-right">{d.getDate()}</div>
+                {startItems.map(a => {
+                  const diff = Math.ceil((new Date(a.endDate).getTime() - today.getTime())/86400000);
+                  let badge: React.ReactNode = null;
+                  if (!a.returned) {
+                    if (diff < 0) badge = <span className="ml-1 text-[10px] px-1 rounded bg-red-600 text-white">Atrasado</span>;
+                    else if (diff <= warningDays) badge = <span className="ml-1 text-[10px] px-1 rounded bg-orange-500 text-white">D-{diff}</span>;
+                  }
+                  return (
+                    <div key={a.id} className="text-[10px] truncate">
+                      {findName(a.territoryId, territories)}{badge}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </Card>
+
+      {selectedDay && (
+        <Modal>
+          <div className="grid gap-2">
+            <h3 className="text-lg font-semibold">{fmtDate(selectedDay)}</h3>
+            {(() => {
+              const items = assignments.filter(a => a.startDate === selectedDay || a.endDate === selectedDay);
+              return items.length === 0 ? (
+                <p className="text-sm text-neutral-500">Sem designações.</p>
+              ) : (
+                <ul className="text-sm grid gap-1">
+                  {items.map(a => (
+                    <li key={a.id}>{findName(a.territoryId, territories)} — {fmtDate(a.startDate)} → {fmtDate(a.endDate)}</li>
+                  ))}
+                </ul>
+              );
+            })()}
+            <div className="text-right">
+              <Button onClick={close} className="bg-neutral-100">Fechar</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+ };
+
+// ---------- Suggestions Engine ----------
+type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate: string };
 
  function getLastAssignmentDate(territoryId: ID, assignments: Assignment[]): Date | undefined {
   const arr = assignments
@@ -602,6 +700,7 @@ export default function App(){
         {tab==='territories' && <TerritoriesPage />}
         {tab==='exits' && <ExitsPage />}
         {tab==='assignments' && <AssignmentsPage />}
+        {tab==='calendar' && <CalendarPage />}
         {tab==='suggestions' && <SuggestionsPage />}
         <div className="flex justify-end">
           <Button onClick={async()=>{ if(await confirm('Limpar TODOS os dados?')) store.clearAll(); }} className="mt-4 bg-red-600 text-white">Limpar TODOS os dados</Button>
