@@ -1,4 +1,12 @@
 # Assigna
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-20232a?logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
 Gerencie territórios, saídas e designações de forma offline.
 
 ## Descrição
@@ -34,6 +42,14 @@ Atualmente não há variáveis de ambiente obrigatórias. Caso precise, crie um 
 ```bash
 EXAMPLE_API_KEY="sua_chave_aqui"
 ```
+
+## Screenshots
+
+Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminhos conforme preferir):
+
+![Tela inicial](docs/screenshots/home.png)
+![Territorios](docs/screenshots/territorios.png)
+![Sugestoes](docs/screenshots/sugestoes.png)
 
 ## Suporte
 Abra uma issue no [rastreador de problemas](../../issues) para relatar bugs ou solicitar recursos.
