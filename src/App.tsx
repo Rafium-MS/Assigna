@@ -2,12 +2,12 @@ import React, { useEffect, useState, useLayoutEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Sidebar } from "./components/Sidebar";
-import { useToast } from "./components/Toast";
-import { useConfirm } from "./components/ConfirmDialog";
-import { StatusBadge } from "./components/Badge";
-import { Modal } from "./components/Modal";
-import { SchedulerControls } from "./components/SchedulerControls";
+import { Sidebar } from "./components/layout/Sidebar";
+import { useToast } from "./components/feedback/Toast";
+import { useConfirm } from "./components/feedback/ConfirmDialog";
+import { StatusBadge } from "./components/feedback/Badge";
+import { Modal } from "./components/layout/Modal";
+import { SchedulerControls } from "./components/calendar/SchedulerControls";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMonthlyExportScheduler } from '../hooks/useMonthlyExportScheduler';
+import { useMonthlyExportScheduler } from '../../hooks/useMonthlyExportScheduler';
 import { useTranslation } from 'react-i18next';
 
 export const SchedulerControls: React.FC = () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { DesignacaoRepository } from '../services/db/repositories/designacoes';
+import { DesignacaoRepository } from '../services/repositories/designacoes';
 import { monthlySummaryBySaida } from '../utils/report';
 import { exportToCsv, downloadFile } from '../utils/csv';
 

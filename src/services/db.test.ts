@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { describe, it, expect, beforeAll } from 'vitest';
-import { db, migrate } from './index';
+import { db, migrate } from './db';
 import { TerritorioRepository } from './repositories';
 
 describe('IndexedDB persistence', () => {

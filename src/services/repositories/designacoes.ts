@@ -1,5 +1,5 @@
-import type { Designacao } from '../../../types';
-import { db } from '../index';
+import type { Designacao } from '../../types/designacao';
+import { db } from '../db';
 
 export const DesignacaoRepository = {
   async all(): Promise<Designacao[]> {

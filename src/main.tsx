@@ -2,9 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import { AppProvider } from './store/AppContext';
-import { ToastProvider } from './components/Toast';
-import { ConfirmProvider } from './components/ConfirmDialog';
+import { AppProvider } from './store/AppProvider';
+import { ToastProvider } from './components/feedback/Toast';
+import { ConfirmProvider } from './components/feedback/ConfirmDialog';
 import i18n from './i18n';
 
 if ('serviceWorker' in navigator) {
