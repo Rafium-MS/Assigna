@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { Modal } from './Modal';
+import { Modal } from '../layout/Modal';
 import { useTranslation } from 'react-i18next';
 
 interface ConfirmState {

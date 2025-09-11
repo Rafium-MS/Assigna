@@ -1,5 +1,8 @@
 import Dexie, { Table } from 'dexie';
-import type { Territorio, Saida, Designacao, Sugestao } from '../../types';
+import type { Territorio } from '../types/territorio';
+import type { Saida } from '../types/saida';
+import type { Designacao } from '../types/designacao';
+import type { Sugestao } from '../types/sugestao';
 
 export interface Metadata {
   key: string;

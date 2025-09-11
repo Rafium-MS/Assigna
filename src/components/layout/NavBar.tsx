@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageSelector } from './LanguageSelector';
+import { LanguageSelector } from '../forms/LanguageSelector';
 
 interface Props {
   navigate: (page: 'home' | 'about') => void;

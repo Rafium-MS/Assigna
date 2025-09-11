@@ -1,5 +1,5 @@
-import type { Saida } from '../../../types';
-import { db } from '../index';
+import type { Saida } from '../../types/saida';
+import { db } from '../db';
 
 export const SaidaRepository = {
   async all(): Promise<Saida[]> {

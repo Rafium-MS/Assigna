@@ -1,5 +1,5 @@
-import type { Sugestao } from '../../../types';
-import { db } from '../index';
+import type { Sugestao } from '../../types/sugestao';
+import { db } from '../db';
 
 export const SugestaoRepository = {
   async all(): Promise<Sugestao[]> {

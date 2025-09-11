@@ -1,4 +1,4 @@
-import type { Designacao } from '../types';
+import type { Designacao } from '../types/designacao';
 
 export interface MonthlySummaryItem {
   saidaId: string;

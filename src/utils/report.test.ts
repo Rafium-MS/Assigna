@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import type { Designacao } from '../types';
+import type { Designacao } from '../types/designacao';
 import { historyByTerritorio, monthlySummaryBySaida } from './report';
 
 describe('report utils', () => {

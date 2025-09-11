@@ -1,5 +1,5 @@
-import type { Territorio } from '../../../types';
-import { db } from '../index';
+import type { Territorio } from '../../types/territorio';
+import { db } from '../db';
 
 export const TerritorioRepository = {
   async all(): Promise<Territorio[]> {
