@@ -48,6 +48,7 @@ const SuggestIcon = () => (
 
 const items = [
   { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
+  { id: 'streets', label: 'sidebar.streets', icon: <MapIcon /> },
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },

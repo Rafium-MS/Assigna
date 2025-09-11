@@ -8,6 +8,7 @@ import { useConfirm } from "./components/feedback/ConfirmDialog";
 import { StatusBadge } from "./components/feedback/Badge";
 import { Modal } from "./components/layout/Modal";
 import { SchedulerControls } from "./components/calendar/SchedulerControls";
+import RuasNumeracoesPage from "./pages/RuasNumeracoesPage";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -814,6 +815,7 @@ export default function App(){
     <StoreContext.Provider value={store}>
       <Shell tab={tab} setTab={setTab}>
         {tab==='territories' && <TerritoriesPage />}
+        {tab==='streets' && <RuasNumeracoesPage />}
         {tab==='exits' && <ExitsPage />}
         {tab==='assignments' && <AssignmentsPage />}
         {tab==='calendar' && <CalendarPage />}
