@@ -1,0 +1,42 @@
+{
+  "home": {
+    "title": "Início",
+    "today": "Hoje é {{date}}",
+    "exampleNumber": "Número de exemplo: {{value}}"
+  },
+  "about": {
+    "title": "Sobre"
+  },
+  "navbar": {
+    "home": "Início",
+    "about": "Sobre"
+  },
+  "confirm": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "scheduler": {
+    "title": "Exportação mensal",
+    "enable": "Ativar",
+    "nextRun": "Próxima execução:"
+  },
+  "sidebar": {
+    "territories": "Territórios",
+    "exits": "Saídas",
+    "assignments": "Designações",
+    "calendar": "Calendário",
+    "suggestions": "Sugestões"
+  },
+  "status": {
+    "ativo": "Ativo",
+    "devolvido": "Devolvido",
+    "atrasado": "Atrasado"
+  },
+  "app": {
+    "updateAvailable": "Nova versão disponível. Atualizar?"
+  },
+  "language": {
+    "english": "English",
+    "portuguese": "Português"
+  }
+}

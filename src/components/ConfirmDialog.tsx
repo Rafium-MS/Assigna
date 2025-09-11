@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { Modal } from './Modal';
+import { useTranslation } from 'react-i18next';
 
 interface ConfirmState {
   message: string;
@@ -12,6 +13,7 @@ export const useConfirm = () => useContext(ConfirmContext);
 
 export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<ConfirmState | null>(null);
+  const { t } = useTranslation();
 
   const confirm = (message: string) => new Promise<boolean>((resolve) => setState({ message, resolve }));
 
@@ -27,12 +29,14 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ child
         <Modal>
           <p className="mb-4">{state.message}</p>
           <div className="flex justify-end gap-2">
-            <button onClick={() => handle(false)} className="px-3 py-2 rounded-xl border">Cancelar</button>
+            <button onClick={() => handle(false)} className="px-3 py-2 rounded-xl border">
+              {t('confirm.cancel')}
+            </button>
             <button
               onClick={() => handle(true)}
               className="px-3 py-2 rounded-xl border bg-red-600 text-white"
             >
-              Confirmar
+              {t('confirm.confirm')}
             </button>
           </div>
         </Modal>

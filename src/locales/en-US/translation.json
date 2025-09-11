@@ -1,0 +1,42 @@
+{
+  "home": {
+    "title": "Home",
+    "today": "Today is {{date}}",
+    "exampleNumber": "Example number: {{value}}"
+  },
+  "about": {
+    "title": "About"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "About"
+  },
+  "confirm": {
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "scheduler": {
+    "title": "Monthly export",
+    "enable": "Enable",
+    "nextRun": "Next run:"
+  },
+  "sidebar": {
+    "territories": "Territories",
+    "exits": "Exits",
+    "assignments": "Assignments",
+    "calendar": "Calendar",
+    "suggestions": "Suggestions"
+  },
+  "status": {
+    "ativo": "Active",
+    "devolvido": "Returned",
+    "atrasado": "Late"
+  },
+  "app": {
+    "updateAvailable": "New version available. Update?"
+  },
+  "language": {
+    "english": "English",
+    "portuguese": "Português"
+  }
+}

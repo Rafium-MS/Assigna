@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   status: 'ativo' | 'devolvido' | 'atrasado';
@@ -10,13 +11,10 @@ const colors: Record<Props['status'], string> = {
   atrasado: 'bg-red-600',
 };
 
-const labels: Record<Props['status'], string> = {
-  ativo: 'Ativo',
-  devolvido: 'Devolvido',
-  atrasado: 'Atrasado',
+export const StatusBadge: React.FC<Props> = ({ status }) => {
+  const { t } = useTranslation();
+  return (
+    <span className={`text-xs text-white px-2 py-1 rounded ${colors[status]}`}>{t(`status.${status}`)}</span>
+  );
 };
-
-export const StatusBadge: React.FC<Props> = ({ status }) => (
-  <span className={`text-xs text-white px-2 py-1 rounded ${colors[status]}`}>{labels[status]}</span>
-);
 
