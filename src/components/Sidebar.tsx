@@ -47,27 +47,32 @@ const SuggestIcon = () => (
 );
 
 const items = [
-  { id: 'territories', label: 'Territórios', icon: <MapIcon /> },
-  { id: 'exits', label: 'Saídas', icon: <ExitIcon /> },
-  { id: 'assignments', label: 'Designações', icon: <AssignIcon /> },
-  { id: 'calendar', label: 'Calendário', icon: <CalendarIcon /> },
-  { id: 'suggestions', label: 'Sugestões', icon: <SuggestIcon /> },
+  { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
+  { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
+  { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
+  { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
+  { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
 ];
 
-export const Sidebar: React.FC<Props> = ({ current, onSelect }) => (
-  <nav className="bg-white dark:bg-neutral-900 border-r p-2 flex md:flex-col gap-2 md:w-48">
-    {items.map((it) => (
-      <button
-        key={it.id}
-        onClick={() => onSelect(it.id)}
-        className={`flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
-          current === it.id ? 'bg-neutral-200 dark:bg-neutral-800' : ''
-        }`}
-      >
-        {it.icon}
-        <span className="hidden md:inline">{it.label}</span>
-      </button>
-    ))}
-  </nav>
-);
+import { useTranslation } from 'react-i18next';
+
+export const Sidebar: React.FC<Props> = ({ current, onSelect }) => {
+  const { t } = useTranslation();
+  return (
+    <nav className="bg-white dark:bg-neutral-900 border-r p-2 flex md:flex-col gap-2 md:w-48">
+      {items.map((it) => (
+        <button
+          key={it.id}
+          onClick={() => onSelect(it.id)}
+          className={`flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
+            current === it.id ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+          }`}
+        >
+          {it.icon}
+          <span className="hidden md:inline">{t(it.label)}</span>
+        </button>
+      ))}
+    </nav>
+  );
+};
 

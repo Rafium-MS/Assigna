@@ -5,6 +5,7 @@ import './index.css';
 import { AppProvider } from './store/AppContext';
 import { ToastProvider } from './components/Toast';
 import { ConfirmProvider } from './components/ConfirmDialog';
+import i18n from './i18n';
 
 if ('serviceWorker' in navigator) {
   let refreshing = false;
@@ -15,7 +16,7 @@ if ('serviceWorker' in navigator) {
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              if (confirm('Nova versão disponível. Atualizar?')) {
+              if (confirm(i18n.t('app.updateAvailable'))) {
                 newWorker.postMessage({ type: 'SKIP_WAITING' });
               }
             }
