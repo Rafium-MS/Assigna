@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Sidebar } from "./components/Sidebar";
+import { useToast } from "./components/Toast";
+import { useConfirm } from "./components/ConfirmDialog";
+import { StatusBadge } from "./components/Badge";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -9,10 +13,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
  type Assignment = {
   id: ID;
   territoryId: ID;
-  fieldExitId: ID;
-  startDate: string; // ISO date (YYYY-MM-DD)
-  endDate: string;   // ISO date (YYYY-MM-DD)
- }; 
+ fieldExitId: ID;
+ startDate: string; // ISO date (YYYY-MM-DD)
+ endDate: string;   // ISO date (YYYY-MM-DD)
+  returned?: boolean;
+};
  type SuggestionRuleConfig = {
   avoidRepeatMonths: number; // avoid repeating same territory for the same exit within N months
   defaultDurationDays: number; // default assignment length
@@ -46,38 +51,58 @@ import { zodResolver } from "@hookform/resolvers/zod";
  }
 
  // ---------- Store ----------
- function useStore() {
+function useStore() {
+  const toast = useToast();
   const [territories, setTerritories] = useLocalStorage<Territory[]>("tm.territories", []);
   const [exits, setExits] = useLocalStorage<FieldExit[]>("tm.exits", []);
   const [assignments, setAssignments] = useLocalStorage<Assignment[]>("tm.assignments", []);
   const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", { avoidRepeatMonths: 2, defaultDurationDays: 30 });
 
   // CRUD helpers
-  const addTerritory = (t: Omit<Territory, 'id'>) => setTerritories(prev => [{ id: uid(), ...t }, ...prev]);
+  const addTerritory = (t: Omit<Territory, 'id'>) => {
+    setTerritories(prev => [{ id: uid(), ...t }, ...prev]);
+    toast.success('Território salvo');
+  };
   const delTerritory = (id: ID) => {
     setTerritories(prev => prev.filter(t => t.id !== id));
     setAssignments(prev => prev.filter(a => a.territoryId !== id));
+    toast.success('Território removido');
   };
-  const updateTerritory = (id: ID, t: Omit<Territory, 'id'>) =>
+  const updateTerritory = (id: ID, t: Omit<Territory, 'id'>) => {
     setTerritories(prev => prev.map(x => (x.id === id ? { ...x, ...t } : x)));
+    toast.success('Território atualizado');
+  };
 
-  const addExit = (e: Omit<FieldExit, 'id'>) => setExits(prev => [{ id: uid(), ...e }, ...prev]);
+  const addExit = (e: Omit<FieldExit, 'id'>) => {
+    setExits(prev => [{ id: uid(), ...e }, ...prev]);
+    toast.success('Saída salva');
+  };
   const delExit = (id: ID) => {
     setExits(prev => prev.filter(e => e.id !== id));
     setAssignments(prev => prev.filter(a => a.fieldExitId !== id));
+    toast.success('Saída removida');
   };
-  const updateExit = (id: ID, e: Omit<FieldExit, 'id'>) =>
+  const updateExit = (id: ID, e: Omit<FieldExit, 'id'>) => {
     setExits(prev => prev.map(x => (x.id === id ? { ...x, ...e } : x)));
+    toast.success('Saída atualizada');
+  };
 
-  const addAssignment = (a: Omit<Assignment,'id'>) => setAssignments(prev => [{ id: uid(), ...a }, ...prev]);
-  const delAssignment = (id: ID) => setAssignments(prev => prev.filter(a => a.id !== id));
-  const updateAssignment = (id: ID, a: Omit<Assignment,'id'>) =>
+  const addAssignment = (a: Omit<Assignment,'id'>) => {
+    setAssignments(prev => [{ id: uid(), returned:false, ...a }, ...prev]);
+    toast.success('Designação salva');
+  };
+  const delAssignment = (id: ID) => {
+    setAssignments(prev => prev.filter(a => a.id !== id));
+    toast.success('Designação removida');
+  };
+  const updateAssignment = (id: ID, a: Omit<Assignment,'id'>) => {
     setAssignments(prev => prev.map(x => (x.id === id ? { ...x, ...a } : x)));
+    toast.success('Designação atualizada');
+  };
 
   const clearAll = () => {
-    if (confirm('Tem certeza que deseja limpar TODOS os dados?')) {
-      setTerritories([]); setExits([]); setAssignments([]);
-    }
+    setTerritories([]); setExits([]); setAssignments([]);
+    toast.success('Dados limpos');
   };
 
   return { territories, exits, assignments, rules, setRules, addTerritory, delTerritory, updateTerritory, addExit, delExit, updateExit, addAssignment, delAssignment, updateAssignment, clearAll };
@@ -108,12 +133,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
  );
 
  // ---------- Image Picker ----------
- const ImagePicker: React.FC<{ value?: string; onChange: (dataUrl?: string) => void }>=({ value, onChange })=>{
+const ImagePicker: React.FC<{ value?: string; onChange: (dataUrl?: string) => void; compress?: boolean }>=({ value, onChange, compress })=>{
   const handleFile = async (file?: File) => {
     if (!file) return onChange(undefined);
-    const reader = new FileReader();
-    reader.onload = () => onChange(reader.result as string);
-    reader.readAsDataURL(file);
+    if (compress) {
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(file);
+      await new Promise(res => (img.onload = res));
+      const canvas = document.createElement('canvas');
+      const max = 600;
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      canvas.width = img.width * scale;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      onChange(canvas.toDataURL('image/jpeg', 0.8));
+    } else {
+      const reader = new FileReader();
+      reader.onload = () => onChange(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
   return (
     <div className="flex items-center gap-3">
@@ -124,7 +163,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
       </div>
     </div>
   );
- };
+};
 
  // ---------- Context & Shell ----------
  type StoreCtx = ReturnType<typeof useStore>;
@@ -135,50 +174,38 @@ import { zodResolver } from "@hookform/resolvers/zod";
   return ctx;
  };
 
- function Shell({children}:{children: React.ReactNode}){
-  const [dark, setDark] = useState<boolean>(()=> window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  useEffect(()=>{
+function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; setTab:(t:string)=>void}){
+ const [dark, setDark] = useState<boolean>(()=> window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+ useEffect(()=>{
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.classList.add('min-h-full');
     document.body.classList.add('bg-neutral-50','dark:bg-neutral-950');
   },[dark]);
   return (
-    <div className="min-h-screen text-neutral-900 dark:text-neutral-100">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="font-bold tracking-tight">Territory Manager</h1>
-          <div className="flex items-center gap-2">
-            <button onClick={()=>setDark(v=>!v)} className="rounded-xl px-3 py-2 border">{dark? '☀️ Claro':'🌙 Escuro'}</button>
+    <div className="min-h-screen text-neutral-900 dark:text-neutral-100 flex">
+      <Sidebar current={tab} onSelect={setTab} />
+      <div className="flex-1">
+        <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <h1 className="font-bold tracking-tight">Territory Manager</h1>
+            <div className="flex items-center gap-2">
+              <button onClick={()=>setDark(v=>!v)} className="rounded-xl px-3 py-2 border">{dark? '☀️ Claro':'🌙 Escuro'}</button>
+            </div>
           </div>
-        </div>
-      </header>
-      <main className="max-w-6xl mx-auto px-4 py-6 grid gap-4">{children}</main>
-      <footer className="py-8 text-center text-xs text-neutral-500">Dados salvos localmente (localStorage).</footer>
+        </header>
+        <main className="max-w-6xl mx-auto px-4 py-6 grid gap-4">{children}</main>
+        <footer className="py-8 text-center text-xs text-neutral-500">Dados salvos localmente (localStorage).</footer>
+      </div>
     </div>
   );
- }
-
- function Tabs({tab, setTab}:{tab:string; setTab:(t:string)=>void}){
-  const tabs = [
-    { id: 'territories', label: 'Territórios' },
-    { id: 'exits', label: 'Saídas de Campo' },
-    { id: 'assignments', label: 'Designações' },
-    { id: 'suggestions', label: 'Sugestões' },
-  ];
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tabs.map(t => (
-        <button key={t.id} onClick={()=>setTab(t.id)} className={`px-3 py-2 rounded-xl border ${tab===t.id ? 'bg-black text-white' : 'bg-white dark:bg-neutral-900'}`}>{t.label}</button>
-      ))}
-        );
-    </div>
- }
+}
  // ---------- Helpers used by pages ----------
  const findName = (id: ID, list: {id:ID,name:string}[]) => list.find(x=>x.id===id)?.name || '—';
 
  // ---------- Pages ----------
  const TerritoriesPage: React.FC = () => {
   const { territories, addTerritory, delTerritory, updateTerritory } = useStoreContext();
+  const confirm = useConfirm();
 
   const territorySchema = z.object({
     name: z.string().min(1, 'Nome obrigatório'),
@@ -229,7 +256,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
           </div>
           <div className="grid gap-1 md:col-span-2">
             <Label>Imagem (opcional)</Label>
-            <ImagePicker value={watch('image')} onChange={v => setValue('image', v)} />
+            <ImagePicker value={watch('image')} onChange={v => setValue('image', v)} compress />
           </div>
           <div className="md:col-span-3 flex justify-end gap-2">
             {editingId && <Button type="button" onClick={() => { reset(); setEditingId(null); }} className="bg-neutral-100">Cancelar</Button>}
@@ -260,7 +287,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
                     <td className="py-2 text-right">
                       <div className="flex gap-2 justify-end">
                         <Button onClick={() => startEdit(t)} className="bg-neutral-100">Editar</Button>
-                        <Button onClick={() => delTerritory(t.id)} className="bg-red-50 text-red-700">Excluir</Button>
+                        <Button onClick={async () => { if(await confirm('Excluir território?')) delTerritory(t.id); }} className="bg-red-50 text-red-700">Excluir</Button>
                       </div>
                     </td>
                   </tr>
@@ -283,6 +310,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
  const ExitsPage: React.FC = () => {
   const { exits, addExit, delExit } = useStoreContext();
+  const confirm = useConfirm();
   const [name, setName] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState<number>(6); // default Sábado
   const [time, setTime] = useState("09:00");
@@ -325,7 +353,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
                   <p className="font-semibold">{e.name}</p>
                   <p className="text-sm text-neutral-600">{weekdays[e.dayOfWeek]} · {e.time}</p>
                 </div>
-                <Button onClick={()=>delExit(e.id)} className="bg-red-50 text-red-700">Excluir</Button>
+                <Button onClick={async()=>{ if(await confirm('Excluir saída?')) delExit(e.id); }} className="bg-red-50 text-red-700">Excluir</Button>
               </div>
             ))}
           </div>
@@ -336,7 +364,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
  }
 
  const AssignmentsPage: React.FC = () => {
-  const { territories, exits, assignments, addAssignment, delAssignment } = useStoreContext();
+  const { territories, exits, assignments, addAssignment, delAssignment, updateAssignment } = useStoreContext();
+  const confirm = useConfirm();
+  const toast = useToast();
   const [territoryId, setTerritoryId] = useState<ID>("");
   const [exitId, setExitId] = useState<ID>("");
   const todayIso = new Date().toISOString().slice(0,10);
@@ -345,7 +375,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if(!territoryId || !exitId) return;
+    if(!territoryId || !exitId) { toast.error('Selecione território e saída'); return; }
     addAssignment({ territoryId, fieldExitId: exitId, startDate, endDate });
   };
 
@@ -391,19 +421,26 @@ import { zodResolver } from "@hookform/resolvers/zod";
                   <th>Saída</th>
                   <th>Designação</th>
                   <th>Devolução</th>
+                  <th>Status</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {assignments.map(a => (
+                {assignments.map(a => {
+                  const status = a.returned ? 'devolvido' : (new Date(a.endDate) < new Date() ? 'atrasado' : 'ativo');
+                  return (
                   <tr key={a.id} className="border-b last:border-0">
                     <td className="py-2">{findName(a.territoryId, territories)}</td>
                     <td>{findName(a.fieldExitId, exits)}</td>
                     <td>{fmtDate(a.startDate)}</td>
                     <td>{fmtDate(a.endDate)}</td>
-                    <td className="text-right"><Button onClick={()=>delAssignment(a.id)} className="bg-red-50 text-red-700">Excluir</Button></td>
+                    <td><StatusBadge status={status as any} /></td>
+                    <td className="text-right flex gap-2 justify-end">
+                      <Button onClick={()=>updateAssignment(a.id, { ...a, returned: !a.returned })} className="bg-neutral-100">{a.returned ? 'Reativar' : 'Devolver'}</Button>
+                      <Button onClick={async()=>{ if(await confirm('Excluir designação?')) delAssignment(a.id); }} className="bg-red-50 text-red-700">Excluir</Button>
+                    </td>
                   </tr>
-                ))}
+                );})}
               </tbody>
             </table>
           </div>
@@ -426,6 +463,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
  const SuggestionsPage: React.FC = () => {
   const { territories, exits, assignments, rules, setRules, addAssignment } = useStoreContext();
+  const toast = useToast();
   const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
   const [avoidMonths, setAvoidMonths] = useState<number>(rules.avoidRepeatMonths);
@@ -465,9 +503,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
   };
 
   const applyAll = () => {
-    if (!generated || generated.length === 0) return;
+    if (!generated || generated.length === 0) {
+      toast.error('Nada para aplicar');
+      return;
+    }
     generated.forEach(s => addAssignment({ territoryId: s.territoryId, fieldExitId: s.fieldExitId, startDate: s.startDate, endDate: s.endDate }));
-    alert('Designações aplicadas!');
+    toast.success('Designações aplicadas');
   };
 
   const saveRuleDefaults = () => setRules({ avoidRepeatMonths: avoidMonths, defaultDurationDays: duration });
@@ -522,22 +563,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
  }
 
  // ---------- App ----------
- export default function App(){
-  const store = useStore();
-  const [tab, setTab] = useState<string>('territories');
+export default function App(){
+ const store = useStore();
+ const [tab, setTab] = useState<string>('territories');
+ const confirm = useConfirm();
 
   return (
     <StoreContext.Provider value={store}>
-      <Shell>
-        <Tabs tab={tab} setTab={setTab} />
+      <Shell tab={tab} setTab={setTab}>
         {tab==='territories' && <TerritoriesPage />}
         {tab==='exits' && <ExitsPage />}
         {tab==='assignments' && <AssignmentsPage />}
         {tab==='suggestions' && <SuggestionsPage />}
         <div className="flex justify-end">
-          <Button onClick={store.clearAll} className="mt-4 bg-red-600 text-white">Limpar TODOS os dados</Button>
+          <Button onClick={async()=>{ if(await confirm('Limpar TODOS os dados?')) store.clearAll(); }} className="mt-4 bg-red-600 text-white">Limpar TODOS os dados</Button>
         </div>
       </Shell>
     </StoreContext.Provider>
   );
- }
+}
