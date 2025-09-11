@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // ---------- Types ----------
  type ID = string;
@@ -21,7 +21,6 @@ import React, { useEffect, useMemo, useState } from "react";
  const uid = () => Math.random().toString(36).slice(2, 10);
  const weekdays = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
  const fmtDate = (d: string) => new Date(d + 'T00:00:00').toLocaleDateString();
- const withinRange = (date: Date, start: Date, end: Date) => date >= start && date <= end;
  const addDays = (iso: string, days: number) => {
   const d = new Date(iso + 'T00:00:00');
   d.setDate(d.getDate() + days);
@@ -120,8 +119,59 @@ import React, { useEffect, useMemo, useState } from "react";
   );
  };
 
+ // ---------- Context & Shell ----------
+ type StoreCtx = ReturnType<typeof useStore>;
+ const StoreContext = React.createContext<StoreCtx | null>(null);
+ const useStoreContext = () => {
+  const ctx = React.useContext(StoreContext);
+  if(!ctx) throw new Error('StoreContext is missing');
+  return ctx;
+ };
+
+ function Shell({children}:{children: React.ReactNode}){
+  const [dark, setDark] = useState<boolean>(()=> window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  useEffect(()=>{
+    document.documentElement.classList.toggle('dark', dark);
+    document.documentElement.classList.add('min-h-full');
+    document.body.classList.add('bg-neutral-50','dark:bg-neutral-950');
+  },[dark]);
+  return (
+    <div className="min-h-screen text-neutral-900 dark:text-neutral-100">
+      <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <h1 className="font-bold tracking-tight">Territory Manager</h1>
+          <div className="flex items-center gap-2">
+            <button onClick={()=>setDark(v=>!v)} className="rounded-xl px-3 py-2 border">{dark? '☀️ Claro':'🌙 Escuro'}</button>
+          </div>
+        </div>
+      </header>
+      <main className="max-w-6xl mx-auto px-4 py-6 grid gap-4">{children}</main>
+      <footer className="py-8 text-center text-xs text-neutral-500">Dados salvos localmente (localStorage).</footer>
+    </div>
+  );
+ }
+
+ function Tabs({tab, setTab}:{tab:string; setTab:(t:string)=>void}){
+  const tabs = [
+    { id: 'territories', label: 'Territórios' },
+    { id: 'exits', label: 'Saídas de Campo' },
+    { id: 'assignments', label: 'Designações' },
+    { id: 'suggestions', label: 'Sugestões' },
+  ];
+  return (
+    <div className="flex flex-wrap gap-2">
+      {tabs.map(t => (
+        <button key={t.id} onClick={()=>setTab(t.id)} className={`px-3 py-2 rounded-xl border ${tab===t.id ? 'bg-black text-white' : 'bg-white dark:bg-neutral-900'}`}>{t.label}</button>
+      ))}
+    </div>
+  );
+ }
+
+ // ---------- Helpers used by pages ----------
+ const findName = (id: ID, list: {id:ID,name:string}[]) => list.find(x=>x.id===id)?.name || '—';
+
  // ---------- Pages ----------
- function TerritoriesPage(){
+ const TerritoriesPage: React.FC = () => {
   const { territories, addTerritory, delTerritory } = useStoreContext();
   const [name, setName] = useState("");
   const [image, setImage] = useState<string | undefined>();
@@ -174,7 +224,7 @@ import React, { useEffect, useMemo, useState } from "react";
   );
  }
 
- function ExitsPage(){
+ const ExitsPage: React.FC = () => {
   const { exits, addExit, delExit } = useStoreContext();
   const [name, setName] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState<number>(6); // default Sábado
@@ -195,9 +245,9 @@ import React, { useEffect, useMemo, useState } from "react";
           </div>
           <div className="grid gap-1">
             <Label>Dia da Semana</Label>
-            <Select value={dayOfWeek} onChange={e=>setDayOfWeek(Number(e.target.value))}>
+            <select value={dayOfWeek} onChange={e=>setDayOfWeek(Number(e.target.value))} className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900">
               {weekdays.map((w,i)=> <option key={i} value={i}>{w}</option>)}
-            </Select>
+            </select>
           </div>
           <div className="grid gap-1">
             <Label>Horário</Label>
@@ -228,12 +278,13 @@ import React, { useEffect, useMemo, useState } from "react";
   );
  }
 
- function AssignmentsPage(){
+ const AssignmentsPage: React.FC = () => {
   const { territories, exits, assignments, addAssignment, delAssignment } = useStoreContext();
   const [territoryId, setTerritoryId] = useState<ID>("");
   const [exitId, setExitId] = useState<ID>("");
-  const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
-  const [endDate, setEndDate] = useState<string>(()=> addDays(new Date().toISOString().slice(0,10), 30));
+  const todayIso = new Date().toISOString().slice(0,10);
+  const [startDate, setStartDate] = useState<string>(todayIso);
+  const [endDate, setEndDate] = useState<string>(addDays(todayIso, 30));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -241,25 +292,23 @@ import React, { useEffect, useMemo, useState } from "react";
     addAssignment({ territoryId, fieldExitId: exitId, startDate, endDate });
   };
 
-  const findName = (id: ID, list: {id:ID,name:string}[]) => list.find(x=>x.id===id)?.name || '—';
-
   return (
     <div className="grid gap-4">
       <Card title="Nova Designação">
         <form onSubmit={submit} className="grid md:grid-cols-5 gap-3">
           <div className="grid gap-1">
             <Label>Território</Label>
-            <Select value={territoryId} onChange={e=>setTerritoryId(e.target.value)}>
+            <select value={territoryId} onChange={e=>setTerritoryId(e.target.value)} className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900">
               <option value="">Selecione…</option>
               {territories.map(t=> <option key={t.id} value={t.id}>{t.name}</option>)}
-            </Select>
+            </select>
           </div>
           <div className="grid gap-1">
             <Label>Saída</Label>
-            <Select value={exitId} onChange={e=>setExitId(e.target.value)}>
+            <select value={exitId} onChange={e=>setExitId(e.target.value)} className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900">
               <option value="">Selecione…</option>
               {exits.map(x=> <option key={x.id} value={x.id}>{x.name}</option>)}
-            </Select>
+            </select>
           </div>
           <div className="grid gap-1">
             <Label>Data Designação</Label>
@@ -318,7 +367,7 @@ import React, { useEffect, useMemo, useState } from "react";
   return arr[0];
  }
 
- function SuggestionsPage(){
+ const SuggestionsPage: React.FC = () => {
   const { territories, exits, assignments, rules, setRules, addAssignment } = useStoreContext();
   const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
@@ -330,26 +379,26 @@ import React, { useEffect, useMemo, useState } from "react";
     const suggestions: Suggestion[] = [];
     const start = new Date(startDate + 'T00:00:00');
 
-    // For each exit, choose the territory with the oldest (or none) last assignment
-    exits.forEach(exit => {
-      // filter territories that were NOT used in the avoid window for this exit
+    const rankedForExit = (exitId: ID) => {
       const candidates = territories.filter(t => {
-        const last = getLastAssignmentDateFor(t.id, exit.id, assignments);
+        const last = getLastAssignmentDateFor(t.id, exitId, assignments);
         if (!last) return true;
-        const diff = monthsDiff(start, last);
-        return diff >= avoidMonths; // true if it's been at least avoidMonths since last assignment
+        const diff = (start.getFullYear()-last.getFullYear())*12 + (start.getMonth()-last.getMonth());
+        return diff >= avoidMonths;
       });
-
       // Sort by oldest last assignment (undefined first)
-      const ranked = [...candidates].sort((t1, t2) => {
-        const d1 = getLastAssignmentDateFor(t1.id, exit.id, assignments);
-        const d2 = getLastAssignmentDateFor(t2.id, exit.id, assignments);
+      return [...candidates].sort((t1, t2) => {
+        const d1 = getLastAssignmentDateFor(t1.id, exitId, assignments);
+        const d2 = getLastAssignmentDateFor(t2.id, exitId, assignments);
         if (!d1 && d2) return -1;
         if (!d2 && d1) return 1;
         if (!d1 && !d2) return 0;
-        return (d1!.getTime() - d2!.getTime()); // older first
+        return (d1!.getTime() - d2!.getTime());
       });
+    };
 
+    exits.forEach(exit => {
+      const ranked = rankedForExit(exit.id);
       if (ranked[0]) {
         suggestions.push({ fieldExitId: exit.id, territoryId: ranked[0].id, startDate, endDate: addDays(startDate, duration) });
       }
@@ -365,8 +414,6 @@ import React, { useEffect, useMemo, useState } from "react";
   };
 
   const saveRuleDefaults = () => setRules({ avoidRepeatMonths: avoidMonths, defaultDurationDays: duration });
-
-  const findName = (id: ID, list: {id:ID,name:string}[]) => list.find(x=>x.id===id)?.name || '—';
 
   return (
     <div className="grid gap-4">
@@ -417,54 +464,6 @@ import React, { useEffect, useMemo, useState } from "react";
   );
  }
 
- // ---------- Context & Shell ----------
- type StoreCtx = ReturnType<typeof useStore>;
- const StoreContext = React.createContext<StoreCtx | null>(null);
- const useStoreContext = () => {
-  const ctx = React.useContext(StoreContext);
-  if(!ctx) throw new Error('StoreContext is missing');
-  return ctx;
- };
-
- function Shell({children}:{children: React.ReactNode}){
-  const [dark, setDark] = useState<boolean>(()=> window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  useEffect(()=>{
-    document.documentElement.classList.toggle('dark', dark);
-    document.documentElement.classList.add('min-h-full');
-    document.body.classList.add('bg-neutral-50','dark:bg-neutral-950');
-  },[dark]);
-  return (
-    <div className="min-h-screen text-neutral-900 dark:text-neutral-100">
-      <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <h1 className="font-bold tracking-tight">Territory Manager</h1>
-          <div className="flex items-center gap-2">
-            <button onClick={()=>setDark(v=>!v)} className="rounded-xl px-3 py-2 border">{dark? '☀️ Claro':'🌙 Escuro'}</button>
-          </div>
-        </div>
-      </header>
-      <main className="max-w-6xl mx-auto px-4 py-6 grid gap-4">{children}</main>
-      <footer className="py-8 text-center text-xs text-neutral-500">Dados salvos localmente (localStorage).</footer>
-    </div>
-  );
- }
-
- function Tabs({tab, setTab}:{tab:string; setTab:(t:string)=>void}){
-  const tabs = [
-    { id: 'territories', label: 'Territórios' },
-    { id: 'exits', label: 'Saídas de Campo' },
-    { id: 'assignments', label: 'Designações' },
-    { id: 'suggestions', label: 'Sugestões' },
-  ];
-  return (
-    <div className="flex flex-wrap gap-2">
-      {tabs.map(t => (
-        <button key={t.id} onClick={()=>setTab(t.id)} className={`px-3 py-2 rounded-xl border ${tab===t.id ? 'bg-black text-white' : 'bg-white dark:bg-neutral-900'}`}>{t.label}</button>
-      ))}
-    </div>
-  );
- }
-
  // ---------- App ----------
  export default function App(){
   const store = useStore();
@@ -485,15 +484,3 @@ import React, { useEffect, useMemo, useState } from "react";
     </StoreContext.Provider>
   );
  }
-
-/*
-How to use in a Vite + React project:
-- Create a new Vite React app (TypeScript or JS both work). If TS, place this as src/App.tsx and ensure JSX is enabled. If JS, rename to App.jsx and remove type annotations.
-- Ensure TailwindCSS is configured (optional). If not using Tailwind, it still looks fine but you can remove classNames or replace with your own CSS.
-- This app persists data to localStorage; no backend required. 
-- Features:
-  • Cadastrar Territórios (nome + imagem opcional)
-  • Cadastrar Saídas (dia da semana, nome, horário)
-  • Designações (território, saída, data de designação e devolução)
-  • Sugestões com regras (evitar repetição por N meses; duração padrão em dias) e aplicação em lote
-*/
