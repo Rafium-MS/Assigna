@@ -22,6 +22,9 @@ import { Modal } from "./components/Modal";
  type SuggestionRuleConfig = {
   avoidLastAssignments: number; // avoid repeating same territory within last N assignments
   defaultDurationDays: number; // default assignment length
+  avoidMonthsPerExit: number; // avoid repeating same territory for an exit within X months
+  recentWeight: number; // weight for recent usage penalty
+  balanceWeight: number; // weight for exit load balancing
  };
 
  // ---------- Utilities ----------
@@ -61,7 +64,13 @@ function useStore() {
   const [territories, setTerritories] = useLocalStorage<Territory[]>("tm.territories", []);
   const [exits, setExits] = useLocalStorage<FieldExit[]>("tm.exits", []);
   const [assignments, setAssignments] = useLocalStorage<Assignment[]>("tm.assignments", []);
-  const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", { avoidLastAssignments: 5, defaultDurationDays: 30 });
+ const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>("tm.rules", {
+   avoidLastAssignments: 5,
+   defaultDurationDays: 30,
+   avoidMonthsPerExit: 6,
+   recentWeight: 1,
+   balanceWeight: 1
+ });
   const [warningDays, setWarningDays] = useLocalStorage<number>("tm.warningDays", 2);
 
   // CRUD helpers
@@ -386,20 +395,29 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
       .sort((a,b)=> b.startDate.localeCompare(a.startDate))
       .slice(0, rules.avoidLastAssignments)
       .map(a => a.territoryId));
+    const today = new Date(startDate + 'T00:00:00');
     const candidates = territories
       .filter(t => !recent.has(t.id))
-      .sort((t1, t2) => {
-        const d1 = getLastAssignmentDate(t1.id, assignments);
-        const d2 = getLastAssignmentDate(t2.id, assignments);
-        if (!d1 && d2) return -1;
-        if (!d2 && d1) return 1;
-        if (!d1 && !d2) return 0;
-        return d1.getTime() - d2.getTime();
-      });
+      .flatMap(t => {
+        const lastForExit = assignments
+          .filter(a => a.territoryId === t.id && a.fieldExitId === exit.id)
+          .map(a => new Date(a.startDate + 'T00:00:00'))
+          .sort((a,b)=> b.getTime()-a.getTime())[0];
+        if (lastForExit) {
+          const months = (today.getTime()-lastForExit.getTime())/1000/60/60/24/30;
+          if (months < rules.avoidMonthsPerExit) return [];
+        }
+        const lastOverall = getLastAssignmentDate(t.id, assignments);
+        const days = lastOverall ? Math.floor((today.getTime()-lastOverall.getTime())/86400000) : Infinity;
+        const recencyPenalty = lastOverall ? 1/(days+1) : 0;
+        const score = -rules.recentWeight * recencyPenalty;
+        return [{ territoryId: t.id, score }];
+      })
+      .sort((a,b)=> b.score - a.score);
     const chosen = candidates[0];
     if (!chosen) { toast.error('Sem territórios disponíveis'); return; }
     const s = nextDateForDay(startDate, exit.dayOfWeek);
-    setTerritoryId(chosen.id);
+    setTerritoryId(chosen.territoryId);
     setStartDate(s);
     setEndDate(addDays(s, rules.defaultDurationDays));
   };
@@ -589,42 +607,66 @@ type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate
   return arr[0];
  }
 
- const SuggestionsPage: React.FC = () => {
-  const { territories, exits, assignments, rules, setRules, addAssignment } = useStoreContext();
-  const toast = useToast();
-  const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
-  const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
-  const [avoidCount, setAvoidCount] = useState<number>(rules.avoidLastAssignments);
-  const [generated, setGenerated] = useState<Suggestion[] | null>(null);
+const SuggestionsPage: React.FC = () => {
+ const { territories, exits, assignments, rules, setRules, addAssignment } = useStoreContext();
+ const toast = useToast();
+ const [startDate, setStartDate] = useState<string>(()=> new Date().toISOString().slice(0,10));
+ const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
+ const [avoidCount, setAvoidCount] = useState<number>(rules.avoidLastAssignments);
+ const [monthsPerExit, setMonthsPerExit] = useState<number>(rules.avoidMonthsPerExit);
+ const [recentWeight, setRecentWeight] = useState<number>(rules.recentWeight);
+ const [balanceWeight, setBalanceWeight] = useState<number>(rules.balanceWeight);
+ const [generated, setGenerated] = useState<Suggestion[] | null>(null);
+ const [rankings, setRankings] = useState<Record<ID, { territoryId: ID; score: number; reasons: string[] }[]>>({});
 
-  const generate = () => {
-    if (territories.length === 0 || exits.length === 0) { setGenerated([]); return; }
+ const generate = () => {
+    if (territories.length === 0 || exits.length === 0) { setGenerated([]); setRankings({}); return; }
     const suggestions: Suggestion[] = [];
+    const rankingMap: Record<ID, { territoryId: ID; score: number; reasons: string[] }[]> = {};
     const recent = new Set([...assignments]
       .sort((a,b)=> b.startDate.localeCompare(a.startDate))
       .slice(0, avoidCount)
       .map(a => a.territoryId));
     const used = new Set<ID>();
-
-    exits.forEach(exit => {
-      const candidates = territories
-        .filter(t => !recent.has(t.id) && !used.has(t.id))
-        .sort((t1, t2) => {
-          const d1 = getLastAssignmentDate(t1.id, assignments);
-          const d2 = getLastAssignmentDate(t2.id, assignments);
-          if (!d1 && d2) return -1;
-          if (!d2 && d1) return 1;
-          if (!d1 && !d2) return 0;
-          return d1.getTime() - d2.getTime();
-        });
+    const exitCounts = exits.map(e=>({ id:e.id, count: assignments.filter(a=>a.fieldExitId===e.id).length }));
+    const maxCount = Math.max(1, ...exitCounts.map(x=>x.count));
+    const orderedExits = [...exits].sort((a,b)=>{
+      const ca = exitCounts.find(x=>x.id===a.id)?.count || 0;
+      const cb = exitCounts.find(x=>x.id===b.id)?.count || 0;
+      return ca - cb;
+    });
+    orderedExits.forEach(exit => {
+      const exitCount = exitCounts.find(x=>x.id===exit.id)?.count || 0;
+      const exitBalance = (maxCount - exitCount)/maxCount;
+      const today = new Date(startDate + 'T00:00:00');
+      const candidates = territories.filter(t => !recent.has(t.id) && !used.has(t.id)).flatMap(t => {
+        const lastForExit = assignments
+          .filter(a=> a.territoryId===t.id && a.fieldExitId===exit.id)
+          .map(a=> new Date(a.startDate + 'T00:00:00'))
+          .sort((a,b)=> b.getTime()-a.getTime())[0];
+        if (lastForExit) {
+          const months = (today.getTime()-lastForExit.getTime())/1000/60/60/24/30;
+          if (months < monthsPerExit) return [];
+        }
+        const lastOverall = getLastAssignmentDate(t.id, assignments);
+        const days = lastOverall ? Math.floor((today.getTime()-lastOverall.getTime())/86400000) : Infinity;
+        const recencyPenalty = lastOverall ? 1/(days+1) : 0;
+        const score = balanceWeight * exitBalance - recentWeight * recencyPenalty;
+        const reasons = [
+          `Carga saída ${(exitBalance*100).toFixed(0)}%`,
+          lastOverall ? `Recente ${(recencyPenalty*100).toFixed(0)}%` : 'Nunca usado'
+        ];
+        return [{ territoryId: t.id, score, reasons }];
+      }).sort((a,b)=> b.score - a.score);
+      rankingMap[exit.id] = candidates;
       const chosen = candidates[0];
       if (chosen) {
-        used.add(chosen.id);
+        used.add(chosen.territoryId);
         const s = nextDateForDay(startDate, exit.dayOfWeek);
-        suggestions.push({ fieldExitId: exit.id, territoryId: chosen.id, startDate: s, endDate: addDays(s, duration) });
+        suggestions.push({ fieldExitId: exit.id, territoryId: chosen.territoryId, startDate: s, endDate: addDays(s, duration) });
       }
     });
-
+    setRankings(rankingMap);
     setGenerated(suggestions);
   };
 
@@ -637,12 +679,18 @@ type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate
     toast.success('Designações aplicadas');
   };
 
-  const saveRuleDefaults = () => setRules({ avoidLastAssignments: avoidCount, defaultDurationDays: duration });
+ const saveRuleDefaults = () => setRules({
+   avoidLastAssignments: avoidCount,
+   defaultDurationDays: duration,
+   avoidMonthsPerExit: monthsPerExit,
+   recentWeight,
+   balanceWeight
+ });
 
   return (
     <div className="grid gap-4">
       <Card title="Regras de Sugestão" actions={<Button onClick={saveRuleDefaults} className="bg-neutral-100">Salvar padrões</Button>}>
-        <div className="grid md:grid-cols-4 gap-3">
+        <div className="grid md:grid-cols-6 gap-3">
           <div className="grid gap-1">
             <Label>Data inicial</Label>
             <Input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} />
@@ -655,6 +703,18 @@ type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate
             <Label>Evitar repetição (últimas N)</Label>
             <Input type="number" min={0} value={avoidCount} onChange={e=>setAvoidCount(Number(e.target.value) || 0)} />
           </div>
+          <div className="grid gap-1">
+            <Label>Repetição por saída (meses)</Label>
+            <Input type="number" min={0} value={monthsPerExit} onChange={e=>setMonthsPerExit(Number(e.target.value) || 0)} />
+          </div>
+          <div className="grid gap-1">
+            <Label>Peso recência</Label>
+            <Input type="number" min={0} step="0.1" value={recentWeight} onChange={e=>setRecentWeight(Number(e.target.value) || 0)} />
+          </div>
+          <div className="grid gap-1">
+            <Label>Peso carga saída</Label>
+            <Input type="number" min={0} step="0.1" value={balanceWeight} onChange={e=>setBalanceWeight(Number(e.target.value) || 0)} />
+          </div>
           <div className="flex items-end"><Button onClick={generate} className="bg-black text-white w-full">Gerar Sugestões</Button></div>
         </div>
       </Card>
@@ -665,22 +725,39 @@ type Suggestion = { fieldExitId: ID; territoryId: ID; startDate: string; endDate
         ) : generated.length === 0 ? (
           <p className="text-neutral-500">Sem sugestões (verifique se há territórios e saídas).</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left border-b"><th className="py-2">Saída</th><th>Território</th><th>Designação</th><th>Devolução</th></tr>
-              </thead>
-              <tbody>
-                {generated.map((s,i)=> (
-                  <tr key={i} className="border-b last:border-0">
-                    <td className="py-2">{findName(s.fieldExitId, exits)}</td>
-                    <td>{findName(s.territoryId, territories)}</td>
-                    <td>{fmtDate(s.startDate)}</td>
-                    <td>{fmtDate(s.endDate)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left border-b"><th className="py-2">Saída</th><th>Território</th><th>Designação</th><th>Devolução</th></tr>
+                </thead>
+                <tbody>
+                  {generated.map((s,i)=> (
+                    <tr key={i} className="border-b last:border-0">
+                      <td className="py-2">{findName(s.fieldExitId, exits)}</td>
+                      <td>{findName(s.territoryId, territories)}</td>
+                      <td>{fmtDate(s.startDate)}</td>
+                      <td>{fmtDate(s.endDate)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              {Object.entries(rankings).map(([exitId, list]) => (
+                <div key={exitId} className="border rounded-xl p-3">
+                  <h4 className="font-semibold mb-2">{findName(exitId, exits)}</h4>
+                  <ol className="list-decimal ml-4 space-y-1 text-sm">
+                    {list.map(r => (
+                      <li key={r.territoryId}>
+                        {findName(r.territoryId, territories)} - {r.score.toFixed(2)}
+                        <span className="block text-neutral-500">{r.reasons.join(' | ')}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </Card>
