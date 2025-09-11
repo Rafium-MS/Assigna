@@ -43,3 +43,32 @@ self.addEventListener('message', event => {
     self.skipWaiting();
   }
 });
+
+// Push notifications for returned territories
+self.addEventListener('push', event => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Assigna';
+  const options = {
+    body: data.body || '',
+    data: data.url || '/',
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Focus or open the app when the notification is clicked
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data || '/';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      for (const client of list) {
+        if (client.url === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (clients.openWindow) {
+        return clients.openWindow(url);
+      }
+    })
+  );
+});

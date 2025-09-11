@@ -9,7 +9,7 @@ import { ConfirmProvider } from './components/ConfirmDialog';
 if ('serviceWorker' in navigator) {
   let refreshing = false;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
+    navigator.serviceWorker.register('/sw.js').then(async reg => {
       reg.onupdatefound = () => {
         const newWorker = reg.installing;
         if (newWorker) {
@@ -22,6 +22,16 @@ if ('serviceWorker' in navigator) {
           });
         }
       };
+
+      if ('Notification' in window) {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+          });
+          localStorage.setItem('pushEndpoint', sub.endpoint);
+        }
+      }
     });
   });
   navigator.serviceWorker.addEventListener('controllerchange', () => {
