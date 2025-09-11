@@ -168,8 +168,17 @@ function useStore() {
  const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ className='', ...props }) => (
   <button {...props} className={`rounded-xl px-3 py-2 shadow border hover:shadow-md active:scale-[.98] transition ${className}`} />
  );
- const Label: React.FC<{children: React.ReactNode}> = ({children}) => (
-  <label className="text-sm font-medium text-neutral-600 dark:text-neutral-300">{children}</label>
+ const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({
+   children,
+   className = '',
+   ...props
+ }) => (
+   <label
+     {...props}
+     className={`text-sm font-medium text-neutral-600 dark:text-neutral-300 ${className}`}
+   >
+     {children}
+   </label>
  );
 
  // ---------- Image Picker ----------
@@ -722,27 +731,27 @@ const SuggestionsPage: React.FC = () => {
       <Card title="Regras de Sugestão" actions={<Button onClick={saveRuleDefaults} className="bg-neutral-100">Salvar padrões</Button>}>
         <div className="grid md:grid-cols-6 gap-3">
           <div className="grid gap-1">
-            <Label>Data inicial</Label>
+            <Label title="Data inicial para geração das sugestões">Data inicial</Label>
             <Input type="date" value={startDate} onChange={e=>setStartDate(e.target.value)} />
           </div>
           <div className="grid gap-1">
-            <Label>Duração (dias)</Label>
+            <Label title="Duração padrão das designações em dias">Duração (dias)</Label>
             <Input type="number" min={1} value={duration} onChange={e=>setDuration(Number(e.target.value) || 1)} />
           </div>
           <div className="grid gap-1">
-            <Label>Evitar repetição (últimas N)</Label>
+            <Label title="Número de últimas designações consideradas para evitar repetição">Evitar repetição (últimas N)</Label>
             <Input type="number" min={0} value={avoidCount} onChange={e=>setAvoidCount(Number(e.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label>Repetição por saída (meses)</Label>
+            <Label title="Tempo mínimo em meses antes de repetir o mesmo território na mesma saída">Repetição por saída (meses)</Label>
             <Input type="number" min={0} value={monthsPerExit} onChange={e=>setMonthsPerExit(Number(e.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label>Peso recência</Label>
+            <Label title="Quanto maior, mais penaliza territórios usados recentemente">Peso recência</Label>
             <Input type="number" min={0} step="0.1" value={recentWeight} onChange={e=>setRecentWeight(Number(e.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label>Peso carga saída</Label>
+            <Label title="Quanto maior, mais equilibrada a carga entre saídas">Peso carga saída</Label>
             <Input type="number" min={0} step="0.1" value={balanceWeight} onChange={e=>setBalanceWeight(Number(e.target.value) || 0)} />
           </div>
           <div className="flex items-end"><Button onClick={generate} className="bg-black text-white w-full">Gerar Sugestões</Button></div>
