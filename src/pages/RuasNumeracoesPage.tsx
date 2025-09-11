@@ -229,4 +229,4 @@ function ImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
       )}
     </div>
   );
-}
+
