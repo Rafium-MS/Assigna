@@ -6,6 +6,7 @@ import type { Sugestao } from '../types/sugestao';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
+import type { BuildingVillage } from '../types/building_village';
 import type { DerivedTerritory } from '../types/derived-territory';
 
 export interface Metadata {
@@ -26,6 +27,7 @@ class AppDB extends Dexie {
   streets!: Table<Street, number>;
   propertyTypes!: Table<PropertyType, number>;
   addresses!: Table<Address, number>;
+  buildingsVillages!: Table<BuildingVillage, string>;
   derivedTerritories!: Table<DerivedTerritory, number>;
   derivedTerritoryAddresses!: Table<DerivedTerritoryAddress, [number, number]>;
   metadata!: Table<Metadata, string>;
@@ -41,9 +43,11 @@ class AppDB extends Dexie {
       streets: '++id, territoryId, name',
       property_types: '++id, name',
       addresses: '++id, streetId, numberStart, numberEnd',
+      buildingsVillages: 'id, territory_id',
       derived_territories: '++id, baseTerritoryId, name',
       derived_territory_addresses: '[derivedTerritoryId+addressId]'
     });
+    this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
     this.derivedTerritoryAddresses = this.table('derived_territory_addresses');
@@ -66,7 +70,7 @@ export async function setSchemaVersion(version: number): Promise<void> {
 export async function migrate(): Promise<void> {
   const current = await getSchemaVersion();
   if (current < 2) {
-    // no data migrations necessary yet
+    // Schema version 2 adds the buildingsVillages store; no data migrations necessary yet.
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
