@@ -2,24 +2,34 @@ import React from 'react';
 
 export interface ImageAnnotatorProps {
   imageUrl: string;
-  onAddStreet: (point: { x: number; y: number }) => void;
-  onAddAddress: (point: { x: number; y: number }) => void;
+  onAdd?: (point: { x: number; y: number }) => void | Promise<void>;
+  onUpdate?: (point: { x: number; y: number }) => void | Promise<void>;
+  onDelete?: (point: { x: number; y: number }) => void | Promise<void>;
 }
 
-export default function ImageAnnotator({ imageUrl, onAddStreet, onAddAddress }: ImageAnnotatorProps): JSX.Element {
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    onAddStreet({ x, y });
+const getPoint = (event: React.MouseEvent<HTMLCanvasElement>): { x: number; y: number } => {
+  const rect = event.currentTarget.getBoundingClientRect();
+  return {
+    x: event.clientX - rect.left,
+    y: event.clientY - rect.top
+  };
+};
+
+export default function ImageAnnotator({ imageUrl, onAdd, onUpdate, onDelete }: ImageAnnotatorProps): JSX.Element {
+  const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const point = getPoint(event);
+    void onAdd?.(point);
   };
 
-  const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    onAddAddress({ x, y });
+  const handleContextMenu = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    const point = getPoint(event);
+    void onUpdate?.(point);
+  };
+
+  const handleDoubleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const point = getPoint(event);
+    void onDelete?.(point);
   };
 
   return (
@@ -29,6 +39,7 @@ export default function ImageAnnotator({ imageUrl, onAddStreet, onAddAddress }: 
         className="absolute top-0 left-0 w-full h-full cursor-crosshair"
         onClick={handleClick}
         onContextMenu={handleContextMenu}
+        onDoubleClick={handleDoubleClick}
       />
     </div>
   );
