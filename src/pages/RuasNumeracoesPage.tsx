@@ -231,3 +231,4 @@ function PlaceholderImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
     </div>
   );
 }
+
