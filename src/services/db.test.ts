@@ -1,4 +1,5 @@
 import 'fake-indexeddb/auto';
+import Dexie from 'dexie';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db, migrate, getSchemaVersion, SCHEMA_VERSION } from './db';
 import { TerritorioRepository, BuildingVillageRepository } from './repositories';
@@ -95,5 +96,57 @@ describe('IndexedDB persistence', () => {
     await BuildingVillageRepository.add(buildingVillage);
     const stored = await BuildingVillageRepository.all();
     expect(stored).toContainEqual(buildingVillage);
+  });
+
+  it('upgrades legacy schema to add new support stores', async () => {
+    const legacyDb = new Dexie('assigna');
+    legacyDb.version(2).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key',
+      buildingsVillages: 'id, territory_id'
+    });
+
+    await legacyDb.open();
+    await legacyDb.table('metadata').put({ key: 'schemaVersion', value: 2 });
+    await legacyDb.close();
+
+    await migrate();
+
+    const version = await getSchemaVersion();
+    expect(version).toBe(SCHEMA_VERSION);
+
+    const propertyTypeId = await db.propertyTypes.add({ name: 'Apartment' });
+    const propertyType = await db.propertyTypes.get(propertyTypeId);
+    expect(propertyType).toEqual({ id: propertyTypeId, name: 'Apartment' });
+
+    const streetId = await db.streets.add({ territoryId: 'legacy-territory', name: 'Legacy Street' });
+    const addressId = await db.addresses.add({
+      streetId,
+      numberStart: 1,
+      numberEnd: 10,
+      propertyTypeId
+    });
+    const address = await db.addresses.get(addressId);
+    expect(address).toEqual({
+      id: addressId,
+      streetId,
+      numberStart: 1,
+      numberEnd: 10,
+      propertyTypeId
+    });
+
+    const derivedTerritoryId = await db.derivedTerritories.add({
+      baseTerritoryId: 'legacy-territory',
+      name: 'Derived Legacy'
+    });
+    await db.derivedTerritoryAddresses.put({
+      derivedTerritoryId,
+      addressId
+    });
+    const derivedMapping = await db.derivedTerritoryAddresses.get([derivedTerritoryId, addressId]);
+    expect(derivedMapping).toEqual({ derivedTerritoryId, addressId });
   });
 });

@@ -34,7 +34,7 @@ class AppDB extends Dexie {
 
   constructor() {
     super('assigna');
-    this.version(2).stores({
+    this.version(3).stores({
       territorios: 'id, nome',
       saidas: 'id, nome, diaDaSemana',
       designacoes: 'id, territorioId, saidaId',
@@ -55,7 +55,7 @@ class AppDB extends Dexie {
 }
 
 export const db = new AppDB();
-export const SCHEMA_VERSION = 2;
+export const SCHEMA_VERSION = 3;
 
 export async function getSchemaVersion(): Promise<number> {
   await db.open();
@@ -71,6 +71,9 @@ export async function migrate(): Promise<void> {
   const current = await getSchemaVersion();
   if (current < 2) {
     // Schema version 2 adds the buildingsVillages store; no data migrations necessary yet.
+  }
+  if (current < 3) {
+    // Schema version 3 adds support tables for streets, addresses and derived territories.
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
