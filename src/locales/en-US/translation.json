@@ -9,16 +9,35 @@
   },
   "navbar": {
     "home": "Home",
-    "about": "About"
+    "about": "About",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "dashboard": "Dashboard"
   },
   "confirm": {
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "save": "Save",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "continue": "Continue",
+    "areYouSure": "Are you sure?"
   },
   "scheduler": {
     "title": "Monthly export",
     "enable": "Enable",
-    "nextRun": "Next run:"
+    "disable": "Disable",
+    "nextRun": "Next run:",
+    "lastRun": "Last run:",
+    "frequency": "Frequency",
+    "daily": "Daily",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "time": "Time",
+    "runNow": "Run now"
   },
   "sidebar": {
     "territories": "Territories",
@@ -27,18 +46,96 @@
     "exits": "Exits",
     "assignments": "Assignments",
     "calendar": "Calendar",
-    "suggestions": "Suggestions"
+    "suggestions": "Suggestions",
+    "dashboard": "Dashboard",
+    "reports": "Reports",
+    "maps": "Maps",
+    "users": "Users",
+    "settings": "Settings",
+    "notifications": "Notifications"
   },
   "status": {
     "ativo": "Active",
     "devolvido": "Returned",
-    "atrasado": "Late"
+    "atrasado": "Late",
+    "pendente": "Pending",
+    "emAndamento": "In progress",
+    "inativo": "Inactive",
+    "arquivado": "Archived"
   },
   "app": {
-    "updateAvailable": "New version available. Update?"
+    "updateAvailable": "New version available. Update?",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "error": "Something went wrong",
+    "success": "Completed successfully",
+    "retry": "Retry",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied to clipboard",
+    "noData": "No data available",
+    "search": "Search"
   },
   "language": {
     "english": "English",
-    "portuguese": "Português"
+    "portuguese": "PortuguǦs",
+    "spanish": "Spanish"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "view": "View",
+    "update": "Update",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "filters": {
+    "filters": "Filters",
+    "apply": "Apply",
+    "clear": "Clear",
+    "reset": "Reset",
+    "from": "From",
+    "to": "To",
+    "all": "All",
+    "status": "Status"
+  },
+  "table": {
+    "actions": "Actions",
+    "rowsPerPage": "Rows per page",
+    "of": "of",
+    "empty": "No records found"
+  },
+  "pagination": {
+    "next": "Next",
+    "previous": "Previous",
+    "first": "First",
+    "last": "Last",
+    "page": "Page",
+    "of": "of"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "rememberMe": "Remember me"
+  },
+  "dates": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Enter a valid email",
+    "minLength": "Minimum length is {{min}}",
+    "maxLength": "Maximum length is {{max}}"
   }
 }
