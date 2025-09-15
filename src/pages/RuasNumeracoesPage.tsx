@@ -79,14 +79,20 @@ export default function RuasNumeracoesPage(): JSX.Element {
     form.reset();
   };
 
-  const handleAddAddress = async (addr: Address): Promise<void> => {
-    await db.addresses.put(addr);
-    setAddresses(await db.addresses.toArray());
+  const focusAddressesTab = (): void => {
+    setActiveTab('enderecos');
   };
 
-  const handleDeleteAddress = async (id: number): Promise<void> => {
-    await db.addresses.delete(id);
-    setAddresses(await db.addresses.toArray());
+  const handleAnnotatorAdd = (_point: { x: number; y: number }): void => {
+    focusAddressesTab();
+  };
+
+  const handleAnnotatorUpdate = (_point: { x: number; y: number }): void => {
+    focusAddressesTab();
+  };
+
+  const handleAnnotatorDelete = (_point: { x: number; y: number }): void => {
+    focusAddressesTab();
   };
 
   return (
@@ -95,9 +101,9 @@ export default function RuasNumeracoesPage(): JSX.Element {
         {territory && (
           <ImageAnnotator
             imageUrl={territory.imageUrl ?? territory.imagem ?? ''}
-            onAdd={handleAddAddress}
-            onUpdate={handleAddAddress}
-            onDelete={handleDeleteAddress}
+            onAdd={handleAnnotatorAdd}
+            onUpdate={handleAnnotatorUpdate}
+            onDelete={handleAnnotatorDelete}
           />
         )}
       </div>
@@ -221,27 +227,6 @@ export default function RuasNumeracoesPage(): JSX.Element {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-// placeholder to satisfy TypeScript when component is missing
-interface ImageAnnotatorProps {
-  imageUrl: string;
-  onAdd?: (a: Address) => void;
-  onUpdate?: (a: Address) => void;
-  onDelete?: (id: number) => void;
-}
-
-function PlaceholderImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
-  return (
-    <div className="w-full h-full grid place-items-center bg-neutral-100 text-sm">
-      {/* Placeholder component - actual implementation should annotate the image */}
-      {props.imageUrl ? (
-        <img src={props.imageUrl} alt="territory" className="max-w-full" />
-      ) : (
-        <span>Sem imagem</span>
-      )}
     </div>
   );
 }
