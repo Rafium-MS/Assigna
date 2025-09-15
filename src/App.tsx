@@ -9,6 +9,7 @@ import { StatusBadge } from "./components/feedback/Badge";
 import { Modal } from "./components/layout/Modal";
 import { SchedulerControls } from "./components/calendar/SchedulerControls";
 import RuasNumeracoesPage from "./pages/RuasNumeracoesPage";
+import PrediosVilasPage from "./pages/PrediosVilas";
 // ---------- Types ----------
  type ID = string;
  type Territory = { id: ID; name: string; image?: string };
@@ -28,6 +29,15 @@ import RuasNumeracoesPage from "./pages/RuasNumeracoesPage";
   recentWeight: number; // weight for recent usage penalty
   balanceWeight: number; // weight for exit load balancing
  };
+
+ type TabKey =
+  | "territories"
+  | "streets"
+  | "buildingsVillages"
+  | "exits"
+  | "assignments"
+  | "calendar"
+  | "suggestions";
 
  // ---------- Utilities ----------
  const uid = () => Math.random().toString(36).slice(2, 10);
@@ -231,7 +241,7 @@ const ImagePicker: React.FC<{ value?: string; onChange: (dataUrl?: string) => vo
   return ctx;
  };
 
-function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; setTab:(t:string)=>void}){
+function Shell({children, tab, setTab}:{children: React.ReactNode; tab:TabKey; setTab:React.Dispatch<React.SetStateAction<TabKey>>}){
  const [dark, setDark] = useState<boolean>(()=>{
     const stored = localStorage.getItem('dark');
     if(stored !== null) return JSON.parse(stored);
@@ -245,7 +255,7 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:string; s
   },[dark]);
   return (
     <div className="min-h-screen text-neutral-900 dark:text-neutral-100 flex">
-      <Sidebar current={tab} onSelect={setTab} />
+      <Sidebar current={tab} onSelect={(value) => setTab(value as TabKey)} />
       <div className="flex-1">
         <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -815,7 +825,7 @@ const SuggestionsPage: React.FC = () => {
  // ---------- App ----------
 export default function App(){
  const store = useStore();
- const [tab, setTab] = useState<string>('territories');
+ const [tab, setTab] = useState<TabKey>('territories');
  const confirm = useConfirm();
 
   return (
@@ -823,6 +833,7 @@ export default function App(){
       <Shell tab={tab} setTab={setTab}>
         {tab==='territories' && <TerritoriesPage />}
         {tab==='streets' && <RuasNumeracoesPage />}
+        {tab==='buildingsVillages' && <PrediosVilasPage />}
         {tab==='exits' && <ExitsPage />}
         {tab==='assignments' && <AssignmentsPage />}
         {tab==='calendar' && <CalendarPage />}
