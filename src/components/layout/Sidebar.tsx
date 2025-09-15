@@ -46,9 +46,21 @@ const SuggestIcon = () => (
   </svg>
 );
 
+const BuildingIcon = () => (
+  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M3 21h18" />
+    <path d="M6 21V9h6v12" />
+    <path d="M12 21V5h6v16" />
+    <path d="M9 13h2" />
+    <path d="M15 9h2" />
+    <path d="M15 13h2" />
+  </svg>
+);
+
 const items = [
   { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
   { id: 'streets', label: 'sidebar.streets', icon: <MapIcon /> },
+  { id: 'buildingsVillages', label: 'sidebar.buildingsVillages', icon: <BuildingIcon /> },
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
