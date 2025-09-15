@@ -33,3 +33,4 @@ export default function ImageAnnotator({ imageUrl, onAddStreet, onAddAddress }: 
     </div>
   );
 }
+

@@ -3,5 +3,6 @@ export interface Address {
   streetId: number;
   numberStart: number;
   numberEnd: number;
+  propertyTypeId: number;
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,8 @@ export const addressSchema = z.object({
   id: z.number().optional(),
   streetId: z.coerce.number(),
   numberStart: z.coerce.number(),
-  numberEnd: z.coerce.number()
+  numberEnd: z.coerce.number(),
+  propertyTypeId: z.coerce.number()
 });
 
 export type AddressForm = z.infer<typeof addressSchema>;
@@ -93,7 +94,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
       <div className="border rounded p-2">
         {territory && (
           <ImageAnnotator
-            imageUrl={(territory as any).imageUrl ?? territory.imagem ?? ''}
+            imageUrl={territory.imageUrl ?? territory.imagem ?? ''}
             onAdd={handleAddAddress}
             onUpdate={handleAddAddress}
             onDelete={handleDeleteAddress}
@@ -163,6 +164,17 @@ export default function RuasNumeracoesPage(): JSX.Element {
                     </option>
                   ))}
               </select>
+              <select
+                {...register('propertyTypeId', { valueAsNumber: true })}
+                className="border p-1"
+              >
+                <option value="">Tipo</option>
+                {propertyTypes.map(pt => (
+                  <option key={pt.id} value={pt.id}>
+                    {pt.name}
+                  </option>
+                ))}
+              </select>
               <input
                 type="number"
                 placeholder="Início"
@@ -185,6 +197,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                   <th className="text-left">Rua</th>
                   <th className="text-left">Início</th>
                   <th className="text-left">Fim</th>
+                  <th className="text-left">Tipo</th>
                 </tr>
               </thead>
               <tbody>
@@ -193,6 +206,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                     <td>{streets.find(s => s.id === a.streetId)?.name}</td>
                     <td>{a.numberStart}</td>
                     <td>{a.numberEnd}</td>
+                    <td>{propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}</td>
                   </tr>
                 ))}
               </tbody>
@@ -231,3 +245,4 @@ function PlaceholderImageAnnotator(props: ImageAnnotatorProps): JSX.Element {
     </div>
   );
 }
+
