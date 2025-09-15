@@ -6,6 +6,7 @@ import { AppProvider } from './store/AppProvider';
 import { ToastProvider } from './components/feedback/Toast';
 import { ConfirmProvider } from './components/feedback/ConfirmDialog';
 import i18n from './i18n';
+import { migrate } from './services/db';
 
 if ('serviceWorker' in navigator) {
   let refreshing = false;
@@ -43,15 +44,25 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <AppProvider>
-      <ToastProvider>
-        <ConfirmProvider>
-          <App />
-        </ConfirmProvider>
-      </ToastProvider>
-    </AppProvider>
-  </React.StrictMode>
-);
+async function bootstrap(): Promise<void> {
+  try {
+    await migrate();
+  } catch (error) {
+    console.error('Failed to initialize the IndexedDB schema', error);
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <React.StrictMode>
+      <AppProvider>
+        <ToastProvider>
+          <ConfirmProvider>
+            <App />
+          </ConfirmProvider>
+        </ToastProvider>
+      </AppProvider>
+    </React.StrictMode>
+  );
+}
+
+void bootstrap();
 
