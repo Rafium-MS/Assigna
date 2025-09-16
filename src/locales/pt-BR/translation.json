@@ -83,6 +83,12 @@
     "confirmDelete": "Excluir designação?",
     "delete": "Excluir"
   },
+  "calendar": {
+    "warningDays": "Alerta (dias)",
+    "overdue": "Atrasado",
+    "dueIn": "D-{{diff}}",
+    "noAssignments": "Sem designações."
+  },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",
     "loading": "Carregando...",

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from '../components/layout/Modal';
 import { Card, Button, Input, Label } from '../components/ui';
 import { useDesignacoes } from '../hooks/useDesignacoes';
@@ -13,6 +14,7 @@ const CalendarPage: React.FC = () => {
   const [warningDays, setWarningDays] = useWarningDays();
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const { t } = useTranslation();
   const today = new Date();
   const toIso = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -43,7 +45,7 @@ const CalendarPage: React.FC = () => {
             </Button>
           </div>
           <div className="flex items-center gap-2">
-            <Label>Alerta (dias)</Label>
+            <Label>{t('calendar.warningDays')}</Label>
             <Input
               type="number"
               min={0}
@@ -84,9 +86,18 @@ const CalendarPage: React.FC = () => {
                   const diff = Math.ceil((new Date(designacao.dataFinal).getTime() - today.getTime()) / 86400000);
                   let badge: React.ReactNode = null;
                   if (!designacao.devolvido) {
-                    if (diff < 0) badge = <span className="ml-1 text-[10px] px-1 rounded bg-red-600 text-white">Atrasado</span>;
+                    if (diff < 0)
+                      badge = (
+                        <span className="ml-1 text-[10px] px-1 rounded bg-red-600 text-white">
+                          {t('calendar.overdue')}
+                        </span>
+                      );
                     else if (diff <= warningDays)
-                      badge = <span className="ml-1 text-[10px] px-1 rounded bg-orange-500 text-white">D-{diff}</span>;
+                      badge = (
+                        <span className="ml-1 text-[10px] px-1 rounded bg-orange-500 text-white">
+                          {t('calendar.dueIn', { diff })}
+                        </span>
+                      );
                   }
                   return (
                     <div key={designacao.id} className="text-[10px] truncate">
@@ -110,7 +121,7 @@ const CalendarPage: React.FC = () => {
                 (designacao) => designacao.dataInicial === selectedDay || designacao.dataFinal === selectedDay,
               );
               return items.length === 0 ? (
-                <p className="text-sm text-neutral-500">Sem designações.</p>
+                <p className="text-sm text-neutral-500">{t('calendar.noAssignments')}</p>
               ) : (
                 <ul className="text-sm grid gap-1">
                   {items.map((assignment) => (
@@ -124,7 +135,7 @@ const CalendarPage: React.FC = () => {
             })()}
             <div className="text-right">
               <Button onClick={close} className="bg-neutral-100">
-                Fechar
+                {t('app.close')}
               </Button>
             </div>
           </div>

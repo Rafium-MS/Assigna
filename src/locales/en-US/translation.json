@@ -83,6 +83,12 @@
     "confirmDelete": "Delete assignment?",
     "delete": "Delete"
   },
+  "calendar": {
+    "warningDays": "Alert (days)",
+    "overdue": "Overdue",
+    "dueIn": "D-{{diff}}",
+    "noAssignments": "No assignments."
+  },
   "app": {
     "updateAvailable": "New version available. Update?",
     "loading": "Loading...",
