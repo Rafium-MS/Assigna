@@ -79,4 +79,25 @@ describe('LanguageSelector', () => {
       cleanup();
     }
   });
+
+  it('renders the spanish locale when selected', () => {
+    mockI18n.language = 'es-ES';
+    localStorage.setItem('locale', 'es-ES');
+
+    const { container, cleanup } = renderSelector();
+
+    try {
+      const select = container.querySelector('select');
+      if (!select) throw new Error('Language selector not found');
+
+      const optionValues = Array.from(select.querySelectorAll('option')).map(
+        (option) => option.value
+      );
+
+      expect(optionValues).toContain('es-ES');
+      expect(select.value).toBe('es-ES');
+    } finally {
+      cleanup();
+    }
+  });
 });
