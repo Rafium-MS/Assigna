@@ -1,17 +1,18 @@
-# Assigna
+# Territory Manager
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Node >= 18](https://img.shields.io/badge/node-%3E%3D18-339933?logo=node.js&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-20232a?logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Languages](https://img.shields.io/github/languages/top/leocosta1/territory-manager-vite)](https://github.com/leocosta1/territory-manager-vite/search?l=typescript)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
 
 Gerencie territórios, saídas e designações de forma offline.
 
 ## Descrição
-Aplicação SPA para organizar **Territórios**, **Saídas de Campo**, **Designações** e **Sugestões**. Tudo salvo localmente em `localStorage`, sem necessidade de backend.
+Aplicação SPA para organizar **Territórios**, **Saídas de Campo**, **Designações** e **Sugestões**. Tudo salvo localmente no `IndexedDB` (via [Dexie.js](https://dexie.org)), sem necessidade de backend.
 
 ### Principais Recursos
 - Cadastrar **Territórios** (nome e imagem opcional)
@@ -56,7 +57,6 @@ Quando essa variável não estiver definida, as notificações de devolução pe
 
 Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminhos conforme preferir):
 
-![Tela inicial](docs/screenshots/home.png)
 ![Territorios](docs/screenshots/territorios.png)
 ![Sugestoes](docs/screenshots/sugestoes.png)
 ![Designacoes](docs/screenshots/designacoes.png)
