@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
 import { Card, Button, Input, Label } from '../components/ui';
 import { useSaidas } from '../hooks/useSaidas';
@@ -7,6 +8,7 @@ import { weekdays } from '../utils/calendar';
 const ExitsPage: React.FC = () => {
   const { saidas, addSaida, removeSaida } = useSaidas();
   const confirm = useConfirm();
+  const { t } = useTranslation();
   const [nome, setNome] = useState('');
   const [diaDaSemana, setDiaDaSemana] = useState<number>(6);
   const [hora, setHora] = useState('09:00');
@@ -22,14 +24,18 @@ const ExitsPage: React.FC = () => {
 
   return (
     <div className="grid gap-4">
-      <Card title="Cadastrar Saída de Campo">
+      <Card title={t('exits.newExit')}>
         <form onSubmit={submit} className="grid md:grid-cols-4 gap-3">
           <div className="grid gap-1">
-            <Label>Nome</Label>
-            <Input value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Ex.: Grupo Sábado Manhã" />
+            <Label>{t('exits.name')}</Label>
+            <Input
+              value={nome}
+              onChange={(event) => setNome(event.target.value)}
+              placeholder={t('exits.namePlaceholder')}
+            />
           </div>
           <div className="grid gap-1">
-            <Label>Dia da Semana</Label>
+            <Label>{t('exits.weekday')}</Label>
             <select
               value={diaDaSemana}
               onChange={(event) => setDiaDaSemana(Number(event.target.value))}
@@ -43,20 +49,20 @@ const ExitsPage: React.FC = () => {
             </select>
           </div>
           <div className="grid gap-1">
-            <Label>Horário</Label>
+            <Label>{t('exits.time')}</Label>
             <Input type="time" value={hora} onChange={(event) => setHora(event.target.value)} />
           </div>
           <div className="flex items-end justify-end">
             <Button type="submit" className="bg-black text-white">
-              Salvar Saída
+              {t('exits.save')}
             </Button>
           </div>
         </form>
       </Card>
 
-      <Card title={`Saídas (${saidas.length})`}>
+      <Card title={t('exits.exitsWithCount', { count: saidas.length })}>
         {saidas.length === 0 ? (
-          <p className="text-neutral-500">Nenhuma saída cadastrada.</p>
+          <p className="text-neutral-500">{t('exits.noExits')}</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-3">
             {saidas.map((saida) => (
@@ -69,13 +75,13 @@ const ExitsPage: React.FC = () => {
                 </div>
                 <Button
                   onClick={async () => {
-                    if (await confirm('Excluir saída?')) {
+                    if (await confirm(t('exits.confirmDelete'))) {
                       await removeSaida(saida.id);
                     }
                   }}
                   className="bg-red-50 text-red-700"
                 >
-                  Excluir
+                  {t('exits.delete')}
                 </Button>
               </div>
             ))}

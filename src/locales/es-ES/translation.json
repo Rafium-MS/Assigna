@@ -63,6 +63,18 @@
     "inativo": "Inativo",
     "arquivado": "Arquivado"
   },
+  "exits": {
+    "newExit": "Registrar salida de campo",
+    "name": "Nombre",
+    "namePlaceholder": "Ej.: Grupo Sábado Mañana",
+    "weekday": "Día de la semana",
+    "time": "Horario",
+    "save": "Guardar salida",
+    "exitsWithCount": "Salidas ({{count}})",
+    "noExits": "Ninguna salida registrada.",
+    "confirmDelete": "¿Eliminar salida?",
+    "delete": "Eliminar"
+  },
   "assignments": {
     "selectExit": "Seleccione una salida",
     "noAvailableTerritories": "No hay territorios disponibles",
