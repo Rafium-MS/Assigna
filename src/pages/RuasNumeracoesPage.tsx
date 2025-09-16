@@ -83,15 +83,15 @@ export default function RuasNumeracoesPage(): JSX.Element {
     setActiveTab('enderecos');
   };
 
-  const handleAnnotatorAdd = (_point: { x: number; y: number }): void => {
+  const handleAnnotatorAdd = (): void => {
     focusAddressesTab();
   };
 
-  const handleAnnotatorUpdate = (_point: { x: number; y: number }): void => {
+  const handleAnnotatorUpdate = (): void => {
     focusAddressesTab();
   };
 
-  const handleAnnotatorDelete = (_point: { x: number; y: number }): void => {
+  const handleAnnotatorDelete = (): void => {
     focusAddressesTab();
   };
 

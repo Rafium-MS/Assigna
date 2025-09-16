@@ -46,11 +46,12 @@ export const importCsv = <T>(
   for (let i = headerIndex + 1; i < lines.length; i++) {
     const values = lines[i].split(',');
     const obj: Partial<T> = {};
+    const target = obj as Record<keyof T, unknown>;
     keys.forEach((key, idx) => {
       if (!key) return;
       let value = values[idx] || '';
       value = value.replace(/^"|"$/g, '').replace(/""/g, '"');
-      (obj as any)[key] = value;
+      target[key] = value;
     });
     if (validate) {
       if (validate(obj)) result.push(obj);
