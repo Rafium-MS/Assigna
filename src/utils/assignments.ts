@@ -1,11 +1,11 @@
-import type { Assignment } from '../types/assignment';
+import type { Designacao } from '../types/designacao';
 
 export const getLastAssignmentDate = (
   territoryId: string,
-  assignments: Assignment[],
+  designacoes: Designacao[],
 ): Date | undefined => {
-  return assignments
-    .filter((assignment) => assignment.territoryId === territoryId)
-    .map((assignment) => new Date(`${assignment.startDate}T00:00:00`))
+  return designacoes
+    .filter((designacao) => designacao.territorioId === territoryId)
+    .map((designacao) => new Date(`${designacao.dataInicial}T00:00:00`))
     .sort((a, b) => b.getTime() - a.getTime())[0];
 };

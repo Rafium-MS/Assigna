@@ -3,43 +3,49 @@ import { useConfirm } from '../components/feedback/ConfirmDialog';
 import { useToast } from '../components/feedback/Toast';
 import { StatusBadge } from '../components/feedback/Badge';
 import { Card, Button, Input, Label } from '../components/ui';
-import { useStoreContext } from '../store/localStore';
-import type { Assignment } from '../types/assignment';
+import { useTerritorios } from '../hooks/useTerritorios';
+import { useSaidas } from '../hooks/useSaidas';
+import { useDesignacoes } from '../hooks/useDesignacoes';
+import { useSuggestionRules } from '../hooks/useSuggestionRules';
+import type { Designacao } from '../types/designacao';
 import { addDaysToIso, formatIsoDate, nextDateForWeekday } from '../utils/calendar';
 import { findName } from '../utils/lookups';
 import { getLastAssignmentDate } from '../utils/assignments';
 
 const AssignmentsPage: React.FC = () => {
-  const { territories, exits, assignments, addAssignment, delAssignment, updateAssignment, rules } = useStoreContext();
+  const { territorios } = useTerritorios();
+  const { saidas } = useSaidas();
+  const { designacoes, addDesignacao, removeDesignacao, updateDesignacao } = useDesignacoes();
+  const [rules] = useSuggestionRules();
   const confirm = useConfirm();
   const toast = useToast();
   const todayIso = new Date().toISOString().slice(0, 10);
-  const [territoryId, setTerritoryId] = useState('');
-  const [exitId, setExitId] = useState('');
+  const [territorioId, setTerritorioId] = useState('');
+  const [saidaId, setSaidaId] = useState('');
   const [startDate, setStartDate] = useState(todayIso);
   const [endDate, setEndDate] = useState(addDaysToIso(todayIso, rules.defaultDurationDays));
 
   const generateSuggestion = () => {
-    const exit = exits.find((item) => item.id === exitId);
-    if (!exit) {
+    const saida = saidas.find((item) => item.id === saidaId);
+    if (!saida) {
       toast.error('Selecione uma saída');
       return;
     }
 
     const recent = new Set(
-      [...assignments]
-        .sort((a, b) => b.startDate.localeCompare(a.startDate))
+      [...designacoes]
+        .sort((a, b) => b.dataInicial.localeCompare(a.dataInicial))
         .slice(0, rules.avoidLastAssignments)
-        .map((assignment) => assignment.territoryId),
+        .map((designacao) => designacao.territorioId),
     );
 
     const today = new Date(`${startDate}T00:00:00`);
-    const candidates = territories
-      .filter((territory) => !recent.has(territory.id))
-      .flatMap((territory) => {
-        const lastForExit = assignments
-          .filter((assignment) => assignment.territoryId === territory.id && assignment.fieldExitId === exit.id)
-          .map((assignment) => new Date(`${assignment.startDate}T00:00:00`))
+    const candidates = territorios
+      .filter((territorio) => !recent.has(territorio.id))
+      .flatMap((territorio) => {
+        const lastForExit = designacoes
+          .filter((designacao) => designacao.territorioId === territorio.id && designacao.saidaId === saida.id)
+          .map((designacao) => new Date(`${designacao.dataInicial}T00:00:00`))
           .sort((a, b) => b.getTime() - a.getTime())[0];
 
         if (lastForExit) {
@@ -47,11 +53,11 @@ const AssignmentsPage: React.FC = () => {
           if (months < rules.avoidMonthsPerExit) return [];
         }
 
-        const lastOverall = getLastAssignmentDate(territory.id, assignments);
+        const lastOverall = getLastAssignmentDate(territorio.id, designacoes);
         const days = lastOverall ? Math.floor((today.getTime() - lastOverall.getTime()) / 86400000) : Number.POSITIVE_INFINITY;
         const recencyPenalty = lastOverall ? 1 / (days + 1) : 0;
         const score = -rules.recentWeight * recencyPenalty;
-        return [{ territoryId: territory.id, score }];
+        return [{ territorioId: territorio.id, score }];
       })
       .sort((a, b) => b.score - a.score);
 
@@ -61,24 +67,23 @@ const AssignmentsPage: React.FC = () => {
       return;
     }
 
-    const suggestionStart = nextDateForWeekday(startDate, exit.dayOfWeek);
-    setTerritoryId(chosen.territoryId);
+    const suggestionStart = nextDateForWeekday(startDate, saida.diaDaSemana);
+    setTerritorioId(chosen.territorioId);
     setStartDate(suggestionStart);
     setEndDate(addDaysToIso(suggestionStart, rules.defaultDurationDays));
   };
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!territoryId || !exitId) {
+    if (!territorioId || !saidaId) {
       toast.error('Selecione território e saída');
       return;
     }
-    addAssignment({ territoryId, fieldExitId: exitId, startDate, endDate });
+    await addDesignacao({ territorioId, saidaId, dataInicial: startDate, dataFinal: endDate, devolvido: false });
   };
 
-  const toggleAssignmentReturn = (assignment: Assignment) => {
-    const { id, ...rest } = assignment;
-    updateAssignment(id, { ...rest, returned: !assignment.returned });
+  const toggleDesignacaoReturn = async (designacao: Designacao) => {
+    await updateDesignacao(designacao.id, { devolvido: !designacao.devolvido });
   };
 
   return (
@@ -88,14 +93,14 @@ const AssignmentsPage: React.FC = () => {
           <div className="grid gap-1">
             <Label>Território</Label>
             <select
-              value={territoryId}
-              onChange={(event) => setTerritoryId(event.target.value)}
+              value={territorioId}
+              onChange={(event) => setTerritorioId(event.target.value)}
               className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900"
             >
               <option value="">Selecione…</option>
-              {territories.map((territory) => (
-                <option key={territory.id} value={territory.id}>
-                  {territory.name}
+              {territorios.map((territorio) => (
+                <option key={territorio.id} value={territorio.id}>
+                  {territorio.nome}
                 </option>
               ))}
             </select>
@@ -103,14 +108,14 @@ const AssignmentsPage: React.FC = () => {
           <div className="grid gap-1">
             <Label>Saída</Label>
             <select
-              value={exitId}
-              onChange={(event) => setExitId(event.target.value)}
+              value={saidaId}
+              onChange={(event) => setSaidaId(event.target.value)}
               className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900"
             >
               <option value="">Selecione…</option>
-              {exits.map((exit) => (
-                <option key={exit.id} value={exit.id}>
-                  {exit.name}
+              {saidas.map((saida) => (
+                <option key={saida.id} value={saida.id}>
+                  {saida.nome}
                 </option>
               ))}
             </select>
@@ -134,8 +139,8 @@ const AssignmentsPage: React.FC = () => {
         </form>
       </Card>
 
-      <Card title={`Designações (${assignments.length})`}>
-        {assignments.length === 0 ? (
+      <Card title={`Designações (${designacoes.length})`}>
+        {designacoes.length === 0 ? (
           <p className="text-neutral-500">Sem designações.</p>
         ) : (
           <div className="overflow-x-auto">
@@ -151,29 +156,29 @@ const AssignmentsPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {assignments.map((assignment) => {
-                  const status: 'devolvido' | 'atrasado' | 'ativo' = assignment.returned
+                {designacoes.map((designacao) => {
+                  const status: 'devolvido' | 'atrasado' | 'ativo' = designacao.devolvido
                     ? 'devolvido'
-                    : new Date(assignment.endDate) < new Date()
+                    : new Date(designacao.dataFinal) < new Date()
                       ? 'atrasado'
                       : 'ativo';
                   return (
-                    <tr key={assignment.id} className="border-b last:border-0">
-                      <td className="py-2">{findName(assignment.territoryId, territories)}</td>
-                      <td>{findName(assignment.fieldExitId, exits)}</td>
-                      <td>{formatIsoDate(assignment.startDate)}</td>
-                      <td>{formatIsoDate(assignment.endDate)}</td>
+                    <tr key={designacao.id} className="border-b last:border-0">
+                      <td className="py-2">{findName(designacao.territorioId, territorios)}</td>
+                      <td>{findName(designacao.saidaId, saidas)}</td>
+                      <td>{formatIsoDate(designacao.dataInicial)}</td>
+                      <td>{formatIsoDate(designacao.dataFinal)}</td>
                       <td>
                         <StatusBadge status={status} />
                       </td>
                       <td className="text-right flex gap-2 justify-end">
-                        <Button onClick={() => toggleAssignmentReturn(assignment)} className="bg-neutral-100">
-                          {assignment.returned ? 'Reativar' : 'Devolver'}
+                        <Button onClick={() => toggleDesignacaoReturn(designacao)} className="bg-neutral-100">
+                          {designacao.devolvido ? 'Reativar' : 'Devolver'}
                         </Button>
                         <Button
                           onClick={async () => {
                             if (await confirm('Excluir designação?')) {
-                              delAssignment(assignment.id);
+                              await removeDesignacao(designacao.id);
                             }
                           }}
                           className="bg-red-50 text-red-700"

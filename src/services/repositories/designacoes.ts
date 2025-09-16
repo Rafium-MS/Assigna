@@ -32,6 +32,14 @@ export const DesignacaoRepository = {
   },
 
   /**
+   * Removes all designações from the database.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async clear(): Promise<void> {
+    await db.designacoes.clear();
+  },
+
+  /**
    * Removes a designacao from the database.
    * @param id The ID of the designacao to remove.
    * @returns A promise that resolves when the operation is complete.

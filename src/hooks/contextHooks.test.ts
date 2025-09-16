@@ -5,8 +5,32 @@ vi.mock('react', async () => {
   return {
     ...actual,
     useContext: vi.fn(),
+    useCallback: <T extends (...args: never[]) => unknown>(callback: T) => callback,
   };
 });
+
+vi.mock('../components/feedback/Toast', () => ({
+  useToast: () => ({
+    success: vi.fn(),
+    error: vi.fn(),
+  }),
+}));
+
+function createRepositoryMock() {
+  return {
+    add: vi.fn().mockResolvedValue(undefined),
+    remove: vi.fn().mockResolvedValue(undefined),
+    clear: vi.fn().mockResolvedValue(undefined),
+    all: vi.fn().mockResolvedValue([]),
+  };
+}
+
+vi.mock('../services/repositories', () => ({
+  TerritorioRepository: createRepositoryMock(),
+  SaidaRepository: createRepositoryMock(),
+  DesignacaoRepository: createRepositoryMock(),
+  SugestaoRepository: createRepositoryMock(),
+}));
 
 import { useContext } from 'react';
 import { AppContext } from '../store/AppProvider';
@@ -101,7 +125,7 @@ describe('App context hooks', () => {
       selectSpy.mockRestore();
     });
 
-    it('dispatches an action to add a território', () => {
+    it('dispatches an action to add a território', async () => {
       const { dispatch, state } = setupContext();
       const newTerritorio: Territorio = {
         id: 'territorio-2',
@@ -112,13 +136,15 @@ describe('App context hooks', () => {
         .mockReturnValue(state.territorios);
 
       const { addTerritorio } = useTerritorios();
-      addTerritorio(newTerritorio);
+      await addTerritorio({ nome: newTerritorio.nome });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
-      expect(dispatch).toHaveBeenCalledWith({
-        type: 'ADD_TERRITORIO',
-        payload: newTerritorio,
-      });
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_TERRITORIO',
+          payload: expect.objectContaining({ nome: newTerritorio.nome }),
+        }),
+      );
 
       selectSpy.mockRestore();
     });
@@ -141,7 +167,7 @@ describe('App context hooks', () => {
       selectSpy.mockRestore();
     });
 
-    it('dispatches an action to add a saída', () => {
+    it('dispatches an action to add a saída', async () => {
       const { dispatch, state } = setupContext();
       const newSaida: Saida = {
         id: 'saida-2',
@@ -152,10 +178,15 @@ describe('App context hooks', () => {
       const selectSpy = vi.spyOn(selectors, 'selectSaidas').mockReturnValue(state.saidas);
 
       const { addSaida } = useSaidas();
-      addSaida(newSaida);
+      await addSaida({ nome: newSaida.nome, diaDaSemana: newSaida.diaDaSemana, hora: newSaida.hora });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
-      expect(dispatch).toHaveBeenCalledWith({ type: 'ADD_SAIDA', payload: newSaida });
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_SAIDA',
+          payload: expect.objectContaining({ nome: newSaida.nome }),
+        }),
+      );
 
       selectSpy.mockRestore();
     });
@@ -186,7 +217,7 @@ describe('App context hooks', () => {
       selectSpy.mockRestore();
     });
 
-    it('dispatches an action to add a designação', () => {
+    it('dispatches an action to add a designação', async () => {
       const { dispatch, state } = setupContext();
       const newDesignacao: Designacao = {
         id: 'designacao-2',
@@ -200,13 +231,20 @@ describe('App context hooks', () => {
         .mockReturnValue(state.designacoes);
 
       const { addDesignacao } = useDesignacoes();
-      addDesignacao(newDesignacao);
+      await addDesignacao({
+        territorioId: newDesignacao.territorioId,
+        saidaId: newDesignacao.saidaId,
+        dataInicial: newDesignacao.dataInicial,
+        dataFinal: newDesignacao.dataFinal,
+      });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
-      expect(dispatch).toHaveBeenCalledWith({
-        type: 'ADD_DESIGNACAO',
-        payload: newDesignacao,
-      });
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_DESIGNACAO',
+          payload: expect.objectContaining({ territorioId: newDesignacao.territorioId }),
+        }),
+      );
 
       selectSpy.mockRestore();
     });
@@ -236,7 +274,7 @@ describe('App context hooks', () => {
       selectSpy.mockRestore();
     });
 
-    it('dispatches an action to add a sugestão', () => {
+    it('dispatches an action to add a sugestão', async () => {
       const { dispatch, state } = setupContext();
       const newSugestao: Sugestao = {
         territorioId: 'territorio-1',
@@ -249,13 +287,15 @@ describe('App context hooks', () => {
         .mockReturnValue(state.sugestoes);
 
       const { addSugestao } = useSugestoes();
-      addSugestao(newSugestao);
+      await addSugestao(newSugestao);
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
-      expect(dispatch).toHaveBeenCalledWith({
-        type: 'ADD_SUGESTAO',
-        payload: newSugestao,
-      });
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_SUGESTAO',
+          payload: expect.objectContaining({ territorioId: newSugestao.territorioId }),
+        }),
+      );
 
       selectSpy.mockRestore();
     });

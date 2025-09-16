@@ -65,7 +65,7 @@ export function useMonthlyExportScheduler() {
     const interval = setInterval(async () => {
       if (Date.now() >= config.nextRun) {
         const designacoes = await DesignacaoRepository.all();
-        const summary = monthlySummaryBySaida(designacoes);
+        const summary = monthlySummaryBySaida(designacoes).map((item) => ({ ...item }));
         const csv = exportToCsv(summary, ['saidaId', 'month', 'total']);
         const date = new Date().toISOString().split('T')[0];
         downloadFile(csv, `monthly-summary-${date}.csv`, 'text/csv');

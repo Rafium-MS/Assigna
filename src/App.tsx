@@ -10,7 +10,10 @@ import ExitsPage from './pages/ExitsPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import CalendarPage from './pages/CalendarPage';
 import SuggestionsPage from './pages/SuggestionsPage';
-import { StoreProvider, useStoreContext } from './store/localStore';
+import { AppProvider } from './store/AppProvider';
+import { useApp } from './hooks/useApp';
+import { useToast } from './components/feedback/Toast';
+import { TerritorioRepository, SaidaRepository, DesignacaoRepository, SugestaoRepository } from './services/repositories';
 import type { TabKey } from './types/navigation';
 
 const AppRoutes: React.FC<{ tab: TabKey }> = ({ tab }) => {
@@ -35,12 +38,27 @@ const AppRoutes: React.FC<{ tab: TabKey }> = ({ tab }) => {
 };
 
 const ClearAllButton: React.FC = () => {
-  const { clearAll } = useStoreContext();
+  const { dispatch } = useApp();
+  const toast = useToast();
   const confirm = useConfirm();
 
   const handleClick = async () => {
-    if (await confirm('Limpar TODOS os dados?')) {
-      clearAll();
+    if (!(await confirm('Limpar TODOS os dados?'))) {
+      return;
+    }
+
+    try {
+      await Promise.all([
+        TerritorioRepository.clear(),
+        SaidaRepository.clear(),
+        DesignacaoRepository.clear(),
+        SugestaoRepository.clear(),
+      ]);
+      dispatch({ type: 'RESET_STATE' });
+      toast.success('Dados limpos');
+    } catch (error) {
+      console.error('Falha ao limpar dados', error);
+      toast.error('Não foi possível limpar os dados');
     }
   };
 
@@ -57,12 +75,12 @@ export default function App() {
   const [tab, setTab] = useState<TabKey>('territories');
 
   return (
-    <StoreProvider>
+    <AppProvider>
       <Shell currentTab={tab} onTabChange={setTab}>
         <AppRoutes tab={tab} />
         <SchedulerControls />
         <ClearAllButton />
       </Shell>
-    </StoreProvider>
+    </AppProvider>
   );
 }
