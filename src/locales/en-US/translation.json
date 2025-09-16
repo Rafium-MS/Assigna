@@ -54,6 +54,7 @@
     "settings": "Settings",
     "notifications": "Notifications"
   },
+
   "buildingsVillages": {
     "title": "Buildings and Villages",
     "subtitle": "Register, filter, and organize information about buildings, villages, and condominiums in the territory.",
@@ -122,6 +123,36 @@
       "saveError": "Could not save the record"
     },
     "confirmDelete": "Do you really want to remove this record?"
+
+    "ruasNumeracoes": {
+    "tabs": {
+      "streets": "Streets",
+      "addresses": "Addresses",
+      "summary": "Summary"
+    },
+    "streetsForm": {
+      "streetNamePlaceholder": "Street name"
+    },
+    "streetsTable": {
+      "name": "Name"
+    },
+    "addressesForm": {
+      "selectStreet": "Select a street",
+      "selectType": "Type",
+      "numberStart": "Start",
+      "numberEnd": "End"
+    },
+    "addressesTable": {
+      "street": "Street",
+      "start": "Start",
+      "end": "End",
+      "type": "Type"
+    },
+    "summary": {
+      "totalStreets": "Total streets: {{count}}",
+      "totalAddresses": "Total addresses: {{count}}",
+      "totalPropertyTypes": "Total property types: {{count}}"
+    }
   },
   "status": {
     "ativo": "Active",
@@ -144,6 +175,25 @@
     "confirmDelete": "Delete exit?",
     "delete": "Delete"
   },
+  "territories": {
+    "createTerritory": "Create Territory",
+    "editTerritory": "Edit Territory",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Territory 12 – Downtown",
+    "optionalImage": "Image (optional)",
+    "saveTerritory": "Save Territory",
+    "territoriesWithCount": "Territories ({{count}})",
+    "searchPlaceholder": "Search...",
+    "withImage": "With image",
+    "noTerritories": "No territories registered.",
+    "image": "Image",
+    "noImagePlaceholder": "—",
+    "confirmDelete": "Delete territory?",
+    "pageInfo": "Page {{page}} of {{pageCount}}",
+    "validation": {
+      "nameRequired": "Name is required"
+    }
+  },
   "assignments": {
     "selectExit": "Select an exit",
     "noAvailableTerritories": "No territories available",
@@ -164,11 +214,60 @@
     "confirmDelete": "Delete assignment?",
     "delete": "Delete"
   },
+  "suggestions": {
+    "cards": {
+      "rules": "Suggestion Rules",
+      "generated": "Generated Suggestions"
+    },
+    "actions": {
+      "saveDefaults": "Save defaults",
+      "generate": "Generate Suggestions",
+      "applyAll": "Apply All"
+    },
+    "labels": {
+      "startDate": "Start date",
+      "duration": "Duration (days)",
+      "avoidCount": "Avoid repetition (last N)",
+      "monthsPerExit": "Repeat per exit (months)",
+      "recentWeight": "Recency weight",
+      "balanceWeight": "Exit load weight"
+    },
+    "tooltips": {
+      "startDate": "Starting date to generate suggestions",
+      "duration": "Default assignment duration in days",
+      "avoidCount": "Number of recent assignments to avoid repeating",
+      "monthsPerExit": "Minimum months before repeating the same territory in the same exit",
+      "recentWeight": "Higher values penalize recently used territories",
+      "balanceWeight": "Higher values balance exit workload"
+    },
+    "messages": {
+      "waiting": "Waiting for generation…",
+      "empty": "No suggestions (check territories and exits)."
+    },
+    "table": {
+      "exit": "Exit",
+      "territory": "Territory",
+      "start": "Assignment",
+      "end": "Return"
+    },
+    "toast": {
+      "nothingToApply": "Nothing to apply",
+      "applied": "Suggestions applied"
+    },
+    "reasons": {
+      "exitLoad": "Exit load {{value}}%",
+      "recent": "Recent {{value}}%",
+      "neverUsed": "Never used"
+    }
+  },
   "calendar": {
     "warningDays": "Alert (days)",
     "overdue": "Overdue",
     "dueIn": "D-{{diff}}",
     "noAssignments": "No assignments."
+  },
+  "reports": {
+    "title": "Reports"
   },
   "app": {
     "updateAvailable": "New version available. Update?",

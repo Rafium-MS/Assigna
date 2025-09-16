@@ -54,6 +54,7 @@
     "settings": "Configurações",
     "notifications": "Notificações"
   },
+
   "buildingsVillages": {
     "title": "Prédios e Vilas",
     "subtitle": "Cadastre, filtre e organize informações sobre prédios, vilas e condomínios do território.",
@@ -122,7 +123,39 @@
       "saveError": "Não foi possível salvar o registro"
     },
     "confirmDelete": "Deseja realmente remover este registro?"
-  },
+
+    
+  "ruasNumeracoes": {
+    "tabs": {
+      "streets": "Ruas",
+      "addresses": "Endereços",
+      "summary": "Resumo"
+    },
+    "streetsForm": {
+      "streetNamePlaceholder": "Nome da rua"
+    },
+    "streetsTable": {
+      "name": "Nome"
+    },
+    "addressesForm": {
+      "selectStreet": "Selecione a rua",
+      "selectType": "Tipo",
+      "numberStart": "Início",
+      "numberEnd": "Fim"
+    },
+    "addressesTable": {
+      "street": "Rua",
+      "start": "Início",
+      "end": "Fim",
+      "type": "Tipo"
+    },
+    "summary": {
+      "totalStreets": "Total de ruas: {{count}}",
+      "totalAddresses": "Total de endereços: {{count}}",
+      "totalPropertyTypes": "Total de tipos de propriedade: {{count}}"
+    }
+
+},
   "status": {
     "ativo": "Ativo",
     "devolvido": "Devolvido",
@@ -144,6 +177,25 @@
     "confirmDelete": "Excluir saída?",
     "delete": "Excluir"
   },
+  "territories": {
+    "createTerritory": "Cadastrar Território",
+    "editTerritory": "Editar Território",
+    "name": "Nome",
+    "namePlaceholder": "Ex.: Território 12 – Centro",
+    "optionalImage": "Imagem (opcional)",
+    "saveTerritory": "Salvar Território",
+    "territoriesWithCount": "Territórios ({{count}})",
+    "searchPlaceholder": "Buscar...",
+    "withImage": "Com imagem",
+    "noTerritories": "Nenhum território cadastrado.",
+    "image": "Imagem",
+    "noImagePlaceholder": "—",
+    "confirmDelete": "Excluir território?",
+    "pageInfo": "Página {{page}} de {{pageCount}}",
+    "validation": {
+      "nameRequired": "Nome obrigatório"
+    }
+  },
   "assignments": {
     "selectExit": "Selecione uma saída",
     "noAvailableTerritories": "Sem territórios disponíveis",
@@ -164,11 +216,60 @@
     "confirmDelete": "Excluir designação?",
     "delete": "Excluir"
   },
+  "suggestions": {
+    "cards": {
+      "rules": "Regras de sugestão",
+      "generated": "Sugestões geradas"
+    },
+    "actions": {
+      "saveDefaults": "Salvar padrões",
+      "generate": "Gerar sugestões",
+      "applyAll": "Aplicar tudo"
+    },
+    "labels": {
+      "startDate": "Data inicial",
+      "duration": "Duração (dias)",
+      "avoidCount": "Evitar repetição (últimas N)",
+      "monthsPerExit": "Repetição por saída (meses)",
+      "recentWeight": "Peso recência",
+      "balanceWeight": "Peso carga saída"
+    },
+    "tooltips": {
+      "startDate": "Data inicial para geração das sugestões",
+      "duration": "Duração padrão das designações em dias",
+      "avoidCount": "Número de últimas designações consideradas para evitar repetição",
+      "monthsPerExit": "Tempo mínimo em meses antes de repetir o mesmo território na mesma saída",
+      "recentWeight": "Quanto maior, mais penaliza territórios usados recentemente",
+      "balanceWeight": "Quanto maior, mais equilibrada a carga entre saídas"
+    },
+    "messages": {
+      "waiting": "Aguardando geração…",
+      "empty": "Sem sugestões (verifique se há territórios e saídas)."
+    },
+    "table": {
+      "exit": "Saída",
+      "territory": "Território",
+      "start": "Designação",
+      "end": "Devolução"
+    },
+    "toast": {
+      "nothingToApply": "Nada para aplicar",
+      "applied": "Designações aplicadas"
+    },
+    "reasons": {
+      "exitLoad": "Carga saída {{value}}%",
+      "recent": "Recente {{value}}%",
+      "neverUsed": "Nunca usado"
+    }
+  },
   "calendar": {
     "warningDays": "Alerta (dias)",
     "overdue": "Atrasado",
     "dueIn": "D-{{diff}}",
     "noAssignments": "Sem designações."
+  },
+  "reports": {
+    "title": "Relatórios"
   },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",

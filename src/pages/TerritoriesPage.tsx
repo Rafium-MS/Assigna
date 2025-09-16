@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +9,7 @@ import { useTerritorios } from '../hooks/useTerritorios';
 import type { Territorio } from '../types/territorio';
 
 const territorySchema = z.object({
-  nome: z.string().min(1, 'Nome obrigatório'),
+  nome: z.string().min(1, 'territories.validation.nameRequired'),
   imagem: z.string().optional(),
 });
 
@@ -19,6 +20,7 @@ const pageSize = 5;
 const TerritoriesPage: React.FC = () => {
   const { territorios, addTerritorio, removeTerritorio, updateTerritorio } = useTerritorios();
   const confirm = useConfirm();
+  const { t } = useTranslation();
 
   const { register, handleSubmit, reset, setValue, watch, formState } = useForm<TerritoryForm>({
     resolver: zodResolver(territorySchema),
@@ -63,15 +65,15 @@ const TerritoriesPage: React.FC = () => {
 
   return (
     <div className="grid gap-4">
-      <Card title={editingId ? 'Editar Território' : 'Cadastrar Território'}>
+      <Card title={t(editingId ? 'territories.editTerritory' : 'territories.createTerritory')}>
         <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-3 gap-3">
           <div className="grid gap-1">
-            <Label>Nome</Label>
-            <Input {...register('nome')} placeholder="Ex.: Território 12 – Centro" />
-            {errors.nome && <p className="text-sm text-red-600">{errors.nome.message}</p>}
+            <Label>{t('territories.name')}</Label>
+            <Input {...register('nome')} placeholder={t('territories.namePlaceholder')} />
+            {errors.nome?.message && <p className="text-sm text-red-600">{t(errors.nome.message)}</p>}
           </div>
           <div className="grid gap-1 md:col-span-2">
-            <Label>Imagem (opcional)</Label>
+            <Label>{t('territories.optionalImage')}</Label>
             <ImagePicker value={watch('imagem')} onChange={(value) => setValue('imagem', value)} compress />
           </div>
           <div className="md:col-span-3 flex justify-end gap-2">
@@ -84,22 +86,22 @@ const TerritoriesPage: React.FC = () => {
                 }}
                 className="bg-neutral-100"
               >
-                Cancelar
+                {t('common.cancel')}
               </Button>
             )}
             <Button type="submit" className="bg-black text-white">
-              {editingId ? 'Atualizar' : 'Salvar Território'}
+              {editingId ? t('common.update') : t('territories.saveTerritory')}
             </Button>
           </div>
         </form>
       </Card>
 
       <Card
-        title={`Territórios (${filtered.length})`}
+        title={t('territories.territoriesWithCount', { count: filtered.length })}
         actions={
           <div className="flex gap-2 items-center">
             <Input
-              placeholder="Buscar..."
+              placeholder={t('territories.searchPlaceholder')}
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
@@ -116,20 +118,20 @@ const TerritoriesPage: React.FC = () => {
                   setPage(1);
                 }}
               />
-              Com imagem
+              {t('territories.withImage')}
             </label>
           </div>
         }
       >
         {filtered.length === 0 ? (
-          <p className="text-neutral-500">Nenhum território cadastrado.</p>
+          <p className="text-neutral-500">{t('territories.noTerritories')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left border-b">
-                  <th className="py-2">Nome</th>
-                  <th>Imagem</th>
+                  <th className="py-2">{t('territories.name')}</th>
+                  <th>{t('territories.image')}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -145,23 +147,23 @@ const TerritoriesPage: React.FC = () => {
                           className="w-16 h-16 object-cover rounded-lg border"
                         />
                       ) : (
-                        '—'
+                        t('territories.noImagePlaceholder')
                       )}
                     </td>
                     <td className="py-2 text-right">
                       <div className="flex gap-2 justify-end">
                         <Button onClick={() => startEdit(territorio)} className="bg-neutral-100">
-                          Editar
+                          {t('common.edit')}
                         </Button>
                         <Button
                           onClick={async () => {
-                            if (await confirm('Excluir território?')) {
+                            if (await confirm(t('territories.confirmDelete'))) {
                               await removeTerritorio(territorio.id);
                             }
                           }}
                           className="bg-red-50 text-red-700"
                         >
-                          Excluir
+                          {t('common.delete')}
                         </Button>
                       </div>
                     </td>
@@ -170,17 +172,17 @@ const TerritoriesPage: React.FC = () => {
               </tbody>
             </table>
             <div className="flex justify-between items-center mt-3">
-              <span className="text-sm text-neutral-500">Página {page} de {pageCount}</span>
+              <span className="text-sm text-neutral-500">{t('territories.pageInfo', { page, pageCount })}</span>
               <div className="flex gap-2">
                 <Button type="button" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>
-                  Anterior
+                  {t('common.previous')}
                 </Button>
                 <Button
                   type="button"
                   disabled={page === pageCount}
                   onClick={() => setPage((value) => value + 1)}
                 >
-                  Próxima
+                  {t('common.next')}
                 </Button>
               </div>
             </div>
