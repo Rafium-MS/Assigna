@@ -1,12 +1,22 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
+/**
+ * Props for the Sidebar component.
+ */
 interface Props {
+  /** The ID of the currently selected item. */
   current: string;
+  /** Callback function for when an item is selected. */
   onSelect: (id: string) => void;
 }
 
 const iconCls = 'w-5 h-5';
 
+/**
+ * An icon representing a map.
+ * @returns A JSX element representing the map icon.
+ */
 const MapIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z" />
@@ -15,6 +25,10 @@ const MapIcon = () => (
   </svg>
 );
 
+/**
+ * An icon representing an exit.
+ * @returns A JSX element representing the exit icon.
+ */
 const ExitIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 12h13" />
@@ -22,6 +36,10 @@ const ExitIcon = () => (
   </svg>
 );
 
+/**
+ * An icon representing an assignment.
+ * @returns A JSX element representing the assignment icon.
+ */
 const AssignIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="6" y="3" width="12" height="18" rx="2" />
@@ -29,6 +47,10 @@ const AssignIcon = () => (
   </svg>
 );
 
+/**
+ * An icon representing a calendar.
+ * @returns A JSX element representing the calendar icon.
+ */
 const CalendarIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="4" width="18" height="18" rx="2" />
@@ -38,6 +60,10 @@ const CalendarIcon = () => (
   </svg>
 );
 
+/**
+ * An icon representing a suggestion.
+ * @returns A JSX element representing the suggestion icon.
+ */
 const SuggestIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M9 18h6" />
@@ -46,6 +72,10 @@ const SuggestIcon = () => (
   </svg>
 );
 
+/**
+ * An icon representing a building.
+ * @returns A JSX element representing the building icon.
+ */
 const BuildingIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 21h18" />
@@ -67,8 +97,11 @@ const items = [
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
 ];
 
-import { useTranslation } from 'react-i18next';
-
+/**
+ * A component for the main sidebar navigation.
+ * @param props The props for the component.
+ * @returns A JSX element representing the sidebar.
+ */
 export const Sidebar: React.FC<Props> = ({ current, onSelect }) => {
   const { t } = useTranslation();
   return (
@@ -88,4 +121,3 @@ export const Sidebar: React.FC<Props> = ({ current, onSelect }) => {
     </nav>
   );
 };
-

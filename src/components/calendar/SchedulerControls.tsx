@@ -2,6 +2,11 @@ import React from 'react';
 import { useMonthlyExportScheduler } from '../../hooks/useMonthlyExportScheduler';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * A component for controlling the monthly export scheduler.
+ * It allows enabling/disabling the scheduler and setting the next run time.
+ * @returns A JSX element representing the scheduler controls.
+ */
 export const SchedulerControls: React.FC = () => {
   const { config, setConfig } = useMonthlyExportScheduler();
   const { t } = useTranslation();
