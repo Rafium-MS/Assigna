@@ -1,60 +1,59 @@
 {
   "home": {
-    "title": "Início",
-    "today": "Hoje é {{date}}",
-    "exampleNumber": "Número de exemplo: {{value}}"
+    "title": "Inicio",
+    "today": "Hoy es {{date}}",
+    "exampleNumber": "Número de ejemplo: {{value}}"
   },
   "about": {
-    "title": "Sobre"
+    "title": "Acerca de"
   },
   "navbar": {
-    "home": "Início",
-    "about": "Sobre",
-    "settings": "Configurações",
+    "home": "Inicio",
+    "about": "Acerca de",
+    "settings": "Configuración",
     "profile": "Perfil",
-    "logout": "Sair",
-    "dashboard": "Painel"
+    "logout": "Cerrar sesión",
+    "dashboard": "Panel"
   },
   "confirm": {
     "cancel": "Cancelar",
     "confirm": "Confirmar",
-    "delete": "Excluir",
-    "save": "Salvar",
-    "yes": "Sim",
-    "no": "Não",
-    "ok": "OK",
+    "delete": "Eliminar",
+    "save": "Guardar",
+    "yes": "Sí",
+    "no": "No",
+    "ok": "Aceptar",
     "continue": "Continuar",
-    "areYouSure": "Tem certeza?"
+    "areYouSure": "¿Está seguro?"
   },
   "scheduler": {
-    "title": "Exportação mensal",
-    "enable": "Ativar",
-    "disable": "Desativar",
-    "nextRun": "Próxima execução:",
-    "lastRun": "Última execução:",
-    "frequency": "Frequência",
-    "daily": "Diária",
+    "title": "Exportación mensual",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "nextRun": "Próxima ejecución:",
+    "lastRun": "Última ejecución:",
+    "frequency": "Frecuencia",
+    "daily": "Diaria",
     "weekly": "Semanal",
-    "monthly": "Mensal",
+    "monthly": "Mensual",
     "time": "Hora",
-    "runNow": "Executar agora"
+    "runNow": "Ejecutar ahora"
   },
   "sidebar": {
-    "territories": "Territórios",
-    "streets": "Ruas",
-    "buildingsVillages": "Prédios & Vilas",
-    "exits": "Saídas",
-    "assignments": "Designações",
-    "calendar": "Calendário",
-    "suggestions": "Sugestões",
-    "dashboard": "Painel",
-    "reports": "Relatórios",
+    "territories": "Territorios",
+    "streets": "Calles",
+    "buildingsVillages": "Edificios y Villas",
+    "exits": "Salidas",
+    "assignments": "Asignaciones",
+    "calendar": "Calendario",
+    "suggestions": "Sugerencias",
+    "dashboard": "Panel",
+    "reports": "Informes",
     "maps": "Mapas",
-    "users": "Usuários",
-    "settings": "Configurações",
-    "notifications": "Notificações"
+    "users": "Usuarios",
+    "settings": "Configuración",
+    "notifications": "Notificaciones"
   },
-
   "buildingsVillages": {
     "title": "Edificios y Villas",
     "subtitle": "Registra, filtra y organiza información sobre edificios, villas y condominios del territorio.",
@@ -124,7 +123,6 @@
     },
     "confirmDelete": "¿Desea realmente eliminar este registro?"
   },
-    
   "ruasNumeracoes": {
     "tabs": {
       "streets": "Calles",
@@ -154,16 +152,15 @@
       "totalAddresses": "Total de direcciones: {{count}}",
       "totalPropertyTypes": "Total de tipos de propiedad: {{count}}"
     }
-
-},
+  },
   "status": {
-    "ativo": "Ativo",
-    "devolvido": "Devolvido",
+    "ativo": "Activo",
+    "devolvido": "Devuelto",
     "atrasado": "Atrasado",
-    "pendente": "Pendente",
-    "emAndamento": "Em andamento",
-    "inativo": "Inativo",
-    "arquivado": "Arquivado"
+    "pendente": "Pendiente",
+    "emAndamento": "En curso",
+    "inativo": "Inactivo",
+    "arquivado": "Archivado"
   },
   "exits": {
     "newExit": "Registrar salida de campo",
@@ -272,17 +269,17 @@
     "title": "Informes"
   },
   "app": {
-    "updateAvailable": "Nova versão disponível. Atualizar?",
-    "loading": "Carregando...",
-    "saving": "Salvando...",
-    "error": "Algo deu errado",
-    "success": "Concluído com sucesso",
-    "retry": "Tentar novamente",
-    "close": "Fechar",
+    "updateAvailable": "Nueva versión disponible. ¿Actualizar?",
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "error": "Algo salió mal",
+    "success": "Completado con éxito",
+    "retry": "Intentar de nuevo",
+    "close": "Cerrar",
     "copy": "Copiar",
-    "copied": "Copiado para a área de transferência",
-    "noData": "Nenhum dado disponível",
-    "search": "Pesquisar",
+    "copied": "Copiado al portapapeles",
+    "noData": "No hay datos disponibles",
+    "search": "Buscar",
     "exportSuccess": "Archivo de exportación generado",
     "exportError": "No se pudieron exportar los datos",
     "importSuccess": "Datos importados con éxito",
@@ -292,65 +289,65 @@
     "clearError": "No se pudieron borrar los datos"
   },
   "language": {
-    "english": "Inglês",
-    "portuguese": "Português",
-    "spanish": "Espanhol"
+    "english": "Inglés",
+    "portuguese": "Portugués",
+    "spanish": "Español"
   },
   "common": {
-    "save": "Salvar",
+    "save": "Guardar",
     "cancel": "Cancelar",
-    "delete": "Excluir",
+    "delete": "Eliminar",
     "edit": "Editar",
-    "create": "Criar",
-    "view": "Visualizar",
-    "update": "Atualizar",
-    "back": "Voltar",
-    "next": "Próximo",
+    "create": "Crear",
+    "view": "Ver",
+    "update": "Actualizar",
+    "back": "Volver",
+    "next": "Siguiente",
     "previous": "Anterior",
-    "yes": "Sim",
-    "no": "Não"
+    "yes": "Sí",
+    "no": "No"
   },
   "filters": {
     "filters": "Filtros",
     "apply": "Aplicar",
-    "clear": "Limpar",
-    "reset": "Redefinir",
-    "from": "De",
-    "to": "Até",
+    "clear": "Limpiar",
+    "reset": "Restablecer",
+    "from": "Desde",
+    "to": "Hasta",
     "all": "Todos",
-    "status": "Status"
+    "status": "Estado"
   },
   "table": {
-    "actions": "Ações",
-    "rowsPerPage": "Linhas por página",
+    "actions": "Acciones",
+    "rowsPerPage": "Filas por página",
     "of": "de",
-    "empty": "Nenhum registro encontrado"
+    "empty": "No se encontró ningún registro"
   },
   "pagination": {
-    "next": "Próximo",
+    "next": "Siguiente",
     "previous": "Anterior",
-    "first": "Primeira",
+    "first": "Primera",
     "last": "Última",
     "page": "Página",
     "of": "de"
   },
   "auth": {
-    "signIn": "Entrar",
-    "signOut": "Sair",
-    "email": "E-mail",
-    "password": "Senha",
-    "forgotPassword": "Esqueceu sua senha?",
-    "rememberMe": "Lembrar-me"
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme"
   },
   "dates": {
-    "today": "Hoje",
-    "yesterday": "Ontem",
-    "tomorrow": "Amanhã"
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "tomorrow": "Mañana"
   },
   "validation": {
-    "required": "Este campo é obrigatório",
-    "invalidEmail": "Digite um e-mail válido",
-    "minLength": "O comprimento mínimo é {{min}}",
-    "maxLength": "O comprimento máximo é {{max}}"
+    "required": "Este campo es obligatorio",
+    "invalidEmail": "Introduce un correo electrónico válido",
+    "minLength": "La longitud mínima es {{min}}",
+    "maxLength": "La longitud máxima es {{max}}"
   }
 }
