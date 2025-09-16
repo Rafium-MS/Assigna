@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import type { ComponentType } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { SchedulerControls } from './components/calendar/SchedulerControls';
 import { useConfirm } from './components/feedback/ConfirmDialog';
 import { Button } from './components/ui';
@@ -42,15 +43,16 @@ const DataManagementControls: React.FC = () => {
   const { dispatch } = useApp();
   const toast = useToast();
   const confirm = useConfirm();
+  const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleExport = async () => {
     try {
       await exportData();
-      toast.success('Arquivo de exportação gerado');
+      toast.success(t('app.exportSuccess'));
     } catch (error) {
-      console.error('Falha ao exportar dados', error);
-      toast.error('Não foi possível exportar os dados');
+      console.error(t('app.exportError'), error);
+      toast.error(t('app.exportError'));
     }
   };
 
@@ -68,17 +70,17 @@ const DataManagementControls: React.FC = () => {
       dispatch({ type: 'SET_SAIDAS', payload: data.saidas });
       dispatch({ type: 'SET_DESIGNACOES', payload: data.designacoes });
       dispatch({ type: 'SET_SUGESTOES', payload: data.sugestoes });
-      toast.success('Dados importados com sucesso');
+      toast.success(t('app.importSuccess'));
     } catch (error) {
-      console.error('Falha ao importar dados', error);
-      toast.error('Não foi possível importar os dados');
+      console.error(t('app.importError'), error);
+      toast.error(t('app.importError'));
     } finally {
       event.target.value = '';
     }
   };
 
   const handleClick = async () => {
-    if (!(await confirm('Limpar TODOS os dados?'))) {
+    if (!(await confirm(t('app.clearConfirm')))) {
       return;
     }
 
@@ -98,10 +100,10 @@ const DataManagementControls: React.FC = () => {
       ]);
       await db.metadata.put({ key: 'schemaVersion', value: SCHEMA_VERSION });
       dispatch({ type: 'RESET_STATE' });
-      toast.success('Dados limpos');
+      toast.success(t('app.clearSuccess'));
     } catch (error) {
-      console.error('Falha ao limpar dados', error);
-      toast.error('Não foi possível limpar os dados');
+      console.error(t('app.clearError'), error);
+      toast.error(t('app.clearError'));
     }
   };
 

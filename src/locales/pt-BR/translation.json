@@ -282,7 +282,14 @@
     "copy": "Copiar",
     "copied": "Copiado para a área de transferência",
     "noData": "Nenhum dado disponível",
-    "search": "Pesquisar"
+    "search": "Pesquisar",
+    "exportSuccess": "Arquivo de exportação gerado",
+    "exportError": "Não foi possível exportar os dados",
+    "importSuccess": "Dados importados com sucesso",
+    "importError": "Não foi possível importar os dados",
+    "clearConfirm": "Limpar TODOS os dados?",
+    "clearSuccess": "Dados limpos",
+    "clearError": "Não foi possível limpar os dados"
   },
   "language": {
     "english": "Inglês",

@@ -280,7 +280,14 @@
     "copy": "Copy",
     "copied": "Copied to clipboard",
     "noData": "No data available",
-    "search": "Search"
+    "search": "Search",
+    "exportSuccess": "Export file generated",
+    "exportError": "Unable to export data",
+    "importSuccess": "Data imported successfully",
+    "importError": "Unable to import data",
+    "clearConfirm": "Clear ALL data?",
+    "clearSuccess": "Data cleared",
+    "clearError": "Unable to clear data"
   },
   "language": {
     "english": "English",
