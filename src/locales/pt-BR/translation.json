@@ -101,6 +101,9 @@
     "dueIn": "D-{{diff}}",
     "noAssignments": "Sem designações."
   },
+  "reports": {
+    "title": "Relatórios"
+  },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",
     "loading": "Carregando...",
