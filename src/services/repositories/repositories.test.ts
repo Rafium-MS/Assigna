@@ -57,6 +57,19 @@ describe('TerritorioRepository', () => {
     expect(stored).toHaveLength(1);
     expect(stored[0]).toEqual(territorios[1]);
   });
+
+  it('clears all territorios', async () => {
+    const territorios: Territorio[] = [
+      { id: 'territorio-1', nome: 'Territory 1' },
+      { id: 'territorio-2', nome: 'Territory 2' }
+    ];
+
+    await TerritorioRepository.bulkAdd(territorios);
+    await TerritorioRepository.clear();
+    const stored = await TerritorioRepository.all();
+
+    expect(stored).toEqual([]);
+  });
 });
 
 describe('SaidaRepository', () => {
