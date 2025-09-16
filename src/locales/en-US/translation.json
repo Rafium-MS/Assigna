@@ -123,7 +123,7 @@
       "saveError": "Could not save the record"
     },
     "confirmDelete": "Do you really want to remove this record?"
-
+  },
     "ruasNumeracoes": {
     "tabs": {
       "streets": "Streets",
