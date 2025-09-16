@@ -54,6 +54,36 @@
     "settings": "Configurações",
     "notifications": "Notificações"
   },
+  "ruasNumeracoes": {
+    "tabs": {
+      "streets": "Ruas",
+      "addresses": "Endereços",
+      "summary": "Resumo"
+    },
+    "streetsForm": {
+      "streetNamePlaceholder": "Nome da rua"
+    },
+    "streetsTable": {
+      "name": "Nome"
+    },
+    "addressesForm": {
+      "selectStreet": "Selecione a rua",
+      "selectType": "Tipo",
+      "numberStart": "Início",
+      "numberEnd": "Fim"
+    },
+    "addressesTable": {
+      "street": "Rua",
+      "start": "Início",
+      "end": "Fim",
+      "type": "Tipo"
+    },
+    "summary": {
+      "totalStreets": "Total de ruas: {{count}}",
+      "totalAddresses": "Total de endereços: {{count}}",
+      "totalPropertyTypes": "Total de tipos de propriedade: {{count}}"
+    }
+  },
   "status": {
     "ativo": "Ativo",
     "devolvido": "Devolvido",

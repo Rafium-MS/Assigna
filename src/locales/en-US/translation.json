@@ -54,6 +54,36 @@
     "settings": "Settings",
     "notifications": "Notifications"
   },
+  "ruasNumeracoes": {
+    "tabs": {
+      "streets": "Streets",
+      "addresses": "Addresses",
+      "summary": "Summary"
+    },
+    "streetsForm": {
+      "streetNamePlaceholder": "Street name"
+    },
+    "streetsTable": {
+      "name": "Name"
+    },
+    "addressesForm": {
+      "selectStreet": "Select a street",
+      "selectType": "Type",
+      "numberStart": "Start",
+      "numberEnd": "End"
+    },
+    "addressesTable": {
+      "street": "Street",
+      "start": "Start",
+      "end": "End",
+      "type": "Type"
+    },
+    "summary": {
+      "totalStreets": "Total streets: {{count}}",
+      "totalAddresses": "Total addresses: {{count}}",
+      "totalPropertyTypes": "Total property types: {{count}}"
+    }
+  },
   "status": {
     "ativo": "Active",
     "devolvido": "Returned",
