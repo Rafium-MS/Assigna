@@ -63,6 +63,26 @@
     "inativo": "Inativo",
     "arquivado": "Arquivado"
   },
+  "assignments": {
+    "selectExit": "Seleccione una salida",
+    "noAvailableTerritories": "No hay territorios disponibles",
+    "selectTerritoryAndExit": "Seleccione territorio y salida",
+    "newAssignment": "Nueva Asignación",
+    "territory": "Territorio",
+    "selectPlaceholder": "Seleccione…",
+    "exit": "Salida",
+    "assignmentDate": "Fecha de asignación",
+    "returnDate": "Fecha de devolución",
+    "generateSuggestion": "Generar sugerencia",
+    "save": "Guardar",
+    "assignmentsWithCount": "Asignaciones ({{count}})",
+    "noAssignments": "Sin asignaciones.",
+    "status": "Estado",
+    "reactivate": "Reactivar",
+    "markAsReturned": "Marcar como devuelto",
+    "confirmDelete": "¿Eliminar asignación?",
+    "delete": "Eliminar"
+  },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",
     "loading": "Carregando...",

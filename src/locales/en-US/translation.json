@@ -63,6 +63,26 @@
     "inativo": "Inactive",
     "arquivado": "Archived"
   },
+  "assignments": {
+    "selectExit": "Select an exit",
+    "noAvailableTerritories": "No territories available",
+    "selectTerritoryAndExit": "Select territory and exit",
+    "newAssignment": "New Assignment",
+    "territory": "Territory",
+    "selectPlaceholder": "Select…",
+    "exit": "Exit",
+    "assignmentDate": "Assignment date",
+    "returnDate": "Return date",
+    "generateSuggestion": "Generate suggestion",
+    "save": "Save",
+    "assignmentsWithCount": "Assignments ({{count}})",
+    "noAssignments": "No assignments.",
+    "status": "Status",
+    "reactivate": "Reactivate",
+    "markAsReturned": "Mark as returned",
+    "confirmDelete": "Delete assignment?",
+    "delete": "Delete"
+  },
   "app": {
     "updateAvailable": "New version available. Update?",
     "loading": "Loading...",
