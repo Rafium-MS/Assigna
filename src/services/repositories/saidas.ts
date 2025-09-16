@@ -32,6 +32,14 @@ export const SaidaRepository = {
   },
 
   /**
+   * Removes all saídas from the database.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async clear(): Promise<void> {
+    await db.saidas.clear();
+  },
+
+  /**
    * Removes a saida from the database.
    * @param id The ID of the saida to remove.
    * @returns A promise that resolves when the operation is complete.

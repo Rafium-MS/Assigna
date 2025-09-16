@@ -41,7 +41,7 @@ class AppDB extends Dexie {
   /** Table for storing Designacao data. */
   designacoes!: Table<Designacao, string>;
   /** Table for storing Sugestao data. */
-  sugestoes!: Table<Sugestao, string>;
+  sugestoes!: Table<Sugestao, [string, string]>;
   /** Table for storing Street data. */
   streets!: Table<Street, number>;
   /** Table for storing PropertyType data. */
