@@ -3,9 +3,9 @@ import { SchedulerControls } from './components/calendar/SchedulerControls';
 import { useConfirm } from './components/feedback/ConfirmDialog';
 import { Button } from './components/ui';
 import { Shell } from './components/layout/Shell';
-import PrediosVilasPage from './pages/PrediosVilas';
-import RuasNumeracoesPage from './pages/RuasNumeracoesPage';
 import TerritoriesPage from './pages/TerritoriesPage';
+import StreetsPage from './pages/RuasNumeracoesPage';
+import BuildingsVillagesPage from './pages/PrediosVilas';
 import ExitsPage from './pages/ExitsPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import CalendarPage from './pages/CalendarPage';
@@ -16,25 +16,19 @@ import { useToast } from './components/feedback/Toast';
 import { TerritorioRepository, SaidaRepository, DesignacaoRepository, SugestaoRepository } from './services/repositories';
 import type { TabKey } from './types/navigation';
 
+const pagesByTab: Record<TabKey, React.FC> = {
+  territories: TerritoriesPage,
+  streets: StreetsPage,
+  buildingsVillages: BuildingsVillagesPage,
+  exits: ExitsPage,
+  assignments: AssignmentsPage,
+  calendar: CalendarPage,
+  suggestions: SuggestionsPage,
+};
+
 const AppRoutes: React.FC<{ tab: TabKey }> = ({ tab }) => {
-  switch (tab) {
-    case 'territories':
-      return <TerritoriesPage />;
-    case 'streets':
-      return <RuasNumeracoesPage />;
-    case 'buildingsVillages':
-      return <PrediosVilasPage />;
-    case 'exits':
-      return <ExitsPage />;
-    case 'assignments':
-      return <AssignmentsPage />;
-    case 'calendar':
-      return <CalendarPage />;
-    case 'suggestions':
-      return <SuggestionsPage />;
-    default:
-      return null;
-  }
+  const PageComponent = pagesByTab[tab];
+  return <PageComponent />;
 };
 
 const ClearAllButton: React.FC = () => {
