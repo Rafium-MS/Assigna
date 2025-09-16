@@ -1,6 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
+/**
+ * A component for selecting the application language.
+ * It allows the user to switch between available languages.
+ * @returns A JSX element representing the language selector.
+ */
 export const LanguageSelector: React.FC = () => {
   const { i18n, t } = useTranslation();
 

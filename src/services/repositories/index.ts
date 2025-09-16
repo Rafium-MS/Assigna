@@ -1,3 +1,6 @@
+/**
+ * This file re-exports all the repositories in the directory.
+ */
 export * from './territorios';
 export * from './saidas';
 export * from './designacoes';

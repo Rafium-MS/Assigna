@@ -2,10 +2,22 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../forms/LanguageSelector';
 
+/**
+ * Props for the NavBar component.
+ */
 interface Props {
+  /**
+   * A function to navigate to a different page.
+   * @param page The page to navigate to.
+   */
   navigate: (page: 'home' | 'about') => void;
 }
 
+/**
+ * A component for the main navigation bar.
+ * @param props The props for the component.
+ * @returns A JSX element representing the navigation bar.
+ */
 export const NavBar = ({ navigate }: Props): JSX.Element => {
   const { t } = useTranslation();
 
