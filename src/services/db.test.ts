@@ -98,6 +98,90 @@ describe('IndexedDB persistence', () => {
     expect(stored).toContainEqual(buildingVillage);
   });
 
+  it('migrates legacy territorios buildings into the dedicated store', async () => {
+    const legacyDb = new Dexie('assigna');
+    legacyDb.version(1).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key'
+    });
+
+    await legacyDb.open();
+
+    // Simulate schema v1 where buildings were embedded inside territorios records.
+    const legacyTerritories: Array<Record<string, unknown>> = [
+      {
+        id: 'legacy-territory',
+        nome: 'Legacy Territory',
+        legacyBuildings: [
+          {
+            id: 'legacy-building-1',
+            name: 'Legacy Tower',
+            addressLine: 'Rua Principal',
+            number: '10',
+            residencesCount: 40,
+            modality: 'vertical',
+            type: 'building',
+            receptionType: 'concierge',
+            responsible: 'Ana',
+            assignedAt: '2023-01-10T00:00:00.000Z',
+            returnedAt: null,
+            block: 'A',
+            notes: 'Migrated from territorios',
+            createdAt: '2023-01-05T00:00:00.000Z'
+          },
+          {
+            name: 'Village Beta',
+            number: '200',
+            residencesCount: null,
+            modality: null,
+            receptionType: null,
+            responsible: null,
+            assignedAt: '2023-02-01T00:00:00.000Z',
+            returnedAt: null,
+            block: null,
+            notes: null
+          }
+        ]
+      },
+      {
+        id: 'regular-territory',
+        nome: 'Regular Territory'
+      }
+    ];
+
+    await legacyDb.table('territorios').bulkPut(legacyTerritories);
+    await legacyDb.close();
+
+    await migrate();
+
+    const migrated = await db.buildingsVillages.toArray();
+    expect(migrated).toHaveLength(2);
+    expect(migrated).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: 'legacy-building-1',
+          territory_id: 'legacy-territory',
+          created_at: '2023-01-05T00:00:00.000Z'
+        }),
+        expect.objectContaining({
+          id: 'legacy-territory-2',
+          territory_id: 'legacy-territory',
+          created_at: '2023-02-01T00:00:00.000Z'
+        })
+      ])
+    );
+
+    const updatedTerritory = await db.territorios.get('legacy-territory');
+    expect(updatedTerritory).toMatchObject({ id: 'legacy-territory', nome: 'Legacy Territory' });
+    expect((updatedTerritory as Record<string, unknown>).legacyBuildings).toBeUndefined();
+
+    const migratedMetadata = await db.metadata.get('buildingsVillagesMigrated');
+    expect(migratedMetadata?.value).toBe(2);
+  });
+
   it('upgrades legacy schema to add new support stores', async () => {
     const legacyDb = new Dexie('assigna');
     legacyDb.version(2).stores({
@@ -110,6 +194,41 @@ describe('IndexedDB persistence', () => {
     });
 
     await legacyDb.open();
+    // Simulate schema v2 data that already has the dedicated buildings table without support tables.
+    await legacyDb.table('buildingsVillages').bulkPut([
+      {
+        id: 'legacy-bv-1',
+        territory_id: 'legacy-territory',
+        name: 'Legacy Building',
+        address_line: 'Legacy Street',
+        number: '10',
+        residences_count: 12,
+        modality: 'vertical',
+        reception_type: 'porteiro',
+        responsible: 'Carlos',
+        assigned_at: '2023-03-01T00:00:00.000Z',
+        returned_at: null,
+        block: 'A',
+        notes: 'Migrated building',
+        created_at: '2023-03-05T00:00:00.000Z'
+      },
+      {
+        id: 'legacy-bv-2',
+        territory_id: 'legacy-territory',
+        name: 'Ignored Building',
+        address_line: 'Legacy Street',
+        number: '10A',
+        residences_count: 5,
+        modality: 'horizontal',
+        reception_type: null,
+        responsible: null,
+        assigned_at: null,
+        returned_at: null,
+        block: null,
+        notes: null,
+        created_at: null
+      }
+    ]);
     await legacyDb.table('metadata').put({ key: 'schemaVersion', value: 2 });
     await legacyDb.close();
 
@@ -118,35 +237,39 @@ describe('IndexedDB persistence', () => {
     const version = await getSchemaVersion();
     expect(version).toBe(SCHEMA_VERSION);
 
-    const propertyTypeId = await db.propertyTypes.add({ name: 'Apartment' });
-    const propertyType = await db.propertyTypes.get(propertyTypeId);
-    expect(propertyType).toEqual({ id: propertyTypeId, name: 'Apartment' });
+    const propertyType = await db.propertyTypes.where('name').equals('Building/Village').first();
+    expect(propertyType).toMatchObject({ name: 'Building/Village' });
+    expect(typeof propertyType?.id).toBe('number');
 
-    const streetId = await db.streets.add({ territoryId: 'legacy-territory', name: 'Legacy Street' });
-    const addressId = await db.addresses.add({
-      streetId,
-      numberStart: 1,
+    const streets = await db.streets.toArray();
+    expect(streets).toEqual([
+      expect.objectContaining({ territoryId: 'legacy-territory', name: 'Legacy Street' })
+    ]);
+
+    const addresses = await db.addresses.toArray();
+    expect(addresses).toHaveLength(1);
+    const [address] = addresses;
+    expect(address).toMatchObject({
+      streetId: streets[0]?.id,
+      numberStart: 10,
       numberEnd: 10,
-      propertyTypeId
-    });
-    const address = await db.addresses.get(addressId);
-    expect(address).toEqual({
-      id: addressId,
-      streetId,
-      numberStart: 1,
-      numberEnd: 10,
-      propertyTypeId
+      propertyTypeId: propertyType?.id
     });
 
-    const derivedTerritoryId = await db.derivedTerritories.add({
-      baseTerritoryId: 'legacy-territory',
-      name: 'Derived Legacy'
-    });
-    await db.derivedTerritoryAddresses.put({
-      derivedTerritoryId,
-      addressId
-    });
-    const derivedMapping = await db.derivedTerritoryAddresses.get([derivedTerritoryId, addressId]);
-    expect(derivedMapping).toEqual({ derivedTerritoryId, addressId });
+    const derivedTerritories = await db.derivedTerritories.toArray();
+    expect(derivedTerritories).toEqual([
+      expect.objectContaining({ baseTerritoryId: 'legacy-territory', name: 'Legacy Building' })
+    ]);
+
+    const mappings = await db.derivedTerritoryAddresses.toArray();
+    expect(mappings).toEqual([
+      {
+        derivedTerritoryId: derivedTerritories[0]?.id,
+        addressId: address?.id
+      }
+    ]);
+
+    const migrationMetadata = await db.metadata.get('derivedTerritoriesMigrated');
+    expect(migrationMetadata?.value).toBe(1);
   });
 });
