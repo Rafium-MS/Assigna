@@ -95,6 +95,52 @@
     "confirmDelete": "¿Eliminar asignación?",
     "delete": "Eliminar"
   },
+  "suggestions": {
+    "cards": {
+      "rules": "Reglas de sugerencias",
+      "generated": "Sugerencias generadas"
+    },
+    "actions": {
+      "saveDefaults": "Guardar valores predeterminados",
+      "generate": "Generar sugerencias",
+      "applyAll": "Aplicar todo"
+    },
+    "labels": {
+      "startDate": "Fecha inicial",
+      "duration": "Duración (días)",
+      "avoidCount": "Evitar repetición (últimas N)",
+      "monthsPerExit": "Repetición por salida (meses)",
+      "recentWeight": "Peso de recencia",
+      "balanceWeight": "Peso de carga por salida"
+    },
+    "tooltips": {
+      "startDate": "Fecha inicial para generar las sugerencias",
+      "duration": "Duración predeterminada de las asignaciones en días",
+      "avoidCount": "Cantidad de asignaciones recientes a evitar repetir",
+      "monthsPerExit": "Tiempo mínimo en meses antes de repetir el mismo territorio en la misma salida",
+      "recentWeight": "Los valores mayores penalizan a los territorios usados recientemente",
+      "balanceWeight": "Los valores mayores equilibran la carga entre salidas"
+    },
+    "messages": {
+      "waiting": "Esperando la generación…",
+      "empty": "Sin sugerencias (verifique los territorios y salidas)."
+    },
+    "table": {
+      "exit": "Salida",
+      "territory": "Territorio",
+      "start": "Asignación",
+      "end": "Devolución"
+    },
+    "toast": {
+      "nothingToApply": "Nada que aplicar",
+      "applied": "Sugerencias aplicadas"
+    },
+    "reasons": {
+      "exitLoad": "Carga de salida {{value}}%",
+      "recent": "Reciente {{value}}%",
+      "neverUsed": "Nunca usado"
+    }
+  },
   "calendar": {
     "warningDays": "Alerta (días)",
     "overdue": "Atrasado",

@@ -95,6 +95,52 @@
     "confirmDelete": "Excluir designação?",
     "delete": "Excluir"
   },
+  "suggestions": {
+    "cards": {
+      "rules": "Regras de sugestão",
+      "generated": "Sugestões geradas"
+    },
+    "actions": {
+      "saveDefaults": "Salvar padrões",
+      "generate": "Gerar sugestões",
+      "applyAll": "Aplicar tudo"
+    },
+    "labels": {
+      "startDate": "Data inicial",
+      "duration": "Duração (dias)",
+      "avoidCount": "Evitar repetição (últimas N)",
+      "monthsPerExit": "Repetição por saída (meses)",
+      "recentWeight": "Peso recência",
+      "balanceWeight": "Peso carga saída"
+    },
+    "tooltips": {
+      "startDate": "Data inicial para geração das sugestões",
+      "duration": "Duração padrão das designações em dias",
+      "avoidCount": "Número de últimas designações consideradas para evitar repetição",
+      "monthsPerExit": "Tempo mínimo em meses antes de repetir o mesmo território na mesma saída",
+      "recentWeight": "Quanto maior, mais penaliza territórios usados recentemente",
+      "balanceWeight": "Quanto maior, mais equilibrada a carga entre saídas"
+    },
+    "messages": {
+      "waiting": "Aguardando geração…",
+      "empty": "Sem sugestões (verifique se há territórios e saídas)."
+    },
+    "table": {
+      "exit": "Saída",
+      "territory": "Território",
+      "start": "Designação",
+      "end": "Devolução"
+    },
+    "toast": {
+      "nothingToApply": "Nada para aplicar",
+      "applied": "Designações aplicadas"
+    },
+    "reasons": {
+      "exitLoad": "Carga saída {{value}}%",
+      "recent": "Recente {{value}}%",
+      "neverUsed": "Nunca usado"
+    }
+  },
   "calendar": {
     "warningDays": "Alerta (dias)",
     "overdue": "Atrasado",

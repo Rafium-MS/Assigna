@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useToast } from '../components/feedback/Toast';
 import { Card, Button, Input, Label } from '../components/ui';
 import { useTerritorios } from '../hooks/useTerritorios';
@@ -22,6 +23,7 @@ const SuggestionsPage: React.FC = () => {
   const { designacoes, addDesignacao } = useDesignacoes();
   const [rules, setRules] = useSuggestionRules();
   const toast = useToast();
+  const { t } = useTranslation();
   const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
   const [avoidCount, setAvoidCount] = useState<number>(rules.avoidLastAssignments);
@@ -78,8 +80,10 @@ const SuggestionsPage: React.FC = () => {
           const recencyPenalty = lastOverall ? 1 / (days + 1) : 0;
           const score = balanceWeight * exitBalance - recentWeight * recencyPenalty;
           const reasons = [
-            `Carga saída ${(exitBalance * 100).toFixed(0)}%`,
-            lastOverall ? `Recente ${(recencyPenalty * 100).toFixed(0)}%` : 'Nunca usado',
+            t('suggestions.reasons.exitLoad', { value: (exitBalance * 100).toFixed(0) }),
+            lastOverall
+              ? t('suggestions.reasons.recent', { value: (recencyPenalty * 100).toFixed(0) })
+              : t('suggestions.reasons.neverUsed'),
           ];
           return [{ territorioId: territorio.id, score, reasons }];
         })
@@ -104,7 +108,7 @@ const SuggestionsPage: React.FC = () => {
 
   const applyAll = () => {
     if (!generated || generated.length === 0) {
-      toast.error('Nada para aplicar');
+      toast.error(t('suggestions.toast.nothingToApply'));
       return;
     }
     generated.forEach((suggestion) =>
@@ -116,7 +120,7 @@ const SuggestionsPage: React.FC = () => {
         devolvido: false,
       }),
     );
-    toast.success('Designações aplicadas');
+    toast.success(t('suggestions.toast.applied'));
   };
 
   const saveRuleDefaults = () =>
@@ -131,70 +135,70 @@ const SuggestionsPage: React.FC = () => {
   return (
     <div className="grid gap-4">
       <Card
-        title="Regras de Sugestão"
+        title={t('suggestions.cards.rules')}
         actions={
           <Button onClick={saveRuleDefaults} className="bg-neutral-100">
-            Salvar padrões
+            {t('suggestions.actions.saveDefaults')}
           </Button>
         }
       >
         <div className="grid md:grid-cols-6 gap-3">
           <div className="grid gap-1">
-            <Label title="Data inicial para geração das sugestões">Data inicial</Label>
+            <Label title={t('suggestions.tooltips.startDate')}>{t('suggestions.labels.startDate')}</Label>
             <Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
           </div>
           <div className="grid gap-1">
-            <Label title="Duração padrão das designações em dias">Duração (dias)</Label>
+            <Label title={t('suggestions.tooltips.duration')}>{t('suggestions.labels.duration')}</Label>
             <Input type="number" min={1} value={duration} onChange={(event) => setDuration(Number(event.target.value) || 1)} />
           </div>
           <div className="grid gap-1">
-            <Label title="Número de últimas designações consideradas para evitar repetição">Evitar repetição (últimas N)</Label>
+            <Label title={t('suggestions.tooltips.avoidCount')}>{t('suggestions.labels.avoidCount')}</Label>
             <Input type="number" min={0} value={avoidCount} onChange={(event) => setAvoidCount(Number(event.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label title="Tempo mínimo em meses antes de repetir o mesmo território na mesma saída">Repetição por saída (meses)</Label>
+            <Label title={t('suggestions.tooltips.monthsPerExit')}>{t('suggestions.labels.monthsPerExit')}</Label>
             <Input type="number" min={0} value={monthsPerExit} onChange={(event) => setMonthsPerExit(Number(event.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label title="Quanto maior, mais penaliza territórios usados recentemente">Peso recência</Label>
+            <Label title={t('suggestions.tooltips.recentWeight')}>{t('suggestions.labels.recentWeight')}</Label>
             <Input type="number" min={0} step="0.1" value={recentWeight} onChange={(event) => setRecentWeight(Number(event.target.value) || 0)} />
           </div>
           <div className="grid gap-1">
-            <Label title="Quanto maior, mais equilibrada a carga entre saídas">Peso carga saída</Label>
+            <Label title={t('suggestions.tooltips.balanceWeight')}>{t('suggestions.labels.balanceWeight')}</Label>
             <Input type="number" min={0} step="0.1" value={balanceWeight} onChange={(event) => setBalanceWeight(Number(event.target.value) || 0)} />
           </div>
           <div className="flex items-end">
             <Button onClick={generate} className="bg-black text-white w-full">
-              Gerar Sugestões
+              {t('suggestions.actions.generate')}
             </Button>
           </div>
         </div>
       </Card>
 
       <Card
-        title="Sugestões Geradas"
+        title={t('suggestions.cards.generated')}
         actions={
           generated && generated.length > 0 && (
             <Button onClick={applyAll} className="bg-green-600 text-white">
-              Aplicar Tudo
+              {t('suggestions.actions.applyAll')}
             </Button>
           )
         }
       >
         {generated === null ? (
-          <p className="text-neutral-500">Aguardando geração…</p>
+          <p className="text-neutral-500">{t('suggestions.messages.waiting')}</p>
         ) : generated.length === 0 ? (
-          <p className="text-neutral-500">Sem sugestões (verifique se há territórios e saídas).</p>
+          <p className="text-neutral-500">{t('suggestions.messages.empty')}</p>
         ) : (
           <div className="grid gap-4">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left border-b">
-                    <th className="py-2">Saída</th>
-                    <th>Território</th>
-                    <th>Designação</th>
-                    <th>Devolução</th>
+                    <th className="py-2">{t('suggestions.table.exit')}</th>
+                    <th>{t('suggestions.table.territory')}</th>
+                    <th>{t('suggestions.table.start')}</th>
+                    <th>{t('suggestions.table.end')}</th>
                   </tr>
                 </thead>
                 <tbody>
