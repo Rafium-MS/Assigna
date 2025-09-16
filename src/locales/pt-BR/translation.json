@@ -289,7 +289,11 @@
     "importError": "Não foi possível importar os dados",
     "clearConfirm": "Limpar TODOS os dados?",
     "clearSuccess": "Dados limpos",
-    "clearError": "Não foi possível limpar os dados"
+    "clearError": "Não foi possível limpar os dados",
+    "theme": {
+      "light": "Tema claro",
+      "dark": "Tema escuro"
+    }
   },
   "language": {
     "english": "Inglês",

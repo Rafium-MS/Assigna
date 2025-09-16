@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 
 interface ShellProps {
@@ -6,6 +7,7 @@ interface ShellProps {
 }
 
 export const Shell: React.FC<ShellProps> = ({ children }) => {
+  const { t } = useTranslation();
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('dark');
     if (stored !== null) return JSON.parse(stored) as boolean;
@@ -28,7 +30,7 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
             <h1 className="font-bold tracking-tight">Territory Manager</h1>
             <div className="flex items-center gap-2">
               <button onClick={() => setDark((value) => !value)} className="rounded-xl px-3 py-2 border">
-                {dark ? '☀️ Claro' : '🌙 Escuro'}
+                {dark ? `☀️ ${t('app.theme.light')}` : `🌙 ${t('app.theme.dark')}`}
               </button>
             </div>
           </div>

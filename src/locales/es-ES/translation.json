@@ -286,7 +286,11 @@
     "importError": "No se pudieron importar los datos",
     "clearConfirm": "¿Borrar TODOS los datos?",
     "clearSuccess": "Datos borrados",
-    "clearError": "No se pudieron borrar los datos"
+    "clearError": "No se pudieron borrar los datos",
+    "theme": {
+      "light": "Tema claro",
+      "dark": "Tema oscuro"
+    }
   },
   "language": {
     "english": "Inglés",
