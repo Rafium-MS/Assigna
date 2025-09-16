@@ -63,6 +63,18 @@
     "inativo": "Inactive",
     "arquivado": "Archived"
   },
+  "exits": {
+    "newExit": "Create field exit",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Saturday Morning Group",
+    "weekday": "Weekday",
+    "time": "Time",
+    "save": "Save exit",
+    "exitsWithCount": "Field exits ({{count}})",
+    "noExits": "No exits registered.",
+    "confirmDelete": "Delete exit?",
+    "delete": "Delete"
+  },
   "assignments": {
     "selectExit": "Select an exit",
     "noAvailableTerritories": "No territories available",
