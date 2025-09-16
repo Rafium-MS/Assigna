@@ -75,6 +75,25 @@
     "confirmDelete": "¿Eliminar salida?",
     "delete": "Eliminar"
   },
+  "territories": {
+    "createTerritory": "Registrar territorio",
+    "editTerritory": "Editar territorio",
+    "name": "Nombre",
+    "namePlaceholder": "Ej.: Territorio 12 – Centro",
+    "optionalImage": "Imagen (opcional)",
+    "saveTerritory": "Guardar territorio",
+    "territoriesWithCount": "Territorios ({{count}})",
+    "searchPlaceholder": "Buscar...",
+    "withImage": "Con imagen",
+    "noTerritories": "Ningún territorio registrado.",
+    "image": "Imagen",
+    "noImagePlaceholder": "—",
+    "confirmDelete": "¿Eliminar territorio?",
+    "pageInfo": "Página {{page}} de {{pageCount}}",
+    "validation": {
+      "nameRequired": "Nombre obligatorio"
+    }
+  },
   "assignments": {
     "selectExit": "Seleccione una salida",
     "noAvailableTerritories": "No hay territorios disponibles",
