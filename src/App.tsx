@@ -180,9 +180,6 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
   )
 );
 Input.displayName = 'Input';
- const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = (props) => (
-  <select {...props} className={`w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900 ${props.className||''}`} />
- );
  const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ className='', ...props }) => (
   <button {...props} className={`rounded-xl px-3 py-2 shadow border hover:shadow-md active:scale-[.98] transition ${className}`} />
  );
@@ -534,14 +531,16 @@ function Shell({children, tab, setTab}:{children: React.ReactNode; tab:TabKey; s
               </thead>
               <tbody>
                 {assignments.map(a => {
-                  const status = a.returned ? 'devolvido' : (new Date(a.endDate) < new Date() ? 'atrasado' : 'ativo');
+                  const status: 'devolvido' | 'atrasado' | 'ativo' = a.returned
+                    ? 'devolvido'
+                    : (new Date(a.endDate) < new Date() ? 'atrasado' : 'ativo');
                   return (
                   <tr key={a.id} className="border-b last:border-0">
                     <td className="py-2">{findName(a.territoryId, territories)}</td>
                     <td>{findName(a.fieldExitId, exits)}</td>
                     <td>{fmtDate(a.startDate)}</td>
                     <td>{fmtDate(a.endDate)}</td>
-                    <td><StatusBadge status={status as any} /></td>
+                    <td><StatusBadge status={status} /></td>
                     <td className="text-right flex gap-2 justify-end">
                       <Button onClick={()=>updateAssignment(a.id, { ...a, returned: !a.returned })} className="bg-neutral-100">{a.returned ? 'Reativar' : 'Devolver'}</Button>
                       <Button onClick={async()=>{ if(await confirm('Excluir designação?')) delAssignment(a.id); }} className="bg-red-50 text-red-700">Excluir</Button>
