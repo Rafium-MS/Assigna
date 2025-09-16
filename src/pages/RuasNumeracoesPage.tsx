@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Territorio } from '../types/territorio';
@@ -21,6 +22,7 @@ export const addressSchema = z.object({
 export type AddressForm = z.infer<typeof addressSchema>;
 
 export default function RuasNumeracoesPage(): JSX.Element {
+  const { t } = useTranslation();
   const [territories, setTerritories] = useState<Territorio[]>([]);
   const [streets, setStreets] = useState<Street[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
@@ -113,33 +115,39 @@ export default function RuasNumeracoesPage(): JSX.Element {
             className={activeTab === 'ruas' ? 'font-bold' : ''}
             onClick={() => setActiveTab('ruas')}
           >
-            Ruas
+            {t('ruasNumeracoes.tabs.streets')}
           </button>
           <button
             className={activeTab === 'enderecos' ? 'font-bold' : ''}
             onClick={() => setActiveTab('enderecos')}
           >
-            Endereços
+            {t('ruasNumeracoes.tabs.addresses')}
           </button>
           <button
             className={activeTab === 'resumo' ? 'font-bold' : ''}
             onClick={() => setActiveTab('resumo')}
           >
-            Resumo
+            {t('ruasNumeracoes.tabs.summary')}
           </button>
         </div>
         {activeTab === 'ruas' && (
           <div>
             <form onSubmit={saveStreet} className="flex gap-2 mb-2">
-              <input name="name" placeholder="Nome da rua" className="border p-1" />
+              <input
+                name="name"
+                placeholder={t('ruasNumeracoes.streetsForm.streetNamePlaceholder')}
+                className="border p-1"
+              />
               <button type="submit" className="border px-2">
-                Salvar
+                {t('common.save')}
               </button>
             </form>
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="text-left">Nome</th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.streetsTable.name')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -161,7 +169,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 {...register('streetId', { valueAsNumber: true })}
                 className="border p-1"
               >
-                <option value="">Selecione a rua</option>
+                <option value="">{t('ruasNumeracoes.addressesForm.selectStreet')}</option>
                 {streets
                   .filter(s => s.territoryId === territoryId)
                   .map(s => (
@@ -174,7 +182,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 {...register('propertyTypeId', { valueAsNumber: true })}
                 className="border p-1"
               >
-                <option value="">Tipo</option>
+                <option value="">{t('ruasNumeracoes.addressesForm.selectType')}</option>
                 {propertyTypes.map(pt => (
                   <option key={pt.id} value={pt.id}>
                     {pt.name}
@@ -183,27 +191,35 @@ export default function RuasNumeracoesPage(): JSX.Element {
               </select>
               <input
                 type="number"
-                placeholder="Início"
+                placeholder={t('ruasNumeracoes.addressesForm.numberStart')}
                 className="border p-1 w-20"
                 {...register('numberStart', { valueAsNumber: true })}
               />
               <input
                 type="number"
-                placeholder="Fim"
+                placeholder={t('ruasNumeracoes.addressesForm.numberEnd')}
                 className="border p-1 w-20"
                 {...register('numberEnd', { valueAsNumber: true })}
               />
               <button type="submit" className="border px-2">
-                Salvar
+                {t('common.save')}
               </button>
             </form>
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="text-left">Rua</th>
-                  <th className="text-left">Início</th>
-                  <th className="text-left">Fim</th>
-                  <th className="text-left">Tipo</th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.street')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.start')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.end')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.type')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -221,9 +237,17 @@ export default function RuasNumeracoesPage(): JSX.Element {
         )}
         {activeTab === 'resumo' && (
           <div>
-            <p>Total de ruas: {streets.length}</p>
-            <p>Total de endereços: {addresses.length}</p>
-            <p>Total de tipos de propriedade: {propertyTypes.length}</p>
+            <p>
+              {t('ruasNumeracoes.summary.totalStreets', { count: streets.length })}
+            </p>
+            <p>
+              {t('ruasNumeracoes.summary.totalAddresses', { count: addresses.length })}
+            </p>
+            <p>
+              {t('ruasNumeracoes.summary.totalPropertyTypes', {
+                count: propertyTypes.length
+              })}
+            </p>
           </div>
         )}
       </div>
