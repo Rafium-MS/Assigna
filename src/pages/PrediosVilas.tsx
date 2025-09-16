@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import type { BuildingVillage } from '../types/building_village';
 import type { Territorio } from '../types/territorio';
 import { BuildingVillageRepository } from '../services/repositories/buildings_villages';
@@ -10,37 +12,43 @@ import { Modal } from '../components/layout/Modal';
 import { useToast } from '../components/feedback/Toast';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
 
-const buildingVillageSchema = z.object({
-  id: z.string().optional(),
-  territory_id: z.string().min(1, 'Selecione um território'),
-  name: z.string().trim().min(1, 'Informe o nome do prédio ou vila'),
-  address_line: z.string().trim().optional(),
-  type: z.string().trim().optional(),
-  number: z.string().trim().optional(),
-  residences_count: z
-    .string()
-    .trim()
-    .optional()
-    .refine(
-      (val) => {
-        if (val === undefined || val === '') return true;
-        const parsed = Number(val);
-        return Number.isInteger(parsed) && parsed >= 0;
-      },
-      {
-        message: 'Informe um número válido'
-      }
-    ),
-  modality: z.string().trim().optional(),
-  reception_type: z.string().trim().optional(),
-  responsible: z.string().trim().optional(),
-  assigned_at: z.string().optional(),
-  returned_at: z.string().optional(),
-  block: z.string().trim().optional(),
-  notes: z.string().trim().optional()
-});
+const createBuildingVillageSchema = (t: TFunction) =>
+  z.object({
+    id: z.string().optional(),
+    territory_id: z
+      .string()
+      .min(1, t('buildingsVillages.validation.selectTerritory')),
+    name: z
+      .string()
+      .trim()
+      .min(1, t('buildingsVillages.validation.nameRequired')),
+    address_line: z.string().trim().optional(),
+    type: z.string().trim().optional(),
+    number: z.string().trim().optional(),
+    residences_count: z
+      .string()
+      .trim()
+      .optional()
+      .refine(
+        (val) => {
+          if (val === undefined || val === '') return true;
+          const parsed = Number(val);
+          return Number.isInteger(parsed) && parsed >= 0;
+        },
+        {
+          message: t('buildingsVillages.validation.invalidNumber')
+        }
+      ),
+    modality: z.string().trim().optional(),
+    reception_type: z.string().trim().optional(),
+    responsible: z.string().trim().optional(),
+    assigned_at: z.string().optional(),
+    returned_at: z.string().optional(),
+    block: z.string().trim().optional(),
+    notes: z.string().trim().optional()
+  });
 
-type BuildingVillageFormValues = z.infer<typeof buildingVillageSchema>;
+type BuildingVillageFormValues = z.infer<ReturnType<typeof createBuildingVillageSchema>>;
 
 type Filters = {
   search: string;
@@ -104,6 +112,10 @@ export default function PrediosVilas(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const confirm = useConfirm();
+  const { t } = useTranslation();
+
+  const schema = useMemo(() => createBuildingVillageSchema(t), [t]);
+  const resolver = useMemo(() => zodResolver(schema), [schema]);
 
   const {
     register,
@@ -111,7 +123,7 @@ export default function PrediosVilas(): JSX.Element {
     reset,
     formState: { errors, isSubmitting }
   } = useForm<BuildingVillageFormValues>({
-    resolver: zodResolver(buildingVillageSchema),
+    resolver,
     defaultValues: emptyFormValues
   });
 
@@ -127,14 +139,14 @@ export default function PrediosVilas(): JSX.Element {
         setTerritories(allTerritories);
       } catch (error) {
         console.error(error);
-        toast.error('Não foi possível carregar os dados');
+        toast.error(t('buildingsVillages.feedback.loadError'));
       } finally {
         setLoading(false);
       }
     };
 
     void loadData();
-  }, [toast]);
+  }, [toast, t]);
 
   const territoryNameById = useMemo(() => {
     return territories.reduce<Record<string, string>>((acc, territory) => {
@@ -185,15 +197,15 @@ export default function PrediosVilas(): JSX.Element {
   }, [filters, villages]);
 
   const handleDelete = async (item: BuildingVillage) => {
-    const confirmed = await confirm('Deseja realmente remover este registro?');
+    const confirmed = await confirm(t('buildingsVillages.confirmDelete'));
     if (!confirmed) return;
     try {
       await BuildingVillageRepository.remove(item.id);
       setVillages((prev) => prev.filter((v) => v.id !== item.id));
-      toast.success('Registro removido com sucesso');
+      toast.success(t('buildingsVillages.feedback.deleteSuccess'));
     } catch (error) {
       console.error(error);
-      toast.error('Não foi possível remover o registro');
+      toast.error(t('buildingsVillages.feedback.deleteError'));
     }
   };
 
@@ -274,11 +286,17 @@ export default function PrediosVilas(): JSX.Element {
         }
         return [entity, ...prev];
       });
-      toast.success(editing ? 'Registro atualizado com sucesso' : 'Registro criado com sucesso');
+      toast.success(
+        t(
+          editing
+            ? 'buildingsVillages.feedback.updateSuccess'
+            : 'buildingsVillages.feedback.createSuccess'
+        )
+      );
       closeModal();
     } catch (error) {
       console.error(error);
-      toast.error('Não foi possível salvar o registro');
+      toast.error(t('buildingsVillages.feedback.saveError'));
     }
   });
 
@@ -286,9 +304,9 @@ export default function PrediosVilas(): JSX.Element {
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Prédios e Vilas</h1>
+          <h1 className="text-2xl font-semibold">{t('buildingsVillages.title')}</h1>
           <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            Cadastre, filtre e organize informações sobre prédios, vilas e condomínios do território.
+            {t('buildingsVillages.subtitle')}
           </p>
         </div>
         <button
@@ -296,15 +314,15 @@ export default function PrediosVilas(): JSX.Element {
           onClick={openForCreate}
           className="self-start rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
         >
-          Novo registro
+          {t('buildingsVillages.newRecord')}
         </button>
       </div>
 
       <section className="rounded-2xl border border-black/5 bg-white/70 p-4 shadow backdrop-blur dark:border-white/10 dark:bg-neutral-900/60">
-        <h2 className="mb-4 text-lg font-semibold">Filtros</h2>
+        <h2 className="mb-4 text-lg font-semibold">{t('filters.filters')}</h2>
         <div className="grid gap-4 md:grid-cols-4 sm:grid-cols-2">
           <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            <span className="mb-1">Buscar</span>
+            <span className="mb-1">{t('buildingsVillages.filters.search')}</span>
             <input
               type="search"
               value={filters.search}
@@ -312,11 +330,11 @@ export default function PrediosVilas(): JSX.Element {
                 setFilters((prev) => ({ ...prev, search: event.target.value }))
               }
               className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-              placeholder="Nome, responsável ou endereço"
+              placeholder={t('buildingsVillages.filters.searchPlaceholder')}
             />
           </label>
           <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            <span className="mb-1">Território</span>
+            <span className="mb-1">{t('buildingsVillages.filters.territory')}</span>
             <select
               value={filters.territory}
               onChange={(event) =>
@@ -324,7 +342,7 @@ export default function PrediosVilas(): JSX.Element {
               }
               className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
             >
-              <option value="all">Todos</option>
+              <option value="all">{t('filters.all')}</option>
               {territories.map((territory) => (
                 <option key={territory.id} value={territory.id}>
                   {territory.nome}
@@ -333,7 +351,7 @@ export default function PrediosVilas(): JSX.Element {
             </select>
           </label>
           <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            <span className="mb-1">Tipo</span>
+            <span className="mb-1">{t('buildingsVillages.filters.type')}</span>
             <select
               value={filters.type}
               onChange={(event) =>
@@ -341,7 +359,7 @@ export default function PrediosVilas(): JSX.Element {
               }
               className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
             >
-              <option value="all">Todos</option>
+              <option value="all">{t('filters.all')}</option>
               {typeOptions.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -350,7 +368,7 @@ export default function PrediosVilas(): JSX.Element {
             </select>
           </label>
           <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-            <span className="mb-1">Modalidade</span>
+            <span className="mb-1">{t('buildingsVillages.filters.modality')}</span>
             <select
               value={filters.modality}
               onChange={(event) =>
@@ -358,7 +376,7 @@ export default function PrediosVilas(): JSX.Element {
               }
               className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
             >
-              <option value="all">Todas</option>
+              <option value="all">{t('buildingsVillages.filters.allModalities')}</option>
               {modalityOptions.map((option) => (
                 <option key={option} value={option}>
                   {option}
@@ -371,18 +389,18 @@ export default function PrediosVilas(): JSX.Element {
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Registros</h2>
+          <h2 className="text-lg font-semibold">{t('buildingsVillages.records.title')}</h2>
           <span className="text-sm text-neutral-500 dark:text-neutral-400">
-            {filteredVillages.length} encontrado{filteredVillages.length === 1 ? '' : 's'}
+            {t('buildingsVillages.records.count', { count: filteredVillages.length })}
           </span>
         </div>
         {loading ? (
           <div className="rounded-2xl border border-dashed border-black/10 p-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-            Carregando registros...
+            {t('buildingsVillages.records.loading')}
           </div>
         ) : filteredVillages.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-black/10 p-8 text-center text-sm text-neutral-500 dark:border-white/10 dark:text-neutral-400">
-            Nenhum registro encontrado com os filtros aplicados.
+            {t('buildingsVillages.records.empty')}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -394,10 +412,10 @@ export default function PrediosVilas(): JSX.Element {
                 <header className="mb-3 flex items-start justify-between gap-3">
                   <div>
                     <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                      {item.name || 'Sem nome'}
+                      {item.name || t('buildingsVillages.records.noName')}
                     </h3>
                     <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                      {territoryNameById[item.territory_id] ?? 'Território não informado'}
+                      {territoryNameById[item.territory_id] ?? t('buildingsVillages.records.noTerritory')}
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -406,81 +424,81 @@ export default function PrediosVilas(): JSX.Element {
                       onClick={() => openForEdit(item)}
                       className="rounded-lg border border-black/10 px-2 py-1 text-xs font-medium text-neutral-700 shadow-sm transition hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-200 dark:hover:bg-neutral-800"
                     >
-                      Editar
+                      {t('common.edit')}
                     </button>
                     <button
                       type="button"
                       onClick={() => void handleDelete(item)}
                       className="rounded-lg border border-red-200 px-2 py-1 text-xs font-medium text-red-600 shadow-sm transition hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950/50"
                     >
-                      Remover
+                      {t('common.delete')}
                     </button>
                   </div>
                 </header>
                 <dl className="space-y-2 text-sm text-neutral-600 dark:text-neutral-300">
                   {item.address_line && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Endereço</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.address')}</dt>
                       <dd>{item.address_line}</dd>
                     </div>
                   )}
                   {item.number && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Número</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.number')}</dt>
                       <dd>{item.number}</dd>
                     </div>
                   )}
                   {item.type && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Tipo</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.type')}</dt>
                       <dd>{item.type}</dd>
                     </div>
                   )}
                   {item.modality && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Modalidade</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.modality')}</dt>
                       <dd>{item.modality}</dd>
                     </div>
                   )}
                   {item.reception_type && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Recepção</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.reception')}</dt>
                       <dd>{item.reception_type}</dd>
                     </div>
                   )}
                   {item.residences_count !== null && item.residences_count !== undefined && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Residências</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.residences')}</dt>
                       <dd>{item.residences_count}</dd>
                     </div>
                   )}
                   {item.responsible && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Responsável</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.responsible')}</dt>
                       <dd>{item.responsible}</dd>
                     </div>
                   )}
                   {item.assigned_at && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Designado em</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.assignedAt')}</dt>
                       <dd>{formatDate(item.assigned_at)}</dd>
                     </div>
                   )}
                   {item.returned_at && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Devolvido em</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.returnedAt')}</dt>
                       <dd>{formatDate(item.returned_at)}</dd>
                     </div>
                   )}
                   {item.block && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Bloco</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.block')}</dt>
                       <dd>{item.block}</dd>
                     </div>
                   )}
                   {item.notes && (
                     <div>
-                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">Observações</dt>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.notes')}</dt>
                       <dd className="whitespace-pre-line">{item.notes}</dd>
                     </div>
                   )}
@@ -496,10 +514,18 @@ export default function PrediosVilas(): JSX.Element {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold">
-                {editing ? 'Editar registro' : 'Novo registro'}
+                {t(
+                  editing
+                    ? 'buildingsVillages.modal.editTitle'
+                    : 'buildingsVillages.modal.createTitle'
+                )}
               </h2>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                Preencha os campos abaixo para {editing ? 'atualizar' : 'cadastrar'} o prédio ou vila.
+                {t(
+                  editing
+                    ? 'buildingsVillages.modal.descriptionEdit'
+                    : 'buildingsVillages.modal.descriptionCreate'
+                )}
               </p>
             </div>
             <button
@@ -507,19 +533,21 @@ export default function PrediosVilas(): JSX.Element {
               onClick={closeModal}
               className="rounded-full border border-black/10 px-2 py-1 text-xs text-neutral-500 transition hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-400 dark:hover:bg-neutral-800"
             >
-              Fechar
+              {t('app.close')}
             </button>
           </div>
 
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Território *</span>
+                <span className="mb-1">
+                  {t('buildingsVillages.fields.territory')} *
+                </span>
                 <select
                   {...register('territory_id')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
                 >
-                  <option value="">Selecione um território</option>
+                  <option value="">{t('buildingsVillages.placeholders.territory')}</option>
                   {territories.map((territory) => (
                     <option key={territory.id} value={territory.id}>
                       {territory.nome}
@@ -532,23 +560,25 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Nome *</span>
+                <span className="mb-1">
+                  {t('buildingsVillages.fields.name')} *
+                </span>
                 <input
                   type="text"
                   {...register('name')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Identificação do prédio ou vila"
+                  placeholder={t('buildingsVillages.placeholders.name')}
                 />
                 {errors.name && <span className="mt-1 text-xs text-red-600">{errors.name.message}</span>}
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Endereço</span>
+                <span className="mb-1">{t('buildingsVillages.fields.address')}</span>
                 <input
                   type="text"
                   {...register('address_line')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Rua, avenida ou referência"
+                  placeholder={t('buildingsVillages.placeholders.address')}
                 />
                 {errors.address_line && (
                   <span className="mt-1 text-xs text-red-600">{errors.address_line.message}</span>
@@ -556,45 +586,45 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Número</span>
+                <span className="mb-1">{t('buildingsVillages.fields.number')}</span>
                 <input
                   type="text"
                   {...register('number')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Número do imóvel"
+                  placeholder={t('buildingsVillages.placeholders.number')}
                 />
                 {errors.number && <span className="mt-1 text-xs text-red-600">{errors.number.message}</span>}
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Tipo</span>
+                <span className="mb-1">{t('buildingsVillages.fields.type')}</span>
                 <input
                   type="text"
                   {...register('type')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Prédio, vila, condomínio..."
+                  placeholder={t('buildingsVillages.placeholders.type')}
                 />
                 {errors.type && <span className="mt-1 text-xs text-red-600">{errors.type.message}</span>}
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Modalidade</span>
+                <span className="mb-1">{t('buildingsVillages.fields.modality')}</span>
                 <input
                   type="text"
                   {...register('modality')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Condomínio, vila fechada..."
+                  placeholder={t('buildingsVillages.placeholders.modality')}
                 />
                 {errors.modality && <span className="mt-1 text-xs text-red-600">{errors.modality.message}</span>}
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Tipo de recepção</span>
+                <span className="mb-1">{t('buildingsVillages.fields.reception')}</span>
                 <input
                   type="text"
                   {...register('reception_type')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Portaria, interfone..."
+                  placeholder={t('buildingsVillages.placeholders.reception')}
                 />
                 {errors.reception_type && (
                   <span className="mt-1 text-xs text-red-600">{errors.reception_type.message}</span>
@@ -602,12 +632,12 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Responsável</span>
+                <span className="mb-1">{t('buildingsVillages.fields.responsible')}</span>
                 <input
                   type="text"
                   {...register('responsible')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Nome do síndico, porteiro..."
+                  placeholder={t('buildingsVillages.placeholders.responsible')}
                 />
                 {errors.responsible && (
                   <span className="mt-1 text-xs text-red-600">{errors.responsible.message}</span>
@@ -615,7 +645,7 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Quantidade de residências</span>
+                <span className="mb-1">{t('buildingsVillages.fields.residences')}</span>
                 <input
                   type="number"
                   min={0}
@@ -629,18 +659,18 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Bloco</span>
+                <span className="mb-1">{t('buildingsVillages.fields.block')}</span>
                 <input
                   type="text"
                   {...register('block')}
                   className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                  placeholder="Identificação do bloco"
+                  placeholder={t('buildingsVillages.placeholders.block')}
                 />
                 {errors.block && <span className="mt-1 text-xs text-red-600">{errors.block.message}</span>}
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Designado em</span>
+                <span className="mb-1">{t('buildingsVillages.fields.assignedAt')}</span>
                 <input
                   type="date"
                   {...register('assigned_at')}
@@ -652,7 +682,7 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-                <span className="mb-1">Devolvido em</span>
+                <span className="mb-1">{t('buildingsVillages.fields.returnedAt')}</span>
                 <input
                   type="date"
                   {...register('returned_at')}
@@ -665,12 +695,12 @@ export default function PrediosVilas(): JSX.Element {
             </div>
 
             <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
-              <span className="mb-1">Observações</span>
+              <span className="mb-1">{t('buildingsVillages.fields.notes')}</span>
               <textarea
                 rows={3}
                 {...register('notes')}
                 className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
-                placeholder="Detalhes relevantes, horários, instruções de acesso..."
+                placeholder={t('buildingsVillages.placeholders.notes')}
               />
               {errors.notes && <span className="mt-1 text-xs text-red-600">{errors.notes.message}</span>}
             </label>
@@ -681,14 +711,16 @@ export default function PrediosVilas(): JSX.Element {
                 onClick={closeModal}
                 className="rounded-xl border border-black/10 px-4 py-2 text-sm font-medium text-neutral-600 transition hover:bg-neutral-100 dark:border-white/10 dark:text-neutral-300 dark:hover:bg-neutral-800"
               >
-                Cancelar
+                {t('common.cancel')}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {isSubmitting ? 'Salvando...' : editing ? 'Atualizar' : 'Cadastrar'}
+                {isSubmitting
+                  ? t('app.saving')
+                  : t(editing ? 'common.update' : 'common.create')}
               </button>
             </div>
           </form>

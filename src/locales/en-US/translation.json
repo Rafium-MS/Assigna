@@ -54,7 +54,77 @@
     "settings": "Settings",
     "notifications": "Notifications"
   },
-  "ruasNumeracoes": {
+
+  "buildingsVillages": {
+    "title": "Buildings and Villages",
+    "subtitle": "Register, filter, and organize information about buildings, villages, and condominiums in the territory.",
+    "newRecord": "New record",
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Name, responsible person, or address",
+      "territory": "Territory",
+      "type": "Type",
+      "modality": "Modality",
+      "allModalities": "All"
+    },
+    "records": {
+      "title": "Records",
+      "count": "{{count}} record found",
+      "count_plural": "{{count}} records found",
+      "loading": "Loading records...",
+      "empty": "No records found with the applied filters.",
+      "noName": "No name",
+      "noTerritory": "Territory not informed"
+    },
+    "fields": {
+      "territory": "Territory",
+      "name": "Name",
+      "address": "Address",
+      "number": "Number",
+      "type": "Type",
+      "modality": "Modality",
+      "reception": "Reception type",
+      "residences": "Number of residences",
+      "responsible": "Responsible person",
+      "assignedAt": "Assigned on",
+      "returnedAt": "Returned on",
+      "block": "Block",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "territory": "Select a territory",
+      "name": "Building or village identification",
+      "address": "Street, avenue, or reference",
+      "number": "Property number",
+      "type": "Building, village, condominium...",
+      "modality": "Condominium, gated community...",
+      "reception": "Reception desk, intercom...",
+      "responsible": "Name of the superintendent, doorman...",
+      "block": "Block identification",
+      "notes": "Relevant details, schedules, access instructions..."
+    },
+    "modal": {
+      "editTitle": "Edit record",
+      "createTitle": "New record",
+      "descriptionEdit": "Fill in the fields below to update the building or village.",
+      "descriptionCreate": "Fill in the fields below to register the building or village."
+    },
+    "validation": {
+      "selectTerritory": "Select a territory",
+      "nameRequired": "Enter the building or village name",
+      "invalidNumber": "Enter a valid number"
+    },
+    "feedback": {
+      "loadError": "Could not load the data",
+      "deleteSuccess": "Record removed successfully",
+      "deleteError": "Could not remove the record",
+      "updateSuccess": "Record updated successfully",
+      "createSuccess": "Record created successfully",
+      "saveError": "Could not save the record"
+    },
+    "confirmDelete": "Do you really want to remove this record?"
+
+    "ruasNumeracoes": {
     "tabs": {
       "streets": "Streets",
       "addresses": "Addresses",
