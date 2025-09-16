@@ -32,6 +32,14 @@ export const BuildingVillageRepository = {
   },
 
   /**
+   * Removes all building/village entries from the database.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async clear(): Promise<void> {
+    await db.buildingsVillages.clear();
+  },
+
+  /**
    * Removes a building/village entry from the database.
    * @param id The ID of the building/village to remove.
    * @returns A promise that resolves when the operation is complete.

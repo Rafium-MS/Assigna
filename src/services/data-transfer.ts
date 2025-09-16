@@ -1,0 +1,142 @@
+import { z } from 'zod';
+import type { Territorio } from '../types/territorio';
+import type { Saida } from '../types/saida';
+import type { Designacao } from '../types/designacao';
+import type { Sugestao } from '../types/sugestao';
+import type { BuildingVillage } from '../types/building_village';
+import type { Street } from '../types/street';
+import type { PropertyType } from '../types/property-type';
+import type { Address } from '../types/address';
+import type { DerivedTerritory } from '../types/derived-territory';
+import type { Metadata } from './db';
+
+const territorioSchema = z.object({
+  id: z.string(),
+  nome: z.string(),
+  imagem: z.string().optional(),
+  imageUrl: z.string().optional()
+});
+
+const saidaSchema = z.object({
+  id: z.string(),
+  nome: z.string(),
+  diaDaSemana: z.number(),
+  hora: z.string()
+});
+
+const designacaoSchema = z.object({
+  id: z.string(),
+  territorioId: z.string(),
+  saidaId: z.string(),
+  dataInicial: z.string(),
+  dataFinal: z.string(),
+  devolvido: z.boolean().optional()
+});
+
+const sugestaoSchema = z.object({
+  territorioId: z.string(),
+  saidaId: z.string(),
+  dataInicial: z.string(),
+  dataFinal: z.string()
+});
+
+const buildingVillageSchema = z.object({
+  id: z.string(),
+  territory_id: z.string(),
+  name: z.string().nullable(),
+  address_line: z.string().nullable(),
+  type: z.string().nullable(),
+  number: z.string().nullable(),
+  residences_count: z.number().nullable(),
+  modality: z.string().nullable(),
+  reception_type: z.string().nullable(),
+  responsible: z.string().nullable(),
+  assigned_at: z.string().nullable(),
+  returned_at: z.string().nullable(),
+  block: z.string().nullable(),
+  notes: z.string().nullable(),
+  created_at: z.string().nullable()
+});
+
+const streetSchema = z.object({
+  id: z.number(),
+  territoryId: z.string(),
+  name: z.string()
+});
+
+const propertyTypeSchema = z.object({
+  id: z.number(),
+  name: z.string()
+});
+
+const addressSchema = z.object({
+  id: z.number(),
+  streetId: z.number(),
+  numberStart: z.number(),
+  numberEnd: z.number(),
+  propertyTypeId: z.number()
+});
+
+const derivedTerritorySchema = z.object({
+  id: z.number(),
+  baseTerritoryId: z.string(),
+  name: z.string()
+});
+
+const derivedTerritoryAddressSchema = z.object({
+  derivedTerritoryId: z.number(),
+  addressId: z.number()
+});
+
+const metadataSchema = z.object({
+  key: z.string(),
+  value: z.number()
+});
+
+export const exportedDataSchema = z
+  .object({
+    version: z.number().optional(),
+    exportedAt: z.string().optional(),
+    territorios: z.array(territorioSchema).optional().default([]),
+    saidas: z.array(saidaSchema).optional().default([]),
+    designacoes: z.array(designacaoSchema).optional().default([]),
+    sugestoes: z.array(sugestaoSchema).optional().default([]),
+    buildingsVillages: z.array(buildingVillageSchema).optional().default([]),
+    streets: z.array(streetSchema).optional().default([]),
+    propertyTypes: z.array(propertyTypeSchema).optional().default([]),
+    addresses: z.array(addressSchema).optional().default([]),
+    derivedTerritories: z.array(derivedTerritorySchema).optional().default([]),
+    derivedTerritoryAddresses: z.array(derivedTerritoryAddressSchema).optional().default([]),
+    metadata: z.array(metadataSchema).optional().default([])
+  })
+  .transform((data) => ({
+    ...data,
+    // Ensure arrays are always present even when defaults are used
+    territorios: data.territorios ?? [],
+    saidas: data.saidas ?? [],
+    designacoes: data.designacoes ?? [],
+    sugestoes: data.sugestoes ?? [],
+    buildingsVillages: data.buildingsVillages ?? [],
+    streets: data.streets ?? [],
+    propertyTypes: data.propertyTypes ?? [],
+    addresses: data.addresses ?? [],
+    derivedTerritories: data.derivedTerritories ?? [],
+    derivedTerritoryAddresses: data.derivedTerritoryAddresses ?? [],
+    metadata: data.metadata ?? []
+  }));
+
+export type ExportedData = {
+  version?: number;
+  exportedAt?: string;
+  territorios: Territorio[];
+  saidas: Saida[];
+  designacoes: Designacao[];
+  sugestoes: Sugestao[];
+  buildingsVillages: BuildingVillage[];
+  streets: Street[];
+  propertyTypes: PropertyType[];
+  addresses: Address[];
+  derivedTerritories: DerivedTerritory[];
+  derivedTerritoryAddresses: Array<{ derivedTerritoryId: number; addressId: number }>;
+  metadata: Metadata[];
+};
