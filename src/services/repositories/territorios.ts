@@ -32,6 +32,14 @@ export const TerritorioRepository = {
   },
 
   /**
+   * Removes all territórios from the database.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async clear(): Promise<void> {
+    await db.territorios.clear();
+  },
+
+  /**
    * Removes a territorio from the database.
    * @param id The ID of the territorio to remove.
    * @returns A promise that resolves when the operation is complete.

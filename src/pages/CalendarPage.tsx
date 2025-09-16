@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { Modal } from '../components/layout/Modal';
 import { Card, Button, Input, Label } from '../components/ui';
-import { useStoreContext } from '../store/localStore';
+import { useDesignacoes } from '../hooks/useDesignacoes';
+import { useTerritorios } from '../hooks/useTerritorios';
+import { useWarningDays } from '../hooks/useWarningDays';
 import { formatIsoDate, weekdays } from '../utils/calendar';
 import { findName } from '../utils/lookups';
 
 const CalendarPage: React.FC = () => {
-  const { assignments, territories, warningDays, setWarningDays } = useStoreContext();
+  const { designacoes } = useDesignacoes();
+  const { territorios } = useTerritorios();
+  const [warningDays, setWarningDays] = useWarningDays();
   const [month, setMonth] = useState(() => new Date());
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const today = new Date();
@@ -59,11 +63,11 @@ const CalendarPage: React.FC = () => {
           {days.map((date) => {
             const iso = toIso(date);
             const inMonth = date.getMonth() === month.getMonth();
-            const startItems = assignments.filter((assignment) => assignment.startDate === iso);
-            const dueToday = assignments.filter((assignment) => assignment.endDate === iso && !assignment.returned);
+            const startItems = designacoes.filter((designacao) => designacao.dataInicial === iso);
+            const dueToday = designacoes.filter((designacao) => designacao.dataFinal === iso && !designacao.devolvido);
             let cellCls = inMonth ? 'bg-white' : 'bg-neutral-50 text-neutral-400';
-            const dueDiffs = dueToday.map((assignment) =>
-              Math.ceil((new Date(assignment.endDate).getTime() - today.getTime()) / 86400000),
+            const dueDiffs = dueToday.map((designacao) =>
+              Math.ceil((new Date(designacao.dataFinal).getTime() - today.getTime()) / 86400000),
             );
             if (dueDiffs.some((difference) => difference < 0)) cellCls += ' bg-red-100';
             else if (dueDiffs.some((difference) => difference <= warningDays)) cellCls += ' bg-yellow-100';
@@ -76,17 +80,17 @@ const CalendarPage: React.FC = () => {
                 draggable
               >
                 <div className="text-xs text-right">{date.getDate()}</div>
-                {startItems.map((assignment) => {
-                  const diff = Math.ceil((new Date(assignment.endDate).getTime() - today.getTime()) / 86400000);
+                {startItems.map((designacao) => {
+                  const diff = Math.ceil((new Date(designacao.dataFinal).getTime() - today.getTime()) / 86400000);
                   let badge: React.ReactNode = null;
-                  if (!assignment.returned) {
+                  if (!designacao.devolvido) {
                     if (diff < 0) badge = <span className="ml-1 text-[10px] px-1 rounded bg-red-600 text-white">Atrasado</span>;
                     else if (diff <= warningDays)
                       badge = <span className="ml-1 text-[10px] px-1 rounded bg-orange-500 text-white">D-{diff}</span>;
                   }
                   return (
-                    <div key={assignment.id} className="text-[10px] truncate">
-                      {findName(assignment.territoryId, territories)}
+                    <div key={designacao.id} className="text-[10px] truncate">
+                      {findName(designacao.territorioId, territorios)}
                       {badge}
                     </div>
                   );
@@ -102,8 +106,8 @@ const CalendarPage: React.FC = () => {
           <div className="grid gap-2">
             <h3 className="text-lg font-semibold">{formatIsoDate(selectedDay)}</h3>
             {(() => {
-              const items = assignments.filter(
-                (assignment) => assignment.startDate === selectedDay || assignment.endDate === selectedDay,
+              const items = designacoes.filter(
+                (designacao) => designacao.dataInicial === selectedDay || designacao.dataFinal === selectedDay,
               );
               return items.length === 0 ? (
                 <p className="text-sm text-neutral-500">Sem designações.</p>
@@ -111,8 +115,8 @@ const CalendarPage: React.FC = () => {
                 <ul className="text-sm grid gap-1">
                   {items.map((assignment) => (
                     <li key={assignment.id}>
-                      {findName(assignment.territoryId, territories)} — {formatIsoDate(assignment.startDate)} →
-                      {formatIsoDate(assignment.endDate)}
+                      {findName(assignment.territorioId, territorios)} — {formatIsoDate(assignment.dataInicial)} →
+                      {formatIsoDate(assignment.dataFinal)}
                     </li>
                   ))}
                 </ul>

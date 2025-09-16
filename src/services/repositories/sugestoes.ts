@@ -32,6 +32,14 @@ export const SugestaoRepository = {
   },
 
   /**
+   * Removes all sugestões from the database.
+   * @returns A promise that resolves when the operation is complete.
+   */
+  async clear(): Promise<void> {
+    await db.sugestoes.clear();
+  },
+
+  /**
    * Removes a sugestao from the database.
    * @param territorioId The ID of the territorio associated with the sugestao.
    * @param saidaId The ID of the saida associated with the sugestao.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appReducer, type AppState } from './appReducer';
+import { appReducer, initialState, type AppState } from './appReducer';
 import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
@@ -116,5 +116,52 @@ describe('appReducer', () => {
     expect(nextState.territorios).toBe(state.territorios);
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.designacoes).toBe(state.designacoes);
+  });
+
+  it('sets territorios with SET_TERRITORIOS', () => {
+    const state = createState();
+    const territorios: Territorio[] = [
+      { id: 'territorio-2', nome: 'Outro' },
+      { id: 'territorio-3', nome: 'Mais um' },
+    ];
+
+    const nextState = appReducer(state, { type: 'SET_TERRITORIOS', payload: territorios });
+
+    expect(nextState.territorios).toEqual(territorios);
+    expect(nextState.saidas).toBe(state.saidas);
+  });
+
+  it('updates a designacao preserving other entries', () => {
+    const state = createState();
+    const updated: Designacao = {
+      ...state.designacoes[0],
+      dataFinal: '2024-02-15',
+      devolvido: true,
+    };
+
+    const nextState = appReducer(state, { type: 'UPDATE_DESIGNACAO', payload: updated });
+
+    expect(nextState.designacoes[0]).toEqual(updated);
+    expect(nextState.designacoes).toHaveLength(state.designacoes.length);
+  });
+
+  it('removes a saida with REMOVE_SAIDA', () => {
+    const state = createState();
+
+    const nextState = appReducer(state, { type: 'REMOVE_SAIDA', payload: 'saida-1' });
+
+    expect(nextState.saidas).toHaveLength(0);
+  });
+
+  it('resets state with RESET_STATE', () => {
+    const state = createState();
+    const populated = appReducer(state, {
+      type: 'ADD_TERRITORIO',
+      payload: { id: 'territorio-99', nome: 'Temporário' },
+    });
+
+    const nextState = appReducer(populated, { type: 'RESET_STATE' });
+
+    expect(nextState).toEqual(initialState);
   });
 });

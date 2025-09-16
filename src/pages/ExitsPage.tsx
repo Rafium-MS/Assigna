@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
 import { Card, Button, Input, Label } from '../components/ui';
-import { useStoreContext } from '../store/localStore';
+import { useSaidas } from '../hooks/useSaidas';
 import { weekdays } from '../utils/calendar';
 
 const ExitsPage: React.FC = () => {
-  const { exits, addExit, delExit } = useStoreContext();
+  const { saidas, addSaida, removeSaida } = useSaidas();
   const confirm = useConfirm();
-  const [name, setName] = useState('');
-  const [dayOfWeek, setDayOfWeek] = useState<number>(6);
-  const [time, setTime] = useState('09:00');
+  const [nome, setNome] = useState('');
+  const [diaDaSemana, setDiaDaSemana] = useState<number>(6);
+  const [hora, setHora] = useState('09:00');
 
-  const submit = (event: React.FormEvent) => {
+  const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!name.trim()) return;
-    addExit({ name: name.trim(), dayOfWeek, time });
-    setName('');
-    setDayOfWeek(6);
-    setTime('09:00');
+    if (!nome.trim()) return;
+    await addSaida({ nome: nome.trim(), diaDaSemana, hora });
+    setNome('');
+    setDiaDaSemana(6);
+    setHora('09:00');
   };
 
   return (
@@ -26,13 +26,13 @@ const ExitsPage: React.FC = () => {
         <form onSubmit={submit} className="grid md:grid-cols-4 gap-3">
           <div className="grid gap-1">
             <Label>Nome</Label>
-            <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Ex.: Grupo Sábado Manhã" />
+            <Input value={nome} onChange={(event) => setNome(event.target.value)} placeholder="Ex.: Grupo Sábado Manhã" />
           </div>
           <div className="grid gap-1">
             <Label>Dia da Semana</Label>
             <select
-              value={dayOfWeek}
-              onChange={(event) => setDayOfWeek(Number(event.target.value))}
+              value={diaDaSemana}
+              onChange={(event) => setDiaDaSemana(Number(event.target.value))}
               className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900"
             >
               {weekdays.map((weekday, index) => (
@@ -44,7 +44,7 @@ const ExitsPage: React.FC = () => {
           </div>
           <div className="grid gap-1">
             <Label>Horário</Label>
-            <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
+            <Input type="time" value={hora} onChange={(event) => setHora(event.target.value)} />
           </div>
           <div className="flex items-end justify-end">
             <Button type="submit" className="bg-black text-white">
@@ -54,23 +54,23 @@ const ExitsPage: React.FC = () => {
         </form>
       </Card>
 
-      <Card title={`Saídas (${exits.length})`}>
-        {exits.length === 0 ? (
+      <Card title={`Saídas (${saidas.length})`}>
+        {saidas.length === 0 ? (
           <p className="text-neutral-500">Nenhuma saída cadastrada.</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-3">
-            {exits.map((exit) => (
-              <div key={exit.id} className="rounded-xl border p-3 flex items-center justify-between bg-white dark:bg-neutral-950">
+            {saidas.map((saida) => (
+              <div key={saida.id} className="rounded-xl border p-3 flex items-center justify-between bg-white dark:bg-neutral-950">
                 <div>
-                  <p className="font-semibold">{exit.name}</p>
+                  <p className="font-semibold">{saida.nome}</p>
                   <p className="text-sm text-neutral-600">
-                    {weekdays[exit.dayOfWeek]} · {exit.time}
+                    {weekdays[saida.diaDaSemana]} · {saida.hora}
                   </p>
                 </div>
                 <Button
                   onClick={async () => {
                     if (await confirm('Excluir saída?')) {
-                      delExit(exit.id);
+                      await removeSaida(saida.id);
                     }
                   }}
                   className="bg-red-50 text-red-700"

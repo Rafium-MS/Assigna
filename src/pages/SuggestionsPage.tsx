@@ -1,20 +1,26 @@
 import React, { useState } from 'react';
 import { useToast } from '../components/feedback/Toast';
 import { Card, Button, Input, Label } from '../components/ui';
-import { useStoreContext } from '../store/localStore';
+import { useTerritorios } from '../hooks/useTerritorios';
+import { useSaidas } from '../hooks/useSaidas';
+import { useDesignacoes } from '../hooks/useDesignacoes';
+import { useSuggestionRules } from '../hooks/useSuggestionRules';
 import { addDaysToIso, formatIsoDate, nextDateForWeekday } from '../utils/calendar';
 import { findName } from '../utils/lookups';
 import { getLastAssignmentDate } from '../utils/assignments';
 
 interface Suggestion {
-  fieldExitId: string;
-  territoryId: string;
-  startDate: string;
-  endDate: string;
+  saidaId: string;
+  territorioId: string;
+  dataInicial: string;
+  dataFinal: string;
 }
 
 const SuggestionsPage: React.FC = () => {
-  const { territories, exits, assignments, rules, setRules, addAssignment } = useStoreContext();
+  const { territorios } = useTerritorios();
+  const { saidas } = useSaidas();
+  const { designacoes, addDesignacao } = useDesignacoes();
+  const [rules, setRules] = useSuggestionRules();
   const toast = useToast();
   const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
@@ -23,48 +29,51 @@ const SuggestionsPage: React.FC = () => {
   const [recentWeight, setRecentWeight] = useState<number>(rules.recentWeight);
   const [balanceWeight, setBalanceWeight] = useState<number>(rules.balanceWeight);
   const [generated, setGenerated] = useState<Suggestion[] | null>(null);
-  const [rankings, setRankings] = useState<Record<string, { territoryId: string; score: number; reasons: string[] }[]>>({});
+  const [rankings, setRankings] = useState<Record<string, { territorioId: string; score: number; reasons: string[] }[]>>({});
 
   const generate = () => {
-    if (territories.length === 0 || exits.length === 0) {
+    if (territorios.length === 0 || saidas.length === 0) {
       setGenerated([]);
       setRankings({});
       return;
     }
 
     const suggestions: Suggestion[] = [];
-    const rankingMap: Record<string, { territoryId: string; score: number; reasons: string[] }[]> = {};
+    const rankingMap: Record<string, { territorioId: string; score: number; reasons: string[] }[]> = {};
     const recent = new Set(
-      [...assignments]
-        .sort((a, b) => b.startDate.localeCompare(a.startDate))
+      [...designacoes]
+        .sort((a, b) => b.dataInicial.localeCompare(a.dataInicial))
         .slice(0, avoidCount)
-        .map((assignment) => assignment.territoryId),
+        .map((designacao) => designacao.territorioId),
     );
     const used = new Set<string>();
-    const exitCounts = exits.map((exit) => ({ id: exit.id, count: assignments.filter((assignment) => assignment.fieldExitId === exit.id).length }));
+    const exitCounts = saidas.map((saida) => ({
+      id: saida.id,
+      count: designacoes.filter((designacao) => designacao.saidaId === saida.id).length,
+    }));
     const maxCount = Math.max(1, ...exitCounts.map((item) => item.count));
-    const orderedExits = [...exits].sort((a, b) => {
+    const orderedSaidas = [...saidas].sort((a, b) => {
       const countA = exitCounts.find((item) => item.id === a.id)?.count || 0;
       const countB = exitCounts.find((item) => item.id === b.id)?.count || 0;
       return countA - countB;
     });
 
-    orderedExits.forEach((exit) => {
-      const exitCount = exitCounts.find((item) => item.id === exit.id)?.count || 0;
+    orderedSaidas.forEach((saida) => {
+      const exitCount = exitCounts.find((item) => item.id === saida.id)?.count || 0;
       const exitBalance = (maxCount - exitCount) / maxCount;
       const today = new Date(`${startDate}T00:00:00`);
-      const candidates = territories
-        .filter((territory) => !recent.has(territory.id) && !used.has(territory.id))
-        .flatMap((territory) => {
-          const lastForExit = assignments
-            .filter((assignment) => assignment.territoryId === territory.id && assignment.fieldExitId === exit.id)
-            .map((assignment) => new Date(`${assignment.startDate}T00:00:00`))
+      const candidates = territorios
+        .filter((territorio) => !recent.has(territorio.id) && !used.has(territorio.id))
+        .flatMap((territorio) => {
+          const lastForExit = designacoes
+            .filter((designacao) => designacao.territorioId === territorio.id && designacao.saidaId === saida.id)
+            .map((designacao) => new Date(`${designacao.dataInicial}T00:00:00`))
             .sort((a, b) => b.getTime() - a.getTime())[0];
           if (lastForExit) {
             const months = (today.getTime() - lastForExit.getTime()) / 1000 / 60 / 60 / 24 / 30;
             if (months < monthsPerExit) return [];
           }
-          const lastOverall = getLastAssignmentDate(territory.id, assignments);
+          const lastOverall = getLastAssignmentDate(territorio.id, designacoes);
           const days = lastOverall ? Math.floor((today.getTime() - lastOverall.getTime()) / 86400000) : Number.POSITIVE_INFINITY;
           const recencyPenalty = lastOverall ? 1 / (days + 1) : 0;
           const score = balanceWeight * exitBalance - recentWeight * recencyPenalty;
@@ -72,19 +81,19 @@ const SuggestionsPage: React.FC = () => {
             `Carga saída ${(exitBalance * 100).toFixed(0)}%`,
             lastOverall ? `Recente ${(recencyPenalty * 100).toFixed(0)}%` : 'Nunca usado',
           ];
-          return [{ territoryId: territory.id, score, reasons }];
+          return [{ territorioId: territorio.id, score, reasons }];
         })
         .sort((a, b) => b.score - a.score);
-      rankingMap[exit.id] = candidates;
+      rankingMap[saida.id] = candidates;
       const chosen = candidates[0];
       if (chosen) {
-        used.add(chosen.territoryId);
-        const suggestionStart = nextDateForWeekday(startDate, exit.dayOfWeek);
+        used.add(chosen.territorioId);
+        const suggestionStart = nextDateForWeekday(startDate, saida.diaDaSemana);
         suggestions.push({
-          fieldExitId: exit.id,
-          territoryId: chosen.territoryId,
-          startDate: suggestionStart,
-          endDate: addDaysToIso(suggestionStart, duration),
+          saidaId: saida.id,
+          territorioId: chosen.territorioId,
+          dataInicial: suggestionStart,
+          dataFinal: addDaysToIso(suggestionStart, duration),
         });
       }
     });
@@ -99,11 +108,12 @@ const SuggestionsPage: React.FC = () => {
       return;
     }
     generated.forEach((suggestion) =>
-      addAssignment({
-        territoryId: suggestion.territoryId,
-        fieldExitId: suggestion.fieldExitId,
-        startDate: suggestion.startDate,
-        endDate: suggestion.endDate,
+      void addDesignacao({
+        territorioId: suggestion.territorioId,
+        saidaId: suggestion.saidaId,
+        dataInicial: suggestion.dataInicial,
+        dataFinal: suggestion.dataFinal,
+        devolvido: false,
       }),
     );
     toast.success('Designações aplicadas');
@@ -189,24 +199,24 @@ const SuggestionsPage: React.FC = () => {
                 </thead>
                 <tbody>
                   {generated.map((suggestion, index) => (
-                    <tr key={suggestion.fieldExitId + suggestion.territoryId + index} className="border-b last:border-0">
-                      <td className="py-2">{findName(suggestion.fieldExitId, exits)}</td>
-                      <td>{findName(suggestion.territoryId, territories)}</td>
-                      <td>{formatIsoDate(suggestion.startDate)}</td>
-                      <td>{formatIsoDate(suggestion.endDate)}</td>
+                    <tr key={suggestion.saidaId + suggestion.territorioId + index} className="border-b last:border-0">
+                      <td className="py-2">{findName(suggestion.saidaId, saidas)}</td>
+                      <td>{findName(suggestion.territorioId, territorios)}</td>
+                      <td>{formatIsoDate(suggestion.dataInicial)}</td>
+                      <td>{formatIsoDate(suggestion.dataFinal)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-              {Object.entries(rankings).map(([exitId, list]) => (
-                <div key={exitId} className="border rounded-xl p-3">
-                  <h4 className="font-semibold mb-2">{findName(exitId, exits)}</h4>
+              {Object.entries(rankings).map(([saidaId, list]) => (
+                <div key={saidaId} className="border rounded-xl p-3">
+                  <h4 className="font-semibold mb-2">{findName(saidaId, saidas)}</h4>
                   <ol className="list-decimal ml-4 space-y-1 text-sm">
                     {list.map((ranking) => (
-                      <li key={ranking.territoryId}>
-                        {findName(ranking.territoryId, territories)} - {ranking.score.toFixed(2)}
+                      <li key={ranking.territorioId}>
+                        {findName(ranking.territorioId, territorios)} - {ranking.score.toFixed(2)}
                         <span className="block text-neutral-500">{ranking.reasons.join(' | ')}</span>
                       </li>
                     ))}

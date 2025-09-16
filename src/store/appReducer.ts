@@ -18,21 +18,86 @@ export const initialState: AppState = {
 };
 
 export type Action =
+  | { type: 'SET_TERRITORIOS'; payload: Territorio[] }
   | { type: 'ADD_TERRITORIO'; payload: Territorio }
+  | { type: 'UPDATE_TERRITORIO'; payload: Territorio }
+  | { type: 'REMOVE_TERRITORIO'; payload: string }
+  | { type: 'SET_SAIDAS'; payload: Saida[] }
   | { type: 'ADD_SAIDA'; payload: Saida }
+  | { type: 'UPDATE_SAIDA'; payload: Saida }
+  | { type: 'REMOVE_SAIDA'; payload: string }
+  | { type: 'SET_DESIGNACOES'; payload: Designacao[] }
   | { type: 'ADD_DESIGNACAO'; payload: Designacao }
-  | { type: 'ADD_SUGESTAO'; payload: Sugestao };
+  | { type: 'UPDATE_DESIGNACAO'; payload: Designacao }
+  | { type: 'REMOVE_DESIGNACAO'; payload: string }
+  | { type: 'SET_SUGESTOES'; payload: Sugestao[] }
+  | { type: 'ADD_SUGESTAO'; payload: Sugestao }
+  | { type: 'UPDATE_SUGESTAO'; payload: Sugestao }
+  | { type: 'REMOVE_SUGESTAO'; payload: { territorioId: string; saidaId: string } }
+  | { type: 'RESET_STATE' };
 
 export function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'SET_TERRITORIOS':
+      return { ...state, territorios: [...action.payload] };
     case 'ADD_TERRITORIO':
       return { ...state, territorios: [...state.territorios, action.payload] };
+    case 'UPDATE_TERRITORIO':
+      return {
+        ...state,
+        territorios: state.territorios.map((territorio) =>
+          territorio.id === action.payload.id ? action.payload : territorio,
+        ),
+      };
+    case 'REMOVE_TERRITORIO':
+      return { ...state, territorios: state.territorios.filter((territorio) => territorio.id !== action.payload) };
+    case 'SET_SAIDAS':
+      return { ...state, saidas: [...action.payload] };
     case 'ADD_SAIDA':
       return { ...state, saidas: [...state.saidas, action.payload] };
+    case 'UPDATE_SAIDA':
+      return {
+        ...state,
+        saidas: state.saidas.map((saida) => (saida.id === action.payload.id ? action.payload : saida)),
+      };
+    case 'REMOVE_SAIDA':
+      return { ...state, saidas: state.saidas.filter((saida) => saida.id !== action.payload) };
+    case 'SET_DESIGNACOES':
+      return { ...state, designacoes: [...action.payload] };
     case 'ADD_DESIGNACAO':
       return { ...state, designacoes: [...state.designacoes, action.payload] };
+    case 'UPDATE_DESIGNACAO':
+      return {
+        ...state,
+        designacoes: state.designacoes.map((designacao) =>
+          designacao.id === action.payload.id ? action.payload : designacao,
+        ),
+      };
+    case 'REMOVE_DESIGNACAO':
+      return { ...state, designacoes: state.designacoes.filter((designacao) => designacao.id !== action.payload) };
+    case 'SET_SUGESTOES':
+      return { ...state, sugestoes: [...action.payload] };
     case 'ADD_SUGESTAO':
       return { ...state, sugestoes: [...state.sugestoes, action.payload] };
+    case 'UPDATE_SUGESTAO':
+      return {
+        ...state,
+        sugestoes: state.sugestoes.map((sugestao) =>
+          sugestao.territorioId === action.payload.territorioId && sugestao.saidaId === action.payload.saidaId
+            ? action.payload
+            : sugestao,
+        ),
+      };
+    case 'REMOVE_SUGESTAO':
+      return {
+        ...state,
+        sugestoes: state.sugestoes.filter(
+          (sugestao) =>
+            sugestao.territorioId !== action.payload.territorioId || sugestao.saidaId !== action.payload.saidaId,
+        ),
+      };
+    case 'RESET_STATE':
+      return initialState;
     default:
       return state;
   }
