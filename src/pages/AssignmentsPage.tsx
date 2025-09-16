@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
 import { useToast } from '../components/feedback/Toast';
 import { StatusBadge } from '../components/feedback/Badge';
@@ -19,6 +20,7 @@ const AssignmentsPage: React.FC = () => {
   const [rules] = useSuggestionRules();
   const confirm = useConfirm();
   const toast = useToast();
+  const { t } = useTranslation();
   const todayIso = new Date().toISOString().slice(0, 10);
   const [territorioId, setTerritorioId] = useState('');
   const [saidaId, setSaidaId] = useState('');
@@ -28,7 +30,7 @@ const AssignmentsPage: React.FC = () => {
   const generateSuggestion = () => {
     const saida = saidas.find((item) => item.id === saidaId);
     if (!saida) {
-      toast.error('Selecione uma saída');
+      toast.error(t('assignments.selectExit'));
       return;
     }
 
@@ -63,7 +65,7 @@ const AssignmentsPage: React.FC = () => {
 
     const chosen = candidates[0];
     if (!chosen) {
-      toast.error('Sem territórios disponíveis');
+      toast.error(t('assignments.noAvailableTerritories'));
       return;
     }
 
@@ -76,7 +78,7 @@ const AssignmentsPage: React.FC = () => {
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!territorioId || !saidaId) {
-      toast.error('Selecione território e saída');
+      toast.error(t('assignments.selectTerritoryAndExit'));
       return;
     }
     await addDesignacao({ territorioId, saidaId, dataInicial: startDate, dataFinal: endDate, devolvido: false });
@@ -88,16 +90,16 @@ const AssignmentsPage: React.FC = () => {
 
   return (
     <div className="grid gap-4">
-      <Card title="Nova Designação">
+      <Card title={t('assignments.newAssignment')}>
         <form onSubmit={submit} className="grid md:grid-cols-5 gap-3">
           <div className="grid gap-1">
-            <Label>Território</Label>
+            <Label>{t('assignments.territory')}</Label>
             <select
               value={territorioId}
               onChange={(event) => setTerritorioId(event.target.value)}
               className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900"
             >
-              <option value="">Selecione…</option>
+              <option value="">{t('assignments.selectPlaceholder')}</option>
               {territorios.map((territorio) => (
                 <option key={territorio.id} value={territorio.id}>
                   {territorio.nome}
@@ -106,13 +108,13 @@ const AssignmentsPage: React.FC = () => {
             </select>
           </div>
           <div className="grid gap-1">
-            <Label>Saída</Label>
+            <Label>{t('assignments.exit')}</Label>
             <select
               value={saidaId}
               onChange={(event) => setSaidaId(event.target.value)}
               className="w-full rounded-xl border px-3 py-2 bg-white dark:bg-neutral-900"
             >
-              <option value="">Selecione…</option>
+              <option value="">{t('assignments.selectPlaceholder')}</option>
               {saidas.map((saida) => (
                 <option key={saida.id} value={saida.id}>
                   {saida.nome}
@@ -121,37 +123,37 @@ const AssignmentsPage: React.FC = () => {
             </select>
           </div>
           <div className="grid gap-1">
-            <Label>Data Designação</Label>
+            <Label>{t('assignments.assignmentDate')}</Label>
             <Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
           </div>
           <div className="grid gap-1">
-            <Label>Data Devolução</Label>
+            <Label>{t('assignments.returnDate')}</Label>
             <Input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
           </div>
           <div className="flex items-end justify-end gap-2">
             <Button type="button" onClick={generateSuggestion} className="bg-blue-600 text-white">
-              Gerar sugestão
+              {t('assignments.generateSuggestion')}
             </Button>
             <Button type="submit" className="bg-black text-white">
-              Salvar
+              {t('assignments.save')}
             </Button>
           </div>
         </form>
       </Card>
 
-      <Card title={`Designações (${designacoes.length})`}>
+      <Card title={t('assignments.assignmentsWithCount', { count: designacoes.length })}>
         {designacoes.length === 0 ? (
-          <p className="text-neutral-500">Sem designações.</p>
+          <p className="text-neutral-500">{t('assignments.noAssignments')}</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left border-b">
-                  <th className="py-2">Território</th>
-                  <th>Saída</th>
-                  <th>Designação</th>
-                  <th>Devolução</th>
-                  <th>Status</th>
+                  <th className="py-2">{t('assignments.territory')}</th>
+                  <th>{t('assignments.exit')}</th>
+                  <th>{t('assignments.assignmentDate')}</th>
+                  <th>{t('assignments.returnDate')}</th>
+                  <th>{t('assignments.status')}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -173,17 +175,17 @@ const AssignmentsPage: React.FC = () => {
                       </td>
                       <td className="text-right flex gap-2 justify-end">
                         <Button onClick={() => toggleDesignacaoReturn(designacao)} className="bg-neutral-100">
-                          {designacao.devolvido ? 'Reativar' : 'Devolver'}
+                          {designacao.devolvido ? t('assignments.reactivate') : t('assignments.markAsReturned')}
                         </Button>
                         <Button
                           onClick={async () => {
-                            if (await confirm('Excluir designação?')) {
+                            if (await confirm(t('assignments.confirmDelete'))) {
                               await removeDesignacao(designacao.id);
                             }
                           }}
                           className="bg-red-50 text-red-700"
                         >
-                          Excluir
+                          {t('assignments.delete')}
                         </Button>
                       </td>
                     </tr>
