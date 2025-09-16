@@ -1,0 +1,14 @@
+{
+  "name": "react-router-dom",
+  "version": "0.0.0-local",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "types": "./index.d.ts",
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  }
+}
