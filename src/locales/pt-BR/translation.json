@@ -54,6 +54,75 @@
     "settings": "Configurações",
     "notifications": "Notificações"
   },
+  "buildingsVillages": {
+    "title": "Prédios e Vilas",
+    "subtitle": "Cadastre, filtre e organize informações sobre prédios, vilas e condomínios do território.",
+    "newRecord": "Novo registro",
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nome, responsável ou endereço",
+      "territory": "Território",
+      "type": "Tipo",
+      "modality": "Modalidade",
+      "allModalities": "Todas"
+    },
+    "records": {
+      "title": "Registros",
+      "count": "{{count}} registro encontrado",
+      "count_plural": "{{count}} registros encontrados",
+      "loading": "Carregando registros...",
+      "empty": "Nenhum registro encontrado com os filtros aplicados.",
+      "noName": "Sem nome",
+      "noTerritory": "Território não informado"
+    },
+    "fields": {
+      "territory": "Território",
+      "name": "Nome",
+      "address": "Endereço",
+      "number": "Número",
+      "type": "Tipo",
+      "modality": "Modalidade",
+      "reception": "Tipo de recepção",
+      "residences": "Quantidade de residências",
+      "responsible": "Responsável",
+      "assignedAt": "Designado em",
+      "returnedAt": "Devolvido em",
+      "block": "Bloco",
+      "notes": "Observações"
+    },
+    "placeholders": {
+      "territory": "Selecione um território",
+      "name": "Identificação do prédio ou vila",
+      "address": "Rua, avenida ou referência",
+      "number": "Número do imóvel",
+      "type": "Prédio, vila, condomínio...",
+      "modality": "Condomínio, vila fechada...",
+      "reception": "Portaria, interfone...",
+      "responsible": "Nome do síndico, porteiro...",
+      "block": "Identificação do bloco",
+      "notes": "Detalhes relevantes, horários, instruções de acesso..."
+    },
+    "modal": {
+      "editTitle": "Editar registro",
+      "createTitle": "Novo registro",
+      "descriptionEdit": "Preencha os campos abaixo para atualizar o prédio ou vila.",
+      "descriptionCreate": "Preencha os campos abaixo para cadastrar o prédio ou vila."
+    },
+    "validation": {
+      "selectTerritory": "Selecione um território",
+      "nameRequired": "Informe o nome do prédio ou vila",
+      "invalidNumber": "Informe um número válido"
+    },
+    "feedback": {
+      "loadError": "Não foi possível carregar os dados",
+      "deleteSuccess": "Registro removido com sucesso",
+      "deleteError": "Não foi possível remover o registro",
+      "updateSuccess": "Registro atualizado com sucesso",
+      "createSuccess": "Registro criado com sucesso",
+      "saveError": "Não foi possível salvar o registro"
+    },
+    "confirmDelete": "Deseja realmente remover este registro?"
+  },
   "status": {
     "ativo": "Ativo",
     "devolvido": "Devolvido",

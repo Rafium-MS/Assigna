@@ -54,6 +54,75 @@
     "settings": "Configurações",
     "notifications": "Notificações"
   },
+  "buildingsVillages": {
+    "title": "Edificios y Villas",
+    "subtitle": "Registra, filtra y organiza información sobre edificios, villas y condominios del territorio.",
+    "newRecord": "Nuevo registro",
+    "filters": {
+      "search": "Buscar",
+      "searchPlaceholder": "Nombre, responsable o dirección",
+      "territory": "Territorio",
+      "type": "Tipo",
+      "modality": "Modalidad",
+      "allModalities": "Todas"
+    },
+    "records": {
+      "title": "Registros",
+      "count": "{{count}} registro encontrado",
+      "count_plural": "{{count}} registros encontrados",
+      "loading": "Cargando registros...",
+      "empty": "Ningún registro encontrado con los filtros aplicados.",
+      "noName": "Sin nombre",
+      "noTerritory": "Territorio no informado"
+    },
+    "fields": {
+      "territory": "Territorio",
+      "name": "Nombre",
+      "address": "Dirección",
+      "number": "Número",
+      "type": "Tipo",
+      "modality": "Modalidad",
+      "reception": "Tipo de recepción",
+      "residences": "Cantidad de residencias",
+      "responsible": "Responsable",
+      "assignedAt": "Asignado el",
+      "returnedAt": "Devuelto el",
+      "block": "Bloque",
+      "notes": "Observaciones"
+    },
+    "placeholders": {
+      "territory": "Seleccione un territorio",
+      "name": "Identificación del edificio o villa",
+      "address": "Calle, avenida o referencia",
+      "number": "Número de la propiedad",
+      "type": "Edificio, villa, condominio...",
+      "modality": "Condominio, villa cerrada...",
+      "reception": "Portería, intercomunicador...",
+      "responsible": "Nombre del síndico, portero...",
+      "block": "Identificación del bloque",
+      "notes": "Detalles relevantes, horarios, instrucciones de acceso..."
+    },
+    "modal": {
+      "editTitle": "Editar registro",
+      "createTitle": "Nuevo registro",
+      "descriptionEdit": "Complete los campos abajo para actualizar el edificio o villa.",
+      "descriptionCreate": "Complete los campos abajo para registrar el edificio o villa."
+    },
+    "validation": {
+      "selectTerritory": "Seleccione un territorio",
+      "nameRequired": "Ingrese el nombre del edificio o villa",
+      "invalidNumber": "Ingrese un número válido"
+    },
+    "feedback": {
+      "loadError": "No se pudieron cargar los datos",
+      "deleteSuccess": "Registro eliminado con éxito",
+      "deleteError": "No se pudo eliminar el registro",
+      "updateSuccess": "Registro actualizado con éxito",
+      "createSuccess": "Registro creado con éxito",
+      "saveError": "No se pudo guardar el registro"
+    },
+    "confirmDelete": "¿Desea realmente eliminar este registro?"
+  },
   "status": {
     "ativo": "Ativo",
     "devolvido": "Devolvido",
