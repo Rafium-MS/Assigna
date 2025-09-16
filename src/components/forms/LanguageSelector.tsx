@@ -21,6 +21,7 @@ export const LanguageSelector: React.FC = () => {
     <select value={i18n.language} onChange={change} className="border rounded px-2 py-1">
       <option value="en-US">{t('language.english')}</option>
       <option value="pt-BR">{t('language.portuguese')}</option>
+      <option value="es-ES">{t('language.spanish')}</option>
     </select>
   );
 };
