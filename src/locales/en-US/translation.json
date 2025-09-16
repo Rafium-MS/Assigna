@@ -105,6 +105,25 @@
     "confirmDelete": "Delete exit?",
     "delete": "Delete"
   },
+  "territories": {
+    "createTerritory": "Create Territory",
+    "editTerritory": "Edit Territory",
+    "name": "Name",
+    "namePlaceholder": "E.g.: Territory 12 – Downtown",
+    "optionalImage": "Image (optional)",
+    "saveTerritory": "Save Territory",
+    "territoriesWithCount": "Territories ({{count}})",
+    "searchPlaceholder": "Search...",
+    "withImage": "With image",
+    "noTerritories": "No territories registered.",
+    "image": "Image",
+    "noImagePlaceholder": "—",
+    "confirmDelete": "Delete territory?",
+    "pageInfo": "Page {{page}} of {{pageCount}}",
+    "validation": {
+      "nameRequired": "Name is required"
+    }
+  },
   "assignments": {
     "selectExit": "Select an exit",
     "noAvailableTerritories": "No territories available",
