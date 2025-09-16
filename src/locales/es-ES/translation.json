@@ -101,6 +101,9 @@
     "dueIn": "D-{{diff}}",
     "noAssignments": "Sin asignaciones."
   },
+  "reports": {
+    "title": "Informes"
+  },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",
     "loading": "Carregando...",

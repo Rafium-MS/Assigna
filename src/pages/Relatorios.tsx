@@ -1,3 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 export default function Relatorios(): JSX.Element {
-  return <div>Relatórios</div>;
+  const { t } = useTranslation();
+
+  return <div>{t('reports.title')}</div>;
 }
