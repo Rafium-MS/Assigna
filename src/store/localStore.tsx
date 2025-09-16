@@ -6,6 +6,7 @@ import type { SuggestionRuleConfig } from '../types/suggestion-rule-config';
 import type { Territory } from '../types/territory';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generateId } from '../utils/id';
+import { notifyTerritoryReturn } from '../services/notifications';
 
 export interface StoreContextValue {
   territories: Territory[];
@@ -75,19 +76,13 @@ const useLocalStore = (): StoreContextValue => {
     toast.success('Saída atualizada');
   };
 
-  const notifyReturn = (territoryName: string) => {
+  const sendReturnNotification = (territoryName: string) => {
     const endpoint = localStorage.getItem('pushEndpoint');
     if (!endpoint) return;
 
-    fetch('/api/notify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        endpoint,
-        title: 'Território devolvido',
-        body: `${territoryName} foi devolvido`,
-      }),
-    }).catch(() => {});
+    void notifyTerritoryReturn({ endpoint, territoryName }).catch((error) => {
+      console.error('Failed to notify territory return', error);
+    });
   };
 
   const addAssignment = (assignment: Omit<Assignment, 'id'>) => {
@@ -107,7 +102,7 @@ const useLocalStore = (): StoreContextValue => {
         const updated = { ...item, ...assignment };
         if (!item.returned && updated.returned) {
           const territory = territories.find((territoryItem) => territoryItem.id === item.territoryId);
-          notifyReturn(territory ? territory.name : 'Território');
+          sendReturnNotification(territory ? territory.name : 'Território');
         }
         return updated;
       }),

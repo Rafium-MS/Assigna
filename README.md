@@ -44,6 +44,14 @@ Atualmente não há variáveis de ambiente obrigatórias. Caso precise, crie um 
 EXAMPLE_API_KEY="sua_chave_aqui"
 ```
 
+Para habilitar a comunicação com um backend de notificações, configure também:
+
+```bash
+VITE_NOTIFICATIONS_API_URL="https://sua-api.com"
+```
+
+Quando essa variável não estiver definida, as notificações de devolução permanecerão apenas no modo offline.
+
 ## Screenshots
 
 Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminhos conforme preferir):
