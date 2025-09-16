@@ -1,14 +1,11 @@
 import React, { useLayoutEffect, useState } from 'react';
-import type { TabKey } from '../../types/navigation';
 import { Sidebar } from './Sidebar';
 
 interface ShellProps {
-  currentTab: TabKey;
-  onTabChange: (tab: TabKey) => void;
   children: React.ReactNode;
 }
 
-export const Shell: React.FC<ShellProps> = ({ currentTab, onTabChange, children }) => {
+export const Shell: React.FC<ShellProps> = ({ children }) => {
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem('dark');
     if (stored !== null) return JSON.parse(stored) as boolean;
@@ -24,7 +21,7 @@ export const Shell: React.FC<ShellProps> = ({ currentTab, onTabChange, children 
 
   return (
     <div className="min-h-screen text-neutral-900 dark:text-neutral-100 flex">
-      <Sidebar current={currentTab} onSelect={(value) => onTabChange(value as TabKey)} />
+      <Sidebar />
       <div className="flex-1">
         <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
           <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">

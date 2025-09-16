@@ -1,4 +1,6 @@
-import React, { useRef, useState } from 'react';
+import { useRef } from 'react';
+import type { ComponentType } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { SchedulerControls } from './components/calendar/SchedulerControls';
 import { useConfirm } from './components/feedback/ConfirmDialog';
 import { Button } from './components/ui';
@@ -24,8 +26,9 @@ import {
 } from './services/repositories';
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
+import { routeEntries } from './routes';
 
-const pagesByTab: Record<TabKey, React.FC> = {
+const pagesByTab: Record<TabKey, ComponentType> = {
   territories: TerritoriesPage,
   streets: StreetsPage,
   buildingsVillages: BuildingsVillagesPage,
@@ -33,11 +36,6 @@ const pagesByTab: Record<TabKey, React.FC> = {
   assignments: AssignmentsPage,
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
-};
-
-const AppRoutes: React.FC<{ tab: TabKey }> = ({ tab }) => {
-  const PageComponent = pagesByTab[tab];
-  return <PageComponent />;
 };
 
 const DataManagementControls: React.FC = () => {
@@ -132,15 +130,21 @@ const DataManagementControls: React.FC = () => {
 };
 
 export default function App() {
-  const [tab, setTab] = useState<TabKey>('territories');
-
   return (
     <AppProvider>
-      <Shell currentTab={tab} onTabChange={setTab}>
-        <AppRoutes tab={tab} />
-        <SchedulerControls />
-        <DataManagementControls />
-      </Shell>
+      <BrowserRouter>
+        <Shell>
+          <Routes>
+            {routeEntries.map(([key, path]) => {
+              const PageComponent = pagesByTab[key];
+              return <Route key={key} path={path} element={<PageComponent />} />;
+            })}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          <SchedulerControls />
+          <DataManagementControls />
+        </Shell>
+      </BrowserRouter>
     </AppProvider>
   );
 }
