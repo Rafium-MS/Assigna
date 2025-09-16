@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -29,29 +29,72 @@ export default function RuasNumeracoesPage(): JSX.Element {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [activeTab, setActiveTab] = useState<'ruas' | 'enderecos' | 'resumo'>('ruas');
   const [territoryId, setTerritoryId] = useState<string>('');
+  const territoryIdRef = useRef<string>(territoryId);
 
   const territory = useMemo(
     () => territories.find(t => t.id === territoryId),
     [territories, territoryId]
   );
 
+  const refreshTerritoryData = useCallback(
+    async (id: string): Promise<void> => {
+      if (!id) {
+        setStreets([]);
+        setAddresses([]);
+        return;
+      }
+
+      const territoryStreets = await db.streets.where('territoryId').equals(id).toArray();
+      if (territoryIdRef.current !== id) {
+        return;
+      }
+      setStreets(territoryStreets);
+
+      const streetIds = territoryStreets
+        .map(street => street.id)
+        .filter((streetId): streetId is number => streetId !== undefined);
+
+      if (streetIds.length === 0) {
+        if (territoryIdRef.current === id) {
+          setAddresses([]);
+        }
+        return;
+      }
+
+      const territoryAddresses = await db.addresses
+        .where('streetId')
+        .anyOf(streetIds)
+        .toArray();
+      if (territoryIdRef.current !== id) {
+        return;
+      }
+      setAddresses(territoryAddresses);
+    },
+    []
+  );
+
   useEffect(() => {
     const load = async (): Promise<void> => {
-      const [territoriesData, streetsData, propertyTypesData, addressesData] =
-        await Promise.all([
-          db.territorios.toArray(),
-          db.streets.toArray(),
-          db.propertyTypes.toArray(),
-          db.addresses.toArray()
-        ]);
+      const [territoriesData, propertyTypesData] = await Promise.all([
+        db.territorios.toArray(),
+        db.propertyTypes.toArray()
+      ]);
       setTerritories(territoriesData);
-      setStreets(streetsData);
       setPropertyTypes(propertyTypesData);
-      setAddresses(addressesData);
-      if (territoriesData[0]) setTerritoryId(territoriesData[0].id);
+      setTerritoryId(currentId => {
+        if (currentId && territoriesData.some(territoryData => territoryData.id === currentId)) {
+          return currentId;
+        }
+        return territoriesData[0]?.id ?? '';
+      });
     };
     void load();
   }, []);
+
+  useEffect(() => {
+    territoryIdRef.current = territoryId;
+    void refreshTerritoryData(territoryId);
+  }, [territoryId, refreshTerritoryData]);
 
   // address form
   const {
@@ -64,8 +107,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
   const saveAddress = async (data: AddressForm): Promise<void> => {
     await db.addresses.put(data);
-    const list = await db.addresses.toArray();
-    setAddresses(list);
+    await refreshTerritoryData(territoryId);
     reset();
   };
 
@@ -76,8 +118,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
     const name = String(formData.get('name'));
     if (!territoryId || !name) return;
     await db.streets.put({ territoryId, name });
-    const list = await db.streets.toArray();
-    setStreets(list);
+    await refreshTerritoryData(territoryId);
     form.reset();
   };
 
@@ -110,6 +151,25 @@ export default function RuasNumeracoesPage(): JSX.Element {
         )}
       </div>
       <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="territory-select" className="text-sm font-medium">
+            {t('ruasNumeracoes.territorySelector.label')}
+          </label>
+          <select
+            id="territory-select"
+            className="border p-1"
+            value={territoryId}
+            onChange={event => setTerritoryId(event.target.value)}
+            disabled={territories.length === 0}
+          >
+            <option value="">{t('ruasNumeracoes.territorySelector.placeholder')}</option>
+            {territories.map(option => (
+              <option key={option.id} value={option.id}>
+                {option.nome}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="flex gap-2">
           <button
             className={activeTab === 'ruas' ? 'font-bold' : ''}

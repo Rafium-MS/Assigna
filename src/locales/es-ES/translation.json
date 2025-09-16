@@ -129,6 +129,10 @@
       "addresses": "Direcciones",
       "summary": "Resumen"
     },
+    "territorySelector": {
+      "label": "Territorio",
+      "placeholder": "Selecciona un territorio"
+    },
     "streetsForm": {
       "streetNamePlaceholder": "Nombre de la calle"
     },

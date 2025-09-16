@@ -130,6 +130,10 @@
       "addresses": "Addresses",
       "summary": "Summary"
     },
+    "territorySelector": {
+      "label": "Territory",
+      "placeholder": "Select a territory"
+    },
     "streetsForm": {
       "streetNamePlaceholder": "Street name"
     },

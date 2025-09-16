@@ -131,6 +131,10 @@
       "addresses": "Endereços",
       "summary": "Resumo"
     },
+    "territorySelector": {
+      "label": "Território",
+      "placeholder": "Selecione um território"
+    },
     "streetsForm": {
       "streetNamePlaceholder": "Nome da rua"
     },
