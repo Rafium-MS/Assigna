@@ -83,6 +83,12 @@
     "confirmDelete": "¿Eliminar asignación?",
     "delete": "Eliminar"
   },
+  "calendar": {
+    "warningDays": "Alerta (días)",
+    "overdue": "Atrasado",
+    "dueIn": "D-{{diff}}",
+    "noAssignments": "Sin asignaciones."
+  },
   "app": {
     "updateAvailable": "Nova versão disponível. Atualizar?",
     "loading": "Carregando...",
