@@ -287,7 +287,11 @@
     "importError": "Unable to import data",
     "clearConfirm": "Clear ALL data?",
     "clearSuccess": "Data cleared",
-    "clearError": "Unable to clear data"
+    "clearError": "Unable to clear data",
+    "theme": {
+      "light": "Light theme",
+      "dark": "Dark theme"
+    }
   },
   "language": {
     "english": "English",
