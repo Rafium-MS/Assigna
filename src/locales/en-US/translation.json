@@ -144,6 +144,52 @@
     "confirmDelete": "Delete assignment?",
     "delete": "Delete"
   },
+  "suggestions": {
+    "cards": {
+      "rules": "Suggestion Rules",
+      "generated": "Generated Suggestions"
+    },
+    "actions": {
+      "saveDefaults": "Save defaults",
+      "generate": "Generate Suggestions",
+      "applyAll": "Apply All"
+    },
+    "labels": {
+      "startDate": "Start date",
+      "duration": "Duration (days)",
+      "avoidCount": "Avoid repetition (last N)",
+      "monthsPerExit": "Repeat per exit (months)",
+      "recentWeight": "Recency weight",
+      "balanceWeight": "Exit load weight"
+    },
+    "tooltips": {
+      "startDate": "Starting date to generate suggestions",
+      "duration": "Default assignment duration in days",
+      "avoidCount": "Number of recent assignments to avoid repeating",
+      "monthsPerExit": "Minimum months before repeating the same territory in the same exit",
+      "recentWeight": "Higher values penalize recently used territories",
+      "balanceWeight": "Higher values balance exit workload"
+    },
+    "messages": {
+      "waiting": "Waiting for generation…",
+      "empty": "No suggestions (check territories and exits)."
+    },
+    "table": {
+      "exit": "Exit",
+      "territory": "Territory",
+      "start": "Assignment",
+      "end": "Return"
+    },
+    "toast": {
+      "nothingToApply": "Nothing to apply",
+      "applied": "Suggestions applied"
+    },
+    "reasons": {
+      "exitLoad": "Exit load {{value}}%",
+      "recent": "Recent {{value}}%",
+      "neverUsed": "Never used"
+    }
+  },
   "calendar": {
     "warningDays": "Alert (days)",
     "overdue": "Overdue",
