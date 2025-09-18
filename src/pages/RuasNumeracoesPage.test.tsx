@@ -11,6 +11,8 @@ const {
   streetsStore,
   propertyTypesStore,
   addressesStore,
+  defaultStreetsWhere,
+  defaultAddressesWhere,
   dbMock,
 } = vi.hoisted(() => {
   const territoriesStore: Territorio[] = [];
@@ -28,12 +30,34 @@ const {
     return maxId + 1;
   };
 
+  const defaultStreetsWhere = (field: keyof Street) => ({
+    equals: (value: Street[keyof Street]) => ({
+      async toArray() {
+        return streetsStore
+          .filter((street) => street[field] === value)
+          .map((street) => ({ ...street }));
+      },
+    }),
+  });
+
+  const defaultAddressesWhere = (field: keyof Address) => ({
+    anyOf: (values: number[]) => ({
+      async toArray() {
+        const allowed = new Set(values);
+        return addressesStore
+          .filter((address) => allowed.has(address[field] as number))
+          .map((address) => ({ ...address }));
+      },
+    }),
+  });
+
   const dbMock = {
     territorios: {
       toArray: vi.fn(async () => territoriesStore.map((territory) => ({ ...territory }))),
     },
     streets: {
       toArray: vi.fn(async () => streetsStore.map((street) => ({ ...street }))),
+      where: vi.fn(defaultStreetsWhere),
       put: vi.fn(async (street: Street) => {
         const id = typeof street.id === 'number' ? street.id : nextNumericId(streetsStore);
         const record: Street = { id, ...street };
@@ -51,6 +75,7 @@ const {
     },
     addresses: {
       toArray: vi.fn(async () => addressesStore.map((address) => ({ ...address }))),
+      where: vi.fn(defaultAddressesWhere),
       put: vi.fn(async (address: Address) => {
         const id = typeof address.id === 'number' ? address.id : nextNumericId(addressesStore);
         const record: Address = { id, ...address };
@@ -65,7 +90,15 @@ const {
     },
   };
 
-  return { territoriesStore, streetsStore, propertyTypesStore, addressesStore, dbMock };
+  return {
+    territoriesStore,
+    streetsStore,
+    propertyTypesStore,
+    addressesStore,
+    defaultStreetsWhere,
+    defaultAddressesWhere,
+    dbMock,
+  };
 });
 
 vi.mock('../services/db', () => ({
@@ -183,10 +216,15 @@ beforeEach(() => {
 
   dbMock.territorios.toArray.mockClear();
   dbMock.streets.toArray.mockClear();
+  dbMock.streets.where.mockClear();
   dbMock.streets.put.mockClear();
   dbMock.propertyTypes.toArray.mockClear();
   dbMock.addresses.toArray.mockClear();
+  dbMock.addresses.where.mockClear();
   dbMock.addresses.put.mockClear();
+
+  dbMock.streets.where.mockImplementation(defaultStreetsWhere);
+  dbMock.addresses.where.mockImplementation(defaultAddressesWhere);
 });
 
 afterEach(() => {
@@ -199,7 +237,6 @@ describe('RuasNumeracoesPage', () => {
 
     await waitFor(() => {
       expect(dbMock.territorios.toArray).toHaveBeenCalled();
-      expect(dbMock.streets.toArray).toHaveBeenCalled();
     });
 
     await waitFor(() => {
@@ -216,7 +253,6 @@ describe('RuasNumeracoesPage', () => {
 
     await waitFor(() => {
       expect(dbMock.territorios.toArray).toHaveBeenCalled();
-      expect(dbMock.streets.toArray).toHaveBeenCalled();
     });
 
     await waitFor(() => {
@@ -250,7 +286,6 @@ describe('RuasNumeracoesPage', () => {
 
     await waitFor(() => {
       expect(dbMock.territorios.toArray).toHaveBeenCalled();
-      expect(dbMock.streets.toArray).toHaveBeenCalled();
     });
 
     await waitFor(() => {
@@ -287,18 +322,20 @@ describe('RuasNumeracoesPage', () => {
     });
     expect(addressesTab.className).toContain('font-bold');
 
-    const selects = screen.getAllByRole('combobox');
-    const streetSelect = selects[0] as HTMLSelectElement;
-    const propertyTypeSelect = selects[1] as HTMLSelectElement;
+    const streetSelect = document.querySelector('select[name="streetId"]') as HTMLSelectElement | null;
+    const propertyTypeSelect = document.querySelector('select[name="propertyTypeId"]') as HTMLSelectElement | null;
+
+    expect(streetSelect).not.toBeNull();
+    expect(propertyTypeSelect).not.toBeNull();
 
     await act(async () => {
-      streetSelect.value = '1';
-      streetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      streetSelect!.value = '1';
+      streetSelect!.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     await act(async () => {
-      propertyTypeSelect.value = '10';
-      propertyTypeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+      propertyTypeSelect!.value = '10';
+      propertyTypeSelect!.dispatchEvent(new Event('change', { bubbles: true }));
     });
 
     const numberStartInput = screen.getByPlaceholderText(
@@ -341,5 +378,63 @@ describe('RuasNumeracoesPage', () => {
       numberStart: 100,
       numberEnd: 200,
     });
+  });
+
+  it('filters addresses for the active territory and updates the summary counts', async () => {
+    addressesStore.push({
+      id: 6,
+      streetId: 2,
+      numberStart: 20,
+      numberEnd: 30,
+      propertyTypeId: 20,
+    });
+
+    const originalImplementation = dbMock.addresses.where.getMockImplementation();
+
+    dbMock.addresses.where.mockImplementation((_field: keyof Address) => ({
+      anyOf: () => ({
+        async toArray() {
+          // Return all addresses regardless of the provided filter to simulate stale data.
+          return addressesStore.map((address) => ({ ...address }));
+        },
+      }),
+    }));
+
+    try {
+      render(<RuasNumeracoesPage />);
+
+      await waitFor(() => {
+        expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Rua Principal')).toBeTruthy();
+      });
+
+      const addressesTab = screen.getByRole('button', { name: 'ruasNumeracoes.tabs.addresses' });
+
+      await act(async () => {
+        addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(screen.getByText('Rua Principal')).toBeTruthy();
+      expect(screen.queryByText('Avenida Secundária')).toBeNull();
+
+      const summaryTab = screen.getByRole('button', { name: 'ruasNumeracoes.tabs.summary' });
+
+      await act(async () => {
+        summaryTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      expect(screen.getByText('ruasNumeracoes.summary.totalStreets (1)')).toBeTruthy();
+      expect(screen.getByText('ruasNumeracoes.summary.totalAddresses (1)')).toBeTruthy();
+      expect(screen.getByText('ruasNumeracoes.summary.totalPropertyTypes (1)')).toBeTruthy();
+    } finally {
+      if (originalImplementation) {
+        dbMock.addresses.where.mockImplementation(originalImplementation);
+      } else {
+        dbMock.addresses.where.mockImplementation(defaultAddressesWhere);
+      }
+    }
   });
 });

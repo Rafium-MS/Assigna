@@ -36,6 +36,34 @@ export default function RuasNumeracoesPage(): JSX.Element {
     [territories, territoryId]
   );
 
+  const territoryStreets = useMemo(
+    () => streets.filter(street => street.territoryId === territoryId),
+    [streets, territoryId]
+  );
+
+  const allowedStreetIds = useMemo(() => {
+    const ids = new Set<number>();
+    for (const street of territoryStreets) {
+      if (typeof street.id === 'number') {
+        ids.add(street.id);
+      }
+    }
+    return ids;
+  }, [territoryStreets]);
+
+  const filteredAddresses = useMemo(
+    () => addresses.filter(address => allowedStreetIds.has(address.streetId)),
+    [addresses, allowedStreetIds]
+  );
+
+  const filteredPropertyTypeCount = useMemo(() => {
+    const uniquePropertyTypes = new Set<number>();
+    for (const address of filteredAddresses) {
+      uniquePropertyTypes.add(address.propertyTypeId);
+    }
+    return uniquePropertyTypes.size;
+  }, [filteredAddresses]);
+
   const refreshTerritoryData = useCallback(
     async (id: string): Promise<void> => {
       if (!id) {
@@ -211,13 +239,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                {streets
-                  .filter(s => s.territoryId === territoryId)
-                  .map(s => (
-                    <tr key={s.id}>
-                      <td>{s.name}</td>
-                    </tr>
-                  ))}
+                {territoryStreets.map(s => (
+                  <tr key={s.id}>
+                    <td>{s.name}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -230,13 +256,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 className="border p-1"
               >
                 <option value="">{t('ruasNumeracoes.addressesForm.selectStreet')}</option>
-                {streets
-                  .filter(s => s.territoryId === territoryId)
-                  .map(s => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
+                {territoryStreets.map(s => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
               </select>
               <select
                 {...register('propertyTypeId', { valueAsNumber: true })}
@@ -283,9 +307,9 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 </tr>
               </thead>
               <tbody>
-                {addresses.map(a => (
+                {filteredAddresses.map(a => (
                   <tr key={a.id}>
-                    <td>{streets.find(s => s.id === a.streetId)?.name}</td>
+                    <td>{territoryStreets.find(s => s.id === a.streetId)?.name}</td>
                     <td>{a.numberStart}</td>
                     <td>{a.numberEnd}</td>
                     <td>{propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}</td>
@@ -298,14 +322,18 @@ export default function RuasNumeracoesPage(): JSX.Element {
         {activeTab === 'resumo' && (
           <div>
             <p>
-              {t('ruasNumeracoes.summary.totalStreets', { count: streets.length })}
+              {t('ruasNumeracoes.summary.totalStreets', {
+                count: territoryStreets.length
+              })}
             </p>
             <p>
-              {t('ruasNumeracoes.summary.totalAddresses', { count: addresses.length })}
+              {t('ruasNumeracoes.summary.totalAddresses', {
+                count: filteredAddresses.length
+              })}
             </p>
             <p>
               {t('ruasNumeracoes.summary.totalPropertyTypes', {
-                count: propertyTypes.length
+                count: filteredPropertyTypeCount
               })}
             </p>
           </div>
