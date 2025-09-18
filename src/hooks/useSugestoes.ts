@@ -5,6 +5,8 @@ import type { Sugestao } from '../types/sugestao';
 import { SugestaoRepository } from '../services/repositories';
 import { useToast } from '../components/feedback/Toast';
 
+type SugestaoInput = Omit<Sugestao, 'publisherId'> & { publisherId?: string };
+
 /**
  * Custom hook for managing suggestions.
  * This hook provides access to the list of suggestions and a function to add a new suggestion.
@@ -14,6 +16,7 @@ export const useSugestoes = () => {
   const { state, dispatch } = useApp();
   const toast = useToast();
   const sugestoes = selectSugestoes(state);
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   return {
     /** The list of all suggestions. */
@@ -23,26 +26,34 @@ export const useSugestoes = () => {
      * @param sugestao The suggestion to add.
      */
     addSugestao: useCallback(
-      async (sugestao: Sugestao) => {
-        await SugestaoRepository.add(sugestao);
-        dispatch({ type: 'ADD_SUGESTAO', payload: sugestao });
+      async (sugestao: SugestaoInput) => {
+        const record: Sugestao = {
+          ...sugestao,
+          publisherId: sugestao.publisherId ?? currentUserId,
+        };
+        await SugestaoRepository.add(record);
+        dispatch({ type: 'ADD_SUGESTAO', payload: record });
         toast.success('Sugestão salva');
-        return sugestao;
+        return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     /**
      * Updates an existing suggestion.
      * @param sugestao The suggestion with updated information.
      */
     updateSugestao: useCallback(
-      async (sugestao: Sugestao) => {
-        await SugestaoRepository.add(sugestao);
-        dispatch({ type: 'UPDATE_SUGESTAO', payload: sugestao });
+      async (sugestao: SugestaoInput) => {
+        const record: Sugestao = {
+          ...sugestao,
+          publisherId: sugestao.publisherId ?? currentUserId,
+        };
+        await SugestaoRepository.add(record);
+        dispatch({ type: 'UPDATE_SUGESTAO', payload: record });
         toast.success('Sugestão atualizada');
-        return sugestao;
+        return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     /**
      * Removes a stored suggestion.
@@ -55,7 +66,7 @@ export const useSugestoes = () => {
         dispatch({ type: 'REMOVE_SUGESTAO', payload: { territorioId, saidaId } });
         toast.success('Sugestão removida');
       },
-      [dispatch, toast],
+      [dispatch, toast]
     ),
   } as const;
 };

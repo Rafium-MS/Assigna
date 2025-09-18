@@ -4,5 +4,6 @@ export interface Designacao {
   saidaId: string;
   dataInicial: string;
   dataFinal: string;
+  publisherId: string;
   devolvido?: boolean;
 }

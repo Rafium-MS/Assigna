@@ -15,6 +15,7 @@ export const useTerritorios = () => {
   const { state, dispatch } = useApp();
   const toast = useToast();
   const territorios = selectTerritorios(state);
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   return {
     /** The list of all territories. */
@@ -24,14 +25,14 @@ export const useTerritorios = () => {
      * @param territorio The territory data to create.
      */
     addTerritorio: useCallback(
-      async (territorio: Omit<Territorio, 'id'>) => {
-        const record: Territorio = { id: generateId(), ...territorio };
+      async (territorio: Omit<Territorio, 'id' | 'publisherId'>) => {
+        const record: Territorio = { id: generateId(), publisherId: currentUserId, ...territorio };
         await TerritorioRepository.add(record);
         dispatch({ type: 'ADD_TERRITORIO', payload: record });
         toast.success('Território salvo');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     /**
      * Updates an existing territory.
@@ -39,14 +40,16 @@ export const useTerritorios = () => {
      * @param territorio Updated territory data.
      */
     updateTerritorio: useCallback(
-      async (id: string, territorio: Omit<Territorio, 'id'>) => {
-        const record: Territorio = { id, ...territorio };
+      async (id: string, territorio: Omit<Territorio, 'id' | 'publisherId'>) => {
+        const existing = territorios.find((item) => item.id === id);
+        const publisherId = existing?.publisherId ?? currentUserId;
+        const record: Territorio = { id, publisherId, ...territorio };
         await TerritorioRepository.add(record);
         dispatch({ type: 'UPDATE_TERRITORIO', payload: record });
         toast.success('Território atualizado');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, territorios, toast]
     ),
     /**
      * Removes a territory from the repository.
@@ -58,7 +61,7 @@ export const useTerritorios = () => {
         dispatch({ type: 'REMOVE_TERRITORIO', payload: id });
         toast.success('Território removido');
       },
-      [dispatch, toast],
+      [dispatch, toast]
     ),
   } as const;
 };

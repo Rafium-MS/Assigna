@@ -13,22 +13,24 @@ export const useNaoEmCasa = () => {
   const { state, dispatch } = useApp();
   const toast = useToast();
   const registros = selectNaoEmCasa(state);
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   return {
     registros,
     addNaoEmCasa: useCallback(
-      async (registro: Omit<NaoEmCasaRegistro, 'id'>) => {
+      async (registro: Omit<NaoEmCasaRegistro, 'id' | 'publisherId'>) => {
         const record: NaoEmCasaRegistro = {
           id: generateId(),
           completedAt: registro.completedAt ?? null,
           ...registro,
+          publisherId: currentUserId,
         };
         await NaoEmCasaRepository.add(record);
         dispatch({ type: 'ADD_NAO_EM_CASA', payload: record });
         toast.success('Retorno agendado');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     updateNaoEmCasa: useCallback(
       async (id: string, updates: Partial<Omit<NaoEmCasaRegistro, 'id'>>) => {
@@ -44,7 +46,7 @@ export const useNaoEmCasa = () => {
         toast.success('Registro atualizado');
         return record;
       },
-      [dispatch, registros, toast],
+      [dispatch, registros, toast]
     ),
     removeNaoEmCasa: useCallback(
       async (id: string) => {
@@ -52,7 +54,7 @@ export const useNaoEmCasa = () => {
         dispatch({ type: 'REMOVE_NAO_EM_CASA', payload: id });
         toast.success('Registro removido');
       },
-      [dispatch, toast],
+      [dispatch, toast]
     ),
   } as const;
 };

@@ -16,6 +16,7 @@ import { TerritorioRepository } from '../services/repositories/territorios';
 import { Modal } from '../components/layout/Modal';
 import { useToast } from '../components/feedback/Toast';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
+import { useApp } from '../hooks/useApp';
 
 const createBuildingVillageSchema = (t: TFunction) =>
   z.object({
@@ -153,6 +154,8 @@ export default function PrediosVilas(): JSX.Element {
   const toast = useToast();
   const confirm = useConfirm();
   const { t } = useTranslation();
+  const { state } = useApp();
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   const schema = useMemo(() => createBuildingVillageSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(schema), [schema]);
@@ -369,6 +372,7 @@ export default function PrediosVilas(): JSX.Element {
     const entity: BuildingVillage = {
       id: entityId,
       territory_id: values.territory_id,
+      publisherId: editing?.publisherId ?? currentUserId,
       name: values.name.trim(),
       address_line: normalizeText(values.address_line),
       type: normalizeText(values.type),

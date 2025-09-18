@@ -15,7 +15,8 @@ describe('IndexedDB persistence', () => {
     await migrate();
     const territorios = Array.from({ length: 1000 }, (_, i) => ({
       id: `${i}`,
-      nome: `Territorio ${i}`
+      nome: `Territorio ${i}`,
+      publisherId: `publisher-${i}`
     }));
     await TerritorioRepository.bulkAdd(territorios);
     const all = await TerritorioRepository.all();
@@ -28,6 +29,7 @@ describe('IndexedDB persistence', () => {
       {
         id: 'bv-1',
         territory_id: 'territory-1',
+        publisherId: 'publisher-1',
         name: 'Building One',
         address_line: '123 Main St',
         type: 'building',
@@ -55,6 +57,7 @@ describe('IndexedDB persistence', () => {
       {
         id: 'bv-2',
         territory_id: 'territory-2',
+        publisherId: 'publisher-2',
         name: 'Village Alpha',
         address_line: null,
         type: null,
@@ -86,6 +89,7 @@ describe('IndexedDB persistence', () => {
     const record: NaoEmCasaRegistro = {
       id: 'nao-1',
       territorioId: 'territorio-1',
+      publisherId: 'publisher-1',
       addressId: 10,
       streetId: 20,
       streetName: 'Rua das Flores',
@@ -116,6 +120,7 @@ describe('IndexedDB persistence', () => {
     const buildingVillage = {
       id: 'bv-migrate',
       territory_id: 'territory-migrate',
+      publisherId: 'publisher-migrate',
       name: 'Migration Building',
       address_line: '456 Migration Rd',
       type: 'building',
@@ -212,18 +217,24 @@ describe('IndexedDB persistence', () => {
         expect.objectContaining({
           id: 'legacy-building-1',
           territory_id: 'legacy-territory',
-          created_at: '2023-01-05T00:00:00.000Z'
+          created_at: '2023-01-05T00:00:00.000Z',
+          publisherId: ''
         }),
         expect.objectContaining({
           id: 'legacy-territory-2',
           territory_id: 'legacy-territory',
-          created_at: '2023-02-01T00:00:00.000Z'
+          created_at: '2023-02-01T00:00:00.000Z',
+          publisherId: ''
         })
       ])
     );
 
     const updatedTerritory = await db.territorios.get('legacy-territory');
-    expect(updatedTerritory).toMatchObject({ id: 'legacy-territory', nome: 'Legacy Territory' });
+    expect(updatedTerritory).toMatchObject({
+      id: 'legacy-territory',
+      nome: 'Legacy Territory',
+      publisherId: '',
+    });
     expect((updatedTerritory as Record<string, unknown>).legacyBuildings).toBeUndefined();
 
     const migratedMetadata = await db.metadata.get('buildingsVillagesMigrated');

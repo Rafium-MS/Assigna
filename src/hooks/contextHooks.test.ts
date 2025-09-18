@@ -59,6 +59,7 @@ const createAppState = (): AppState => ({
     {
       id: 'territorio-1',
       nome: 'Território 1',
+      publisherId: 'publisher-1',
     },
   ],
   saidas: [
@@ -67,6 +68,7 @@ const createAppState = (): AppState => ({
       nome: 'Saída 1',
       diaDaSemana: 1,
       hora: '08:00',
+      publisherId: 'publisher-1',
     },
   ],
   designacoes: [
@@ -76,6 +78,7 @@ const createAppState = (): AppState => ({
       saidaId: 'saida-1',
       dataInicial: '2024-01-01',
       dataFinal: '2024-01-07',
+      publisherId: 'publisher-1',
     },
   ],
   sugestoes: [
@@ -84,12 +87,14 @@ const createAppState = (): AppState => ({
       saidaId: 'saida-1',
       dataInicial: '2024-02-01',
       dataFinal: '2024-02-07',
+      publisherId: 'publisher-1',
     },
   ],
   naoEmCasa: [
     {
       id: 'registro-1',
       territorioId: 'territorio-1',
+      publisherId: 'publisher-1',
       addressId: 1,
       recordedAt: '2024-03-01',
       followUpAt: '2024-07-01',
@@ -126,7 +131,7 @@ describe('App context hooks', () => {
     it('selects territorios from the current state', () => {
       const { state } = setupContext();
       const selected: Territorio[] = [
-        { id: 'territorio-2', nome: 'Outro Território' },
+        { id: 'territorio-2', nome: 'Outro Território', publisherId: 'publisher-2' },
       ];
       const selectSpy = vi
         .spyOn(selectors, 'selectTerritorios')
@@ -146,6 +151,7 @@ describe('App context hooks', () => {
       const newTerritorio: Territorio = {
         id: 'territorio-2',
         nome: 'Novo Território',
+        publisherId: 'publisher-2',
       };
       const selectSpy = vi
         .spyOn(selectors, 'selectTerritorios')
@@ -170,7 +176,7 @@ describe('App context hooks', () => {
     it('selects saidas from the current state', () => {
       const { state } = setupContext();
       const selected: Saida[] = [
-        { id: 'saida-2', nome: 'Outra Saída', diaDaSemana: 2, hora: '09:00' },
+        { id: 'saida-2', nome: 'Outra Saída', diaDaSemana: 2, hora: '09:00', publisherId: 'publisher-2' },
       ];
       const selectSpy = vi.spyOn(selectors, 'selectSaidas').mockReturnValue(selected);
 
@@ -190,6 +196,7 @@ describe('App context hooks', () => {
         nome: 'Nova Saída',
         diaDaSemana: 2,
         hora: '09:00',
+        publisherId: 'publisher-2',
       };
       const selectSpy = vi.spyOn(selectors, 'selectSaidas').mockReturnValue(state.saidas);
 
@@ -218,6 +225,7 @@ describe('App context hooks', () => {
           saidaId: 'saida-1',
           dataInicial: '2024-03-01',
           dataFinal: '2024-03-07',
+          publisherId: 'publisher-2',
         },
       ];
       const selectSpy = vi
@@ -241,6 +249,7 @@ describe('App context hooks', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
         dataFinal: '2024-03-07',
+        publisherId: 'publisher-2',
       };
       const selectSpy = vi
         .spyOn(selectors, 'selectDesignacoes')
@@ -275,6 +284,7 @@ describe('App context hooks', () => {
           saidaId: 'saida-1',
           dataInicial: '2024-04-01',
           dataFinal: '2024-04-07',
+          publisherId: 'publisher-2',
         },
       ];
       const selectSpy = vi
@@ -297,6 +307,7 @@ describe('App context hooks', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-04-01',
         dataFinal: '2024-04-07',
+        publisherId: 'publisher-2',
       };
       const selectSpy = vi
         .spyOn(selectors, 'selectSugestoes')
@@ -324,6 +335,7 @@ describe('App context hooks', () => {
         {
           id: 'registro-2',
           territorioId: 'territorio-2',
+          publisherId: 'publisher-2',
           addressId: 5,
           recordedAt: '2024-04-01',
           followUpAt: '2024-08-01',

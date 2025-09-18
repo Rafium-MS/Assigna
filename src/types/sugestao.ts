@@ -3,4 +3,5 @@ export interface Sugestao {
   saidaId: string;
   dataInicial: string;
   dataFinal: string;
+  publisherId: string;
 }
