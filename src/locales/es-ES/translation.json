@@ -194,6 +194,7 @@
     "tabs": {
       "streets": "Calles",
       "addresses": "Direcciones",
+      "propertyTypes": "Tipos",
       "summary": "Resumen"
     },
     "territorySelector": {
@@ -227,6 +228,22 @@
       "cooldownTooltip": "Próxima visita permitida el {{date}}",
       "cooldownAlert": "{{count}} dirección está bloqueada hasta que termine el periodo de espera.",
       "cooldownAlert_plural": "{{count}} direcciones están bloqueadas hasta que termine el periodo de espera."
+    },
+    "propertyTypesForm": {
+      "namePlaceholder": "Nombre del tipo de propiedad"
+    },
+    "propertyTypesTable": {
+      "name": "Nombre",
+      "actions": "Acciones",
+      "empty": "Ningún tipo registrado."
+    },
+    "feedback": {
+      "loadError": "No se pudieron cargar los territorios o los tipos de propiedad.",
+      "createSuccess": "Tipo de propiedad creado correctamente.",
+      "updateSuccess": "Tipo de propiedad actualizado correctamente.",
+      "deleteSuccess": "Tipo de propiedad eliminado correctamente.",
+      "saveError": "No se pudo guardar el tipo de propiedad.",
+      "deleteError": "No se pudo eliminar el tipo de propiedad."
     },
     "summary": {
       "totalStreets": "Total de calles: {{count}}",

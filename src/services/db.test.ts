@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { db, migrate, getSchemaVersion, SCHEMA_VERSION } from './db';
+import { db, migrate, getSchemaVersion, SCHEMA_VERSION, DEFAULT_PROPERTY_TYPE_NAMES } from './db';
 import { TerritorioRepository, BuildingVillageRepository, NaoEmCasaRepository } from './repositories';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
@@ -161,6 +161,17 @@ describe('IndexedDB persistence', () => {
     await BuildingVillageRepository.add(buildingVillage);
     const stored = await BuildingVillageRepository.forPublisher('publisher-migrate');
     expect(stored).toContainEqual(buildingVillage);
+  });
+
+  it('ensures default property types exist without duplication', async () => {
+    await migrate();
+    await migrate();
+
+    const propertyTypes = await db.propertyTypes.toArray();
+    for (const name of DEFAULT_PROPERTY_TYPE_NAMES) {
+      const matches = propertyTypes.filter((type) => type.name === name);
+      expect(matches).toHaveLength(1);
+    }
   });
 
   it('migrates legacy territorios buildings into the dedicated store', async () => {

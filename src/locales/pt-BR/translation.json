@@ -197,6 +197,7 @@
     "tabs": {
       "streets": "Ruas",
       "addresses": "Endereços",
+      "propertyTypes": "Tipos",
       "summary": "Resumo"
     },
     "territorySelector": {
@@ -230,6 +231,22 @@
       "cooldownTooltip": "Próxima visita liberada em {{date}}",
       "cooldownAlert": "{{count}} endereço está bloqueado até o fim do período de resfriamento.",
       "cooldownAlert_plural": "{{count}} endereços estão bloqueados até o fim do período de resfriamento."
+    },
+    "propertyTypesForm": {
+      "namePlaceholder": "Nome do tipo de propriedade"
+    },
+    "propertyTypesTable": {
+      "name": "Nome",
+      "actions": "Ações",
+      "empty": "Nenhum tipo cadastrado."
+    },
+    "feedback": {
+      "loadError": "Não foi possível carregar territórios ou tipos de propriedade.",
+      "createSuccess": "Tipo de propriedade criado com sucesso.",
+      "updateSuccess": "Tipo de propriedade atualizado com sucesso.",
+      "deleteSuccess": "Tipo de propriedade removido com sucesso.",
+      "saveError": "Não foi possível salvar o tipo de propriedade.",
+      "deleteError": "Não foi possível remover o tipo de propriedade."
     },
     "summary": {
       "totalStreets": "Total de ruas: {{count}}",

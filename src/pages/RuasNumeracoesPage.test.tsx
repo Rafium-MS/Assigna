@@ -15,6 +15,7 @@ const {
   defaultStreetsWhere,
   defaultAddressesWhere,
   dbMock,
+  toastMock,
 } = vi.hoisted(() => {
   const territoriesStore: Territorio[] = [];
   const streetsStore: Street[] = [];
@@ -52,6 +53,8 @@ const {
     }),
   });
 
+  const toastMock = { success: vi.fn(), error: vi.fn() };
+
   const dbMock = {
     territorios: {
       toArray: vi.fn(async () => territoriesStore.map((territory) => ({ ...territory }))),
@@ -73,6 +76,23 @@ const {
     },
     propertyTypes: {
       toArray: vi.fn(async () => propertyTypesStore.map((type) => ({ ...type }))),
+      put: vi.fn(async (type: PropertyType) => {
+        const id = typeof type.id === 'number' ? type.id : nextNumericId(propertyTypesStore);
+        const record: PropertyType = { id, ...type };
+        const index = propertyTypesStore.findIndex((item) => item.id === id);
+        if (index >= 0) {
+          propertyTypesStore[index] = record;
+        } else {
+          propertyTypesStore.push(record);
+        }
+        return id;
+      }),
+      delete: vi.fn(async (id: number) => {
+        const index = propertyTypesStore.findIndex((item) => item.id === id);
+        if (index >= 0) {
+          propertyTypesStore.splice(index, 1);
+        }
+      }),
     },
     addresses: {
       toArray: vi.fn(async () => addressesStore.map((address) => ({ ...address }))),
@@ -99,11 +119,16 @@ const {
     defaultStreetsWhere,
     defaultAddressesWhere,
     dbMock,
+    toastMock,
   };
 });
 
 vi.mock('../services/db', () => ({
   db: dbMock,
+}));
+
+vi.mock('../components/feedback/Toast', () => ({
+  useToast: () => toastMock,
 }));
 
 vi.mock('../components/ImageAnnotator', () => ({
@@ -173,15 +198,30 @@ vi.mock('react-hook-form', () => ({
   },
 }));
 
+const setInputValue = (input: HTMLInputElement, value: string): void => {
+  const prototype = Object.getPrototypeOf(input) as HTMLInputElement;
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+  const setter = descriptor?.set ?? Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+  if (setter) {
+    setter.call(input, value);
+  } else {
+    input.value = value;
+  }
+  input.dispatchEvent(new Event('input', { bubbles: true }));
+  input.dispatchEvent(new Event('change', { bubbles: true }));
+};
+
+const translationMock = vi.hoisted(() => ({
+  t: (key: string, options?: Record<string, unknown>) => {
+    if (options?.count !== undefined) {
+      return `${key} (${options.count})`;
+    }
+    return key;
+  },
+}));
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string, options?: Record<string, unknown>) => {
-      if (options?.count !== undefined) {
-        return `${key} (${options.count})`;
-      }
-      return key;
-    },
-  }),
+  useTranslation: () => translationMock,
 }));
 
 import RuasNumeracoesPage from './RuasNumeracoesPage';
@@ -228,9 +268,14 @@ beforeEach(() => {
   dbMock.streets.where.mockClear();
   dbMock.streets.put.mockClear();
   dbMock.propertyTypes.toArray.mockClear();
+  dbMock.propertyTypes.put.mockClear();
+  dbMock.propertyTypes.delete.mockClear();
   dbMock.addresses.toArray.mockClear();
   dbMock.addresses.where.mockClear();
   dbMock.addresses.put.mockClear();
+
+  toastMock.success.mockClear();
+  toastMock.error.mockClear();
 
   dbMock.streets.where.mockImplementation(defaultStreetsWhere);
   dbMock.addresses.where.mockImplementation(defaultAddressesWhere);
@@ -287,6 +332,250 @@ describe('RuasNumeracoesPage', () => {
     expect(dbMock.streets.put).toHaveBeenCalledWith({
       territoryId: 'territorio-1',
       name: 'Nova Rua',
+    });
+  });
+
+  it('creates a property type and displays it in the list', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+    });
+
+    const propertyTypesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.propertyTypes',
+    });
+
+    await act(async () => {
+      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const input = screen.getByPlaceholderText(
+      'ruasNumeracoes.propertyTypesForm.namePlaceholder',
+    ) as HTMLInputElement;
+    input.value = 'Residencial Nova';
+
+    const form = input.closest('form');
+    expect(form).toBeTruthy();
+
+    await act(async () => {
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({ name: 'Residencial Nova' });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Residencial Nova')).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.createSuccess');
+    });
+  });
+
+  it('edits an existing property type', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+    });
+
+    const propertyTypesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.propertyTypes',
+    });
+
+    await act(async () => {
+      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Casa')).toBeTruthy();
+    });
+    const targetCell = screen.getByText('Casa');
+    const targetRow = targetCell.closest('tr');
+    expect(targetRow).not.toBeNull();
+
+    const editButton = screen
+      .getAllByRole('button', { name: 'common.edit' })
+      .find((button) => button.closest('tr') === targetRow);
+    expect(editButton).toBeDefined();
+
+    await act(async () => {
+      editButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const editInput = targetRow!.querySelector('input') as HTMLInputElement;
+
+    await act(async () => {
+      setInputValue(editInput, 'Casa Atualizada');
+      await Promise.resolve();
+    });
+
+    const saveButton = screen
+      .getAllByRole('button', { name: 'common.save' })
+      .find((button) => button.closest('tr') === targetRow);
+    expect(saveButton).toBeDefined();
+
+    await act(async () => {
+      saveButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({ id: 10, name: 'Casa Atualizada' });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Casa Atualizada')).toBeTruthy();
+    });
+
+    await waitFor(() => {
+      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.updateSuccess');
+    });
+  });
+
+  it('deletes a property type', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+    });
+
+    const propertyTypesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.propertyTypes',
+    });
+
+    await act(async () => {
+      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Apartamento')).toBeTruthy();
+    });
+    const targetCell = screen.getByText('Apartamento');
+    const targetRow = targetCell.closest('tr');
+    expect(targetRow).not.toBeNull();
+
+    const deleteButton = screen
+      .getAllByRole('button', { name: 'common.delete' })
+      .find((button) => button.closest('tr') === targetRow);
+    expect(deleteButton).toBeDefined();
+
+    await act(async () => {
+      deleteButton!.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(dbMock.propertyTypes.delete).toHaveBeenCalledWith(20);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Apartamento')).toBeNull();
+    });
+
+    await waitFor(() => {
+      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.deleteSuccess');
+    });
+  });
+
+  it('uses a newly created property type when saving an address', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+    });
+
+    const propertyTypesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.propertyTypes',
+    });
+
+    await act(async () => {
+      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const input = screen.getByPlaceholderText(
+      'ruasNumeracoes.propertyTypesForm.namePlaceholder',
+    ) as HTMLInputElement;
+    input.value = 'Comercial';
+
+    const form = input.closest('form');
+    expect(form).toBeTruthy();
+
+    await act(async () => {
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({ name: 'Comercial' });
+    });
+
+    const createdType = propertyTypesStore.find((type) => type.name === 'Comercial');
+    expect(createdType).toBeDefined();
+
+    const addressesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.addresses',
+    });
+
+    await act(async () => {
+      addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const streetSelect = document.querySelector('select[name="streetId"]') as HTMLSelectElement | null;
+    const propertyTypeSelect = document.querySelector('select[name="propertyTypeId"]') as HTMLSelectElement | null;
+
+    expect(streetSelect).not.toBeNull();
+    expect(propertyTypeSelect).not.toBeNull();
+
+    await act(async () => {
+      streetSelect!.value = '1';
+      streetSelect!.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      propertyTypeSelect!.value = String(createdType!.id);
+      propertyTypeSelect!.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const numberStartInput = screen.getByPlaceholderText(
+      'ruasNumeracoes.addressesForm.numberStart',
+    ) as HTMLInputElement;
+    const numberEndInput = screen.getByPlaceholderText(
+      'ruasNumeracoes.addressesForm.numberEnd',
+    ) as HTMLInputElement;
+
+    await act(async () => {
+      numberStartInput.value = '300';
+      numberStartInput.dispatchEvent(new Event('input', { bubbles: true }));
+      numberStartInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await act(async () => {
+      numberEndInput.value = '400';
+      numberEndInput.dispatchEvent(new Event('input', { bubbles: true }));
+      numberEndInput.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    const saveButton = screen.getByRole('button', { name: 'common.save' }) as HTMLButtonElement;
+
+    await act(async () => {
+      saveButton.click();
+      await Promise.resolve();
+    });
+
+    await waitFor(() => {
+      expect(dbMock.addresses.put).toHaveBeenCalledWith({
+        streetId: 1,
+        propertyTypeId: createdType!.id!,
+        numberStart: 300,
+        numberEnd: 400,
+        lastSuccessfulVisit: null,
+        nextVisitAllowed: null,
+      });
     });
   });
 

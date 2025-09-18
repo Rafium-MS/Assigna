@@ -16,6 +16,13 @@ import type { DerivedTerritory } from '../types/derived-territory';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
+export const DEFAULT_PROPERTY_TYPE_NAMES = [
+  'Prédio',
+  'Vila',
+  'Residência',
+  'Comércio'
+] as const;
+
 /**
  * Represents a key-value pair for storing metadata in the database.
  */
@@ -214,7 +221,28 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
+
+async function ensureDefaultPropertyTypes(): Promise<void> {
+  await db.transaction('rw', db.propertyTypes, async () => {
+    const existing = await db.propertyTypes.toArray();
+    const existingNames = new Set(
+      existing
+        .map((type) =>
+          typeof type.name === 'string' ? type.name.trim().toLowerCase() : ''
+        )
+        .filter((name) => name.length > 0)
+    );
+
+    const missing = DEFAULT_PROPERTY_TYPE_NAMES.filter(
+      (name) => !existingNames.has(name.trim().toLowerCase())
+    );
+
+    if (missing.length > 0) {
+      await db.propertyTypes.bulkAdd(missing.map((name) => ({ name })));
+    }
+  });
+}
 
 /**
  * Gets the current schema version from the database.
@@ -610,7 +638,7 @@ export async function migrate(): Promise<void> {
       async () => {
         const fallbackPublisherId = '';
         const ensurePublisherId = async <T extends { publisherId?: unknown }>(
-          table: Table<T, any>
+          table: Table<T, unknown>
         ) => {
           await table.toCollection().modify((record) => {
             if (typeof record.publisherId !== 'string') {
@@ -629,6 +657,9 @@ export async function migrate(): Promise<void> {
         ]);
       }
     );
+  }
+  if (current < 8) {
+    await ensureDefaultPropertyTypes();
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);

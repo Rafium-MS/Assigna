@@ -192,10 +192,11 @@
     "unnamedBuilding": "Unnamed building/village",
     "unknownTerritory": "Territory unknown"
   },
-    "ruasNumeracoes": {
+  "ruasNumeracoes": {
     "tabs": {
       "streets": "Streets",
       "addresses": "Addresses",
+      "propertyTypes": "Property types",
       "summary": "Summary"
     },
     "territorySelector": {
@@ -229,6 +230,22 @@
       "cooldownTooltip": "Next visit allowed on {{date}}",
       "cooldownAlert": "{{count}} address cannot be revisited until its cooldown expires.",
       "cooldownAlert_plural": "{{count}} addresses cannot be revisited until their cooldowns expire."
+    },
+    "propertyTypesForm": {
+      "namePlaceholder": "Property type name"
+    },
+    "propertyTypesTable": {
+      "name": "Name",
+      "actions": "Actions",
+      "empty": "No property types registered."
+    },
+    "feedback": {
+      "loadError": "Unable to load territories or property types.",
+      "createSuccess": "Property type created successfully.",
+      "updateSuccess": "Property type updated successfully.",
+      "deleteSuccess": "Property type removed successfully.",
+      "saveError": "Unable to save the property type.",
+      "deleteError": "Unable to delete the property type."
     },
     "summary": {
       "totalStreets": "Total streets: {{count}}",
