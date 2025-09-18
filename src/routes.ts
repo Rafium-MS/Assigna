@@ -1,11 +1,12 @@
 import type { TabKey } from './types/navigation';
+import { ADMIN_MASTER_ROLE } from './constants/roles';
 
 export interface RouteDefinition {
   path: string;
   allowedRoles: ReadonlyArray<string>;
 }
 
-const managementRoles = ['admin', 'manager'] as const;
+const managementRoles = [ADMIN_MASTER_ROLE, 'admin', 'manager'] as const;
 const publisherRoles = [...managementRoles, 'publisher'] as const;
 const readOnlyRoles = [...publisherRoles, 'viewer'] as const;
 

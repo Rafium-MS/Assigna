@@ -4,6 +4,7 @@ import { NavLink } from 'react-router-dom';
 import type { TabKey } from '../../types/navigation';
 import { routePaths, routes } from '../../routes';
 import { useAuth } from '../../hooks/useAuth';
+import { ADMIN_MASTER_ROLE } from '../../constants/roles';
 
 const iconCls = 'w-5 h-5';
 
@@ -85,13 +86,17 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
 ];
 
+const ADMIN_MASTER_ROLE_NORMALIZED = ADMIN_MASTER_ROLE.toLowerCase();
+
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
   const normalizedRole = currentUser?.role?.toLowerCase() ?? null;
+  const isAdminMaster = normalizedRole === ADMIN_MASTER_ROLE_NORMALIZED;
 
   const visibleItems = normalizedRole
     ? items.filter((it) =>
+        isAdminMaster ||
         routes[it.id].allowedRoles.some((role) => role.toLowerCase() === normalizedRole),
       )
     : [];
