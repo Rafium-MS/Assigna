@@ -17,6 +17,7 @@ import SuggestionsPage from './pages/SuggestionsPage';
 import NaoEmCasaPage from './pages/NaoEmCasaPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
+import { useAuth } from './hooks/useAuth';
 import { useToast } from './components/feedback/Toast';
 import { exportData } from './services/export';
 import { importData } from './services/import';
@@ -31,6 +32,9 @@ import {
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
 import { routeEntries } from './routes';
+import UnauthorizedPage from './pages/UnauthorizedPage';
+
+const UNAUTHORIZED_ROUTE = '/unauthorized';
 
 const pagesByTab: Record<TabKey, ComponentType> = {
   territories: TerritoriesPage,
@@ -42,6 +46,42 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
   notAtHome: NaoEmCasaPage,
+};
+
+interface GuardedRouteProps {
+  component: ComponentType;
+  allowedRoles: ReadonlyArray<string>;
+  currentRole: string | null;
+  path: string;
+}
+
+const RouteGuard = ({ component: Component, allowedRoles, currentRole, path }: GuardedRouteProps): JSX.Element => {
+  const normalizedRole = currentRole?.toLowerCase() ?? null;
+  const canAccess =
+    normalizedRole !== null &&
+    allowedRoles.some((role) => role.toLowerCase() === normalizedRole);
+
+  if (normalizedRole === null) {
+    return (
+      <Navigate
+        to={UNAUTHORIZED_ROUTE}
+        replace
+        state={{ from: path, reason: 'unauthenticated' }}
+      />
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <Navigate
+        to={UNAUTHORIZED_ROUTE}
+        replace
+        state={{ from: path, reason: 'unauthorized' }}
+      />
+    );
+  }
+
+  return <Component />;
 };
 
 const DataManagementControls: React.FC = () => {
@@ -139,21 +179,44 @@ const DataManagementControls: React.FC = () => {
   );
 };
 
+const AppContent = () => {
+  const { currentUser } = useAuth();
+  const currentRole = currentUser?.role ?? null;
+
+  return (
+    <Shell>
+      <Routes>
+        {routeEntries.map(([key, config]) => {
+          const PageComponent = pagesByTab[key];
+          return (
+            <Route
+              key={key}
+              path={config.path}
+              element={
+                <RouteGuard
+                  component={PageComponent}
+                  allowedRoles={config.allowedRoles}
+                  currentRole={currentRole}
+                  path={config.path}
+                />
+              }
+            />
+          );
+        })}
+        <Route path={UNAUTHORIZED_ROUTE} element={<UnauthorizedPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+      <SchedulerControls />
+      <DataManagementControls />
+    </Shell>
+  );
+};
+
 export default function App() {
   return (
     <AppProvider>
       <BrowserRouter>
-        <Shell>
-          <Routes>
-            {routeEntries.map(([key, path]) => {
-              const PageComponent = pagesByTab[key];
-              return <Route key={key} path={path} element={<PageComponent />} />;
-            })}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <SchedulerControls />
-          <DataManagementControls />
-        </Shell>
+        <AppContent />
       </BrowserRouter>
     </AppProvider>
   );
