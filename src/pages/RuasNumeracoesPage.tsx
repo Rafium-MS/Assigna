@@ -9,6 +9,7 @@ import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import { db } from '../services/db';
+import { useToast } from '../components/feedback/Toast';
 import ImageAnnotator from '../components/ImageAnnotator';
 
 // schema and form types
@@ -26,11 +27,14 @@ export type AddressForm = z.infer<typeof addressSchema>;
 
 export default function RuasNumeracoesPage(): JSX.Element {
   const { t } = useTranslation();
+  const toast = useToast();
   const [territories, setTerritories] = useState<Territorio[]>([]);
   const [streets, setStreets] = useState<Street[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [activeTab, setActiveTab] = useState<'ruas' | 'enderecos' | 'resumo'>('ruas');
+  const [activeTab, setActiveTab] = useState<'ruas' | 'enderecos' | 'tipos' | 'resumo'>('ruas');
+  const [editingPropertyTypeId, setEditingPropertyTypeId] = useState<number | null>(null);
+  const [editingPropertyTypeName, setEditingPropertyTypeName] = useState<string>('');
   const [territoryId, setTerritoryId] = useState<string>('');
   const territoryIdRef = useRef<string>(territoryId);
 
@@ -109,6 +113,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
     [t]
   );
 
+  const refreshPropertyTypes = useCallback(async (): Promise<void> => {
+    const propertyTypesData = await db.propertyTypes.toArray();
+    setPropertyTypes(propertyTypesData);
+  }, []);
+
   const refreshTerritoryData = useCallback(
     async (id: string): Promise<void> => {
       if (!id) {
@@ -148,21 +157,29 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
   useEffect(() => {
     const load = async (): Promise<void> => {
-      const [territoriesData, propertyTypesData] = await Promise.all([
-        db.territorios.toArray(),
-        db.propertyTypes.toArray()
-      ]);
-      setTerritories(territoriesData);
-      setPropertyTypes(propertyTypesData);
-      setTerritoryId(currentId => {
-        if (currentId && territoriesData.some(territoryData => territoryData.id === currentId)) {
-          return currentId;
-        }
-        return territoriesData[0]?.id ?? '';
-      });
+      try {
+        const [territoriesData, propertyTypesData] = await Promise.all([
+          db.territorios.toArray(),
+          db.propertyTypes.toArray()
+        ]);
+        setTerritories(territoriesData);
+        setPropertyTypes(propertyTypesData);
+        setTerritoryId(currentId => {
+          if (currentId && territoriesData.some(territoryData => territoryData.id === currentId)) {
+            return currentId;
+          }
+          return territoriesData[0]?.id ?? '';
+        });
+      } catch (error) {
+        console.error(error);
+        setTerritories([]);
+        setPropertyTypes([]);
+        setTerritoryId('');
+        toast.error(t('ruasNumeracoes.feedback.loadError'));
+      }
     };
     void load();
-  }, []);
+  }, [t, toast]);
 
   useEffect(() => {
     territoryIdRef.current = territoryId;
@@ -220,6 +237,91 @@ export default function RuasNumeracoesPage(): JSX.Element {
     form.reset();
   };
 
+  const cancelEditPropertyType = useCallback((): void => {
+    setEditingPropertyTypeId(null);
+    setEditingPropertyTypeName('');
+  }, []);
+
+  const startEditPropertyType = useCallback((type: PropertyType): void => {
+    if (type.id === undefined) {
+      return;
+    }
+    setEditingPropertyTypeId(type.id);
+    setEditingPropertyTypeName(type.name);
+  }, []);
+
+  const handleCreatePropertyType = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+      event.preventDefault();
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const rawName = formData.get('name');
+      const name = typeof rawName === 'string' ? rawName.trim() : '';
+      if (!name) {
+        return;
+      }
+      try {
+        await db.propertyTypes.put({ name });
+        await refreshPropertyTypes();
+        form.reset();
+        toast.success(t('ruasNumeracoes.feedback.createSuccess'));
+      } catch (error) {
+        console.error(error);
+        toast.error(t('ruasNumeracoes.feedback.saveError'));
+      }
+    },
+    [refreshPropertyTypes, t, toast]
+  );
+
+  const handleUpdatePropertyType = useCallback(
+    async (): Promise<void> => {
+      if (editingPropertyTypeId === null) {
+        return;
+      }
+      const name = editingPropertyTypeName.trim();
+      if (!name) {
+        return;
+      }
+      try {
+        await db.propertyTypes.put({ id: editingPropertyTypeId, name });
+        await refreshPropertyTypes();
+        cancelEditPropertyType();
+        toast.success(t('ruasNumeracoes.feedback.updateSuccess'));
+      } catch (error) {
+        console.error(error);
+        toast.error(t('ruasNumeracoes.feedback.saveError'));
+      }
+    },
+    [
+      cancelEditPropertyType,
+      editingPropertyTypeId,
+      editingPropertyTypeName,
+      refreshPropertyTypes,
+      t,
+      toast
+    ]
+  );
+
+  const handleDeletePropertyType = useCallback(
+    async (id?: number): Promise<void> => {
+      if (id === undefined) {
+        return;
+      }
+      try {
+        await db.propertyTypes.delete(id);
+        if (editingPropertyTypeId === id) {
+          cancelEditPropertyType();
+        }
+        await refreshPropertyTypes();
+        toast.success(t('ruasNumeracoes.feedback.deleteSuccess'));
+      } catch (error) {
+        console.error(error);
+        toast.error(t('ruasNumeracoes.feedback.deleteError'));
+      }
+    },
+    [cancelEditPropertyType, editingPropertyTypeId, refreshPropertyTypes, t, toast]
+  );
+
   const focusAddressesTab = (): void => {
     setActiveTab('enderecos');
   };
@@ -270,18 +372,28 @@ export default function RuasNumeracoesPage(): JSX.Element {
         </div>
         <div className="flex gap-2">
           <button
+            type="button"
             className={activeTab === 'ruas' ? 'font-bold' : ''}
             onClick={() => setActiveTab('ruas')}
           >
             {t('ruasNumeracoes.tabs.streets')}
           </button>
           <button
+            type="button"
             className={activeTab === 'enderecos' ? 'font-bold' : ''}
             onClick={() => setActiveTab('enderecos')}
           >
             {t('ruasNumeracoes.tabs.addresses')}
           </button>
           <button
+            type="button"
+            className={activeTab === 'tipos' ? 'font-bold' : ''}
+            onClick={() => setActiveTab('tipos')}
+          >
+            {t('ruasNumeracoes.tabs.propertyTypes')}
+          </button>
+          <button
+            type="button"
             className={activeTab === 'resumo' ? 'font-bold' : ''}
             onClick={() => setActiveTab('resumo')}
           >
@@ -337,8 +449,8 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 className="border p-1"
               >
                 <option value="">{t('ruasNumeracoes.addressesForm.selectType')}</option>
-                {propertyTypes.map(pt => (
-                  <option key={pt.id} value={pt.id}>
+                {propertyTypes.map((pt, index) => (
+                  <option key={pt.id ?? `${pt.name}-${index}`} value={pt.id}>
                     {pt.name}
                   </option>
                 ))}
@@ -430,6 +542,107 @@ export default function RuasNumeracoesPage(): JSX.Element {
                     </tr>
                   );
                 })}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {activeTab === 'tipos' && (
+          <div>
+            <form onSubmit={handleCreatePropertyType} className="mb-2 flex gap-2">
+              <input
+                name="name"
+                placeholder={t('ruasNumeracoes.propertyTypesForm.namePlaceholder')}
+                className="border p-1"
+              />
+              <button type="submit" className="border px-2">
+                {t('common.create')}
+              </button>
+            </form>
+            <table className="w-full text-sm">
+              <thead>
+                <tr>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.propertyTypesTable.name')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.propertyTypesTable.actions')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {propertyTypes.length === 0 ? (
+                  <tr>
+                    <td colSpan={2} className="py-2 text-sm text-gray-500">
+                      {t('ruasNumeracoes.propertyTypesTable.empty')}
+                    </td>
+                  </tr>
+                ) : (
+                  propertyTypes.map((pt, index) => {
+                    const isEditing = editingPropertyTypeId === pt.id;
+                    return (
+                      <tr key={pt.id ?? `${pt.name}-${index}`}>
+                        <td>
+                          {isEditing ? (
+                            <input
+                              value={editingPropertyTypeName}
+                              onChange={event => setEditingPropertyTypeName(event.target.value)}
+                              onKeyDown={event => {
+                                if (event.key === 'Enter') {
+                                  event.preventDefault();
+                                  void handleUpdatePropertyType();
+                                }
+                              }}
+                              className="w-full border p-1"
+                            />
+                          ) : (
+                            pt.name
+                          )}
+                        </td>
+                        <td className="flex gap-2">
+                          {isEditing ? (
+                            <>
+                              <button
+                                type="button"
+                                className="border px-2"
+                                onClick={() => {
+                                  void handleUpdatePropertyType();
+                                }}
+                              >
+                                {t('common.save')}
+                              </button>
+                              <button
+                                type="button"
+                                className="border px-2"
+                                onClick={cancelEditPropertyType}
+                              >
+                                {t('common.cancel')}
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                className="border px-2"
+                                onClick={() => startEditPropertyType(pt)}
+                              >
+                                {t('common.edit')}
+                              </button>
+                              <button
+                                type="button"
+                                className="border px-2"
+                                onClick={() => {
+                                  void handleDeletePropertyType(pt.id);
+                                }}
+                              >
+                                {t('common.delete')}
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
