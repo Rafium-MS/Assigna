@@ -2,8 +2,9 @@ import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db, migrate, getSchemaVersion, SCHEMA_VERSION } from './db';
-import { TerritorioRepository, BuildingVillageRepository } from './repositories';
+import { TerritorioRepository, BuildingVillageRepository, NaoEmCasaRepository } from './repositories';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
 describe('IndexedDB persistence', () => {
   beforeEach(async () => {
@@ -65,6 +66,29 @@ describe('IndexedDB persistence', () => {
 
     expect(stored).toHaveLength(buildingVillages.length);
     expect(stored).toEqual(expect.arrayContaining(buildingVillages));
+  });
+
+  it('stores and retrieves not-at-home records', async () => {
+    await migrate();
+    const record: NaoEmCasaRegistro = {
+      id: 'nao-1',
+      territorioId: 'territorio-1',
+      addressId: 10,
+      streetId: 20,
+      streetName: 'Rua das Flores',
+      numberStart: 100,
+      numberEnd: 102,
+      propertyTypeId: 2,
+      propertyTypeName: 'Residencial',
+      recordedAt: '2024-01-15',
+      followUpAt: '2024-05-14',
+      completedAt: null
+    };
+
+    await NaoEmCasaRepository.add(record);
+    const stored = await NaoEmCasaRepository.all();
+
+    expect(stored).toEqual([record]);
   });
 
   it('migrate updates schema version and ensures new store exists', async () => {

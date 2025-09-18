@@ -9,6 +9,7 @@ import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import type { DerivedTerritory } from '../types/derived-territory';
 import type { Metadata } from './db';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
 const territorioSchema = z.object({
   id: z.string(),
@@ -77,6 +78,21 @@ const addressSchema = z.object({
   propertyTypeId: z.number()
 });
 
+const naoEmCasaSchema = z.object({
+  id: z.string(),
+  territorioId: z.string(),
+  addressId: z.number().nullable().optional(),
+  streetId: z.number().nullable().optional(),
+  streetName: z.string().nullable().optional(),
+  numberStart: z.number().nullable().optional(),
+  numberEnd: z.number().nullable().optional(),
+  propertyTypeId: z.number().nullable().optional(),
+  propertyTypeName: z.string().nullable().optional(),
+  recordedAt: z.string(),
+  followUpAt: z.string(),
+  completedAt: z.string().nullable().optional()
+});
+
 const derivedTerritorySchema = z.object({
   id: z.number(),
   baseTerritoryId: z.string(),
@@ -105,6 +121,7 @@ export const exportedDataSchema = z
     streets: z.array(streetSchema).optional().default([]),
     propertyTypes: z.array(propertyTypeSchema).optional().default([]),
     addresses: z.array(addressSchema).optional().default([]),
+    naoEmCasa: z.array(naoEmCasaSchema).optional().default([]),
     derivedTerritories: z.array(derivedTerritorySchema).optional().default([]),
     derivedTerritoryAddresses: z.array(derivedTerritoryAddressSchema).optional().default([]),
     metadata: z.array(metadataSchema).optional().default([])
@@ -120,6 +137,7 @@ export const exportedDataSchema = z
     streets: data.streets ?? [],
     propertyTypes: data.propertyTypes ?? [],
     addresses: data.addresses ?? [],
+    naoEmCasa: data.naoEmCasa ?? [],
     derivedTerritories: data.derivedTerritories ?? [],
     derivedTerritoryAddresses: data.derivedTerritoryAddresses ?? [],
     metadata: data.metadata ?? []
@@ -136,6 +154,7 @@ export type ExportedData = {
   streets: Street[];
   propertyTypes: PropertyType[];
   addresses: Address[];
+  naoEmCasa: NaoEmCasaRegistro[];
   derivedTerritories: DerivedTerritory[];
   derivedTerritoryAddresses: Array<{ derivedTerritoryId: number; addressId: number }>;
   metadata: Metadata[];

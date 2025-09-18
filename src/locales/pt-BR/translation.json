@@ -47,12 +47,41 @@
     "assignments": "Designações",
     "calendar": "Calendário",
     "suggestions": "Sugestões",
+    "notAtHome": "Não em Casa",
     "dashboard": "Painel",
     "reports": "Relatórios",
     "maps": "Mapas",
     "users": "Usuários",
     "settings": "Configurações",
     "notifications": "Notificações"
+  },
+  "naoEmCasa": {
+    "title": "Não em Casa",
+    "todayAssignments": "Territórios designados para hoje ({{count}})",
+    "noAssignments": "Nenhum território designado para hoje.",
+    "miniMapAlt": "Mapa do território {{name}}",
+    "noImage": "Sem imagem disponível",
+    "addressesTitle": "Endereços",
+    "noAddresses": "Nenhum endereço cadastrado para este território.",
+    "table": {
+      "street": "Rua",
+      "numbers": "Números",
+      "type": "Tipo",
+      "actions": "Ações"
+    },
+    "residential": "Residencial",
+    "commercial": "Comercial",
+    "other": "Outros",
+    "recordNotAtHome": "Registrar ausência",
+    "scheduledFor": "Retorno agendado para {{date}}",
+    "followUpsTitle": "Retornos agendados ({{count}})",
+    "noFollowUps": "Nenhum retorno pendente.",
+    "followUpOn": "Retornar em {{date}}",
+    "recordedOn": "Registrado em {{date}}",
+    "markCompleted": "Marcar como concluído",
+    "unknownStreet": "Rua não informada",
+    "unknownType": "Tipo não informado",
+    "addressLabel": "{{street}} • nº {{range}}"
   },
 
   "buildingsVillages": {

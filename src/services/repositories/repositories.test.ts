@@ -7,13 +7,15 @@ import {
   DesignacaoRepository,
   SaidaRepository,
   SugestaoRepository,
-  TerritorioRepository
+  TerritorioRepository,
+  NaoEmCasaRepository
 } from '.';
 import type { BuildingVillage } from '../../types/building_village';
 import type { Designacao } from '../../types/designacao';
 import type { Saida } from '../../types/saida';
 import type { Sugestao } from '../../types/sugestao';
 import type { Territorio } from '../../types/territorio';
+import type { NaoEmCasaRegistro } from '../../types/nao-em-casa';
 
 beforeEach(async () => {
   await db.delete();
@@ -243,6 +245,57 @@ describe('SugestaoRepository', () => {
 
     expect(stored).toHaveLength(1);
     expect(stored[0]).toEqual(sugestoes[1]);
+  });
+});
+
+describe('NaoEmCasaRepository', () => {
+  it('adds a record and retrieves it', async () => {
+    const record: NaoEmCasaRegistro = {
+      id: 'record-1',
+      territorioId: 'territorio-1',
+      addressId: 1,
+      streetId: 2,
+      streetName: 'Main St',
+      numberStart: 10,
+      numberEnd: 12,
+      propertyTypeId: 3,
+      propertyTypeName: 'Residencial',
+      recordedAt: '2024-01-01',
+      followUpAt: '2024-05-01',
+      completedAt: null
+    };
+
+    await NaoEmCasaRepository.add(record);
+    const stored = await NaoEmCasaRepository.all();
+
+    expect(stored).toEqual([record]);
+  });
+
+  it('bulk adds records and removes them individually', async () => {
+    const records: NaoEmCasaRegistro[] = [
+      {
+        id: 'record-1',
+        territorioId: 'territorio-1',
+        addressId: 1,
+        recordedAt: '2024-01-01',
+        followUpAt: '2024-05-01',
+        completedAt: null
+      },
+      {
+        id: 'record-2',
+        territorioId: 'territorio-2',
+        addressId: 2,
+        recordedAt: '2024-02-01',
+        followUpAt: '2024-06-01',
+        completedAt: null
+      }
+    ];
+
+    await NaoEmCasaRepository.bulkAdd(records);
+    await NaoEmCasaRepository.remove('record-1');
+    const stored = await NaoEmCasaRepository.all();
+
+    expect(stored).toEqual([records[1]]);
   });
 });
 

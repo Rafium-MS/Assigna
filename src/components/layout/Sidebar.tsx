@@ -56,6 +56,15 @@ const BuildingIcon = () => (
   </svg>
 );
 
+const HomeOffIcon = () => (
+  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M3 9l9-6 9 6" />
+    <path d="M4 10v10a1 1 0 001 1h6" />
+    <path d="M20 14l-6 6" />
+    <path d="M14 14l6 6" />
+  </svg>
+);
+
 const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
   { id: 'streets', label: 'sidebar.streets', icon: <MapIcon /> },
@@ -63,6 +72,7 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
+  { id: 'notAtHome', label: 'sidebar.notAtHome', icon: <HomeOffIcon /> },
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
 ];
 
@@ -77,10 +87,10 @@ export const Sidebar: React.FC = () => {
           to={routePaths[it.id]}
           end={routePaths[it.id] === '/'}
           aria-label={t(it.label)}
-          className={({ isActive }) => `flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800
-${
-            isActive ? 'bg-neutral-200 dark:bg-neutral-800' : ''
-          }`}
+          className={({ isActive }) =>
+            `flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
+              isActive ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+            }`}
         >
           {it.icon}
           <span className="sr-only md:not-sr-only md:inline">{t(it.label)}</span>

@@ -5,4 +5,5 @@ export type TabKey =
   | 'exits'
   | 'assignments'
   | 'calendar'
-  | 'suggestions';
+  | 'suggestions'
+  | 'notAtHome';

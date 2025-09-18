@@ -2,12 +2,14 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
 export interface AppState {
   territorios: Territorio[];
   saidas: Saida[];
   designacoes: Designacao[];
   sugestoes: Sugestao[];
+  naoEmCasa: NaoEmCasaRegistro[];
 }
 
 export const initialState: AppState = {
@@ -15,6 +17,7 @@ export const initialState: AppState = {
   saidas: [],
   designacoes: [],
   sugestoes: [],
+  naoEmCasa: [],
 };
 
 export type Action =
@@ -34,6 +37,10 @@ export type Action =
   | { type: 'ADD_SUGESTAO'; payload: Sugestao }
   | { type: 'UPDATE_SUGESTAO'; payload: Sugestao }
   | { type: 'REMOVE_SUGESTAO'; payload: { territorioId: string; saidaId: string } }
+  | { type: 'SET_NAO_EM_CASA'; payload: NaoEmCasaRegistro[] }
+  | { type: 'ADD_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
+  | { type: 'UPDATE_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
+  | { type: 'REMOVE_NAO_EM_CASA'; payload: string }
   | { type: 'RESET_STATE' };
 
 export function appReducer(state: AppState, action: Action): AppState {
@@ -96,6 +103,17 @@ export function appReducer(state: AppState, action: Action): AppState {
             sugestao.territorioId !== action.payload.territorioId || sugestao.saidaId !== action.payload.saidaId,
         ),
       };
+    case 'SET_NAO_EM_CASA':
+      return { ...state, naoEmCasa: [...action.payload] };
+    case 'ADD_NAO_EM_CASA':
+      return { ...state, naoEmCasa: [...state.naoEmCasa, action.payload] };
+    case 'UPDATE_NAO_EM_CASA':
+      return {
+        ...state,
+        naoEmCasa: state.naoEmCasa.map((registro) => (registro.id === action.payload.id ? action.payload : registro)),
+      };
+    case 'REMOVE_NAO_EM_CASA':
+      return { ...state, naoEmCasa: state.naoEmCasa.filter((registro) => registro.id !== action.payload) };
     case 'RESET_STATE':
       return initialState;
     default:

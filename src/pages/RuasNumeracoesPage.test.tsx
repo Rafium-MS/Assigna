@@ -404,14 +404,17 @@ describe('RuasNumeracoesPage', () => {
 
     const originalImplementation = dbMock.addresses.where.getMockImplementation();
 
-    dbMock.addresses.where.mockImplementation((_field: keyof Address) => ({
-      anyOf: () => ({
-        async toArray() {
-          // Return all addresses regardless of the provided filter to simulate stale data.
-          return addressesStore.map((address) => ({ ...address }));
-        },
-      }),
-    }));
+      dbMock.addresses.where.mockImplementation((_field: keyof Address) => {
+        void _field;
+        return {
+          anyOf: () => ({
+            async toArray() {
+              // Return all addresses regardless of the provided filter to simulate stale data.
+              return addressesStore.map((address) => ({ ...address }));
+            },
+          }),
+        };
+      });
 
     try {
       render(<RuasNumeracoesPage />);

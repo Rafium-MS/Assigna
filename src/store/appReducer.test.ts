@@ -4,6 +4,7 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
 const baseTerritorio: Territorio = { id: 'territorio-1', nome: 'Território 1' };
 const baseSaida: Saida = {
@@ -25,12 +26,21 @@ const baseSugestao: Sugestao = {
   dataInicial: '2024-02-01',
   dataFinal: '2024-02-07',
 };
+const baseNaoEmCasa: NaoEmCasaRegistro = {
+  id: 'registro-1',
+  territorioId: 'territorio-1',
+  addressId: 1,
+  recordedAt: '2024-03-01',
+  followUpAt: '2024-07-01',
+  completedAt: null,
+};
 
 const createState = (): AppState => ({
   territorios: [{ ...baseTerritorio }],
   saidas: [{ ...baseSaida }],
   designacoes: [{ ...baseDesignacao }],
   sugestoes: [{ ...baseSugestao }],
+  naoEmCasa: [{ ...baseNaoEmCasa }],
 });
 
 describe('appReducer', () => {
@@ -49,6 +59,7 @@ describe('appReducer', () => {
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.designacoes).toBe(state.designacoes);
     expect(nextState.sugestoes).toBe(state.sugestoes);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
   });
 
   it('adds a saída without mutating existing state', () => {
@@ -71,6 +82,7 @@ describe('appReducer', () => {
     expect(nextState.territorios).toBe(state.territorios);
     expect(nextState.designacoes).toBe(state.designacoes);
     expect(nextState.sugestoes).toBe(state.sugestoes);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
   });
 
   it('adds a designação without mutating existing state', () => {
@@ -94,6 +106,7 @@ describe('appReducer', () => {
     expect(nextState.territorios).toBe(state.territorios);
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.sugestoes).toBe(state.sugestoes);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
   });
 
   it('adds a sugestão without mutating existing state', () => {
@@ -116,6 +129,7 @@ describe('appReducer', () => {
     expect(nextState.territorios).toBe(state.territorios);
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.designacoes).toBe(state.designacoes);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
   });
 
   it('sets territorios with SET_TERRITORIOS', () => {
@@ -129,6 +143,7 @@ describe('appReducer', () => {
 
     expect(nextState.territorios).toEqual(territorios);
     expect(nextState.saidas).toBe(state.saidas);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
   });
 
   it('updates a designacao preserving other entries', () => {
@@ -143,6 +158,24 @@ describe('appReducer', () => {
 
     expect(nextState.designacoes[0]).toEqual(updated);
     expect(nextState.designacoes).toHaveLength(state.designacoes.length);
+  });
+
+  it('adds a not-at-home record without mutating existing state', () => {
+    const state = createState();
+    const originalRegistros = state.naoEmCasa;
+    const newRecord: NaoEmCasaRegistro = {
+      id: 'registro-2',
+      territorioId: 'territorio-2',
+      addressId: 5,
+      recordedAt: '2024-04-01',
+      followUpAt: '2024-08-01',
+      completedAt: null,
+    };
+
+    const nextState = appReducer(state, { type: 'ADD_NAO_EM_CASA', payload: newRecord });
+
+    expect(nextState.naoEmCasa).toEqual([...originalRegistros, newRecord]);
+    expect(state.naoEmCasa).toBe(originalRegistros);
   });
 
   it('removes a saida with REMOVE_SAIDA', () => {
