@@ -271,10 +271,23 @@ async function ensureDefaultPropertyTypes(): Promise<void> {
       (name) => !existingNames.has(name.trim().toLowerCase())
     );
 
-    if (missing.length > 0) {
-      await db.propertyTypes.bulkAdd(missing.map((name) => ({ name })));
+    const valuesToInsert =
+      existing.length === 0 ? DEFAULT_PROPERTY_TYPE_NAMES : missing;
+
+    if (valuesToInsert.length > 0) {
+      await db.propertyTypes.bulkAdd(
+        valuesToInsert.map((name) => ({ name }))
+      );
     }
   });
+}
+
+/**
+ * Ensures the default property types exist, repopulating the table when it is
+ * empty or missing any default entries.
+ */
+export async function ensureDefaultPropertyTypesSeeded(): Promise<void> {
+  await ensureDefaultPropertyTypes();
 }
 
 /**
@@ -692,7 +705,7 @@ export async function migrate(): Promise<void> {
     );
   }
   if (current < 8) {
-    await ensureDefaultPropertyTypes();
+    await ensureDefaultPropertyTypesSeeded();
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
