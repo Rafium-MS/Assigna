@@ -151,7 +151,17 @@
       "street": "Rua",
       "start": "Início",
       "end": "Fim",
-      "type": "Tipo"
+      "type": "Tipo",
+      "lastVisit": "Última visita bem-sucedida",
+      "nextVisit": "Próxima visita liberada",
+      "actions": "Ações",
+      "markVisit": "Marcar visita bem-sucedida",
+      "neverVisited": "Nunca visitado",
+      "cooldownNotScheduled": "Sem bloqueio ativo",
+      "cooldownActive": "Este endereço está bloqueado até {{date}}.",
+      "cooldownTooltip": "Próxima visita liberada em {{date}}",
+      "cooldownAlert": "{{count}} endereço está bloqueado até o fim do período de resfriamento.",
+      "cooldownAlert_plural": "{{count}} endereços estão bloqueados até o fim do período de resfriamento."
     },
     "summary": {
       "totalStreets": "Total de ruas: {{count}}",

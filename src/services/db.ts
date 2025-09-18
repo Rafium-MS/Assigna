@@ -8,6 +8,7 @@ import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import type { BuildingVillage } from '../types/building_village';
 import type { DerivedTerritory } from '../types/derived-territory';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 /**
  * Represents a key-value pair for storing metadata in the database.
@@ -110,6 +111,19 @@ class AppDB extends Dexie {
       derived_territories: '++id, baseTerritoryId, name',
       derived_territory_addresses: '[derivedTerritoryId+addressId]'
     });
+    this.version(4).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+      buildingsVillages: 'id, territory_id',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]'
+    });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
@@ -124,7 +138,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 3;
+export const SCHEMA_VERSION = 4;
 
 /**
  * Gets the current schema version from the database.
@@ -303,6 +317,57 @@ export async function migrate(): Promise<void> {
         }
       }
     );
+  }
+  if (current < 4) {
+    // Schema version 4 introduces visit tracking metadata for addresses.
+    await db.transaction('rw', db.addresses, db.metadata, async () => {
+      const addresses = await db.addresses.toArray();
+      let updatedCount = 0;
+
+      for (const address of addresses) {
+        const id = address.id;
+        if (id === undefined) {
+          continue;
+        }
+
+        const rawLast = address.lastSuccessfulVisit;
+        const lastDate = typeof rawLast === 'string' ? new Date(rawLast) : null;
+        const sanitizedLast =
+          lastDate && !Number.isNaN(lastDate.getTime()) ? lastDate.toISOString() : null;
+
+        const rawNext = address.nextVisitAllowed;
+        const nextDateCandidate = typeof rawNext === 'string' ? new Date(rawNext) : null;
+        const sanitizedNextInitial =
+          nextDateCandidate && !Number.isNaN(nextDateCandidate.getTime())
+            ? nextDateCandidate.toISOString()
+            : null;
+
+        let sanitizedNext = sanitizedNextInitial;
+        if (!sanitizedNext && sanitizedLast) {
+          const calculated = new Date(new Date(sanitizedLast).getTime() + ADDRESS_VISIT_COOLDOWN_MS);
+          sanitizedNext = calculated.toISOString();
+        }
+
+        const update: Partial<Address> = {};
+        if (address.lastSuccessfulVisit !== sanitizedLast) {
+          update.lastSuccessfulVisit = sanitizedLast;
+        }
+        if (address.nextVisitAllowed !== sanitizedNext) {
+          update.nextVisitAllowed = sanitizedNext;
+        }
+
+        if (Object.keys(update).length > 0) {
+          await db.addresses.update(id, update);
+          updatedCount++;
+        }
+      }
+
+      if (updatedCount > 0) {
+        const existing = await db.metadata.get('addressVisitsMigrated');
+        const total = (existing?.value ?? 0) + updatedCount;
+        await db.metadata.put({ key: 'addressVisitsMigrated', value: total });
+      }
+    });
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
