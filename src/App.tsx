@@ -22,7 +22,7 @@ import { useAuth } from './hooks/useAuth';
 import { useToast } from './components/feedback/Toast';
 import { exportData } from './services/export';
 import { importData } from './services/import';
-import { db, SCHEMA_VERSION } from './services/db';
+import { db, SCHEMA_VERSION, ensureDefaultPropertyTypesSeeded } from './services/db';
 import {
   TerritorioRepository,
   SaidaRepository,
@@ -160,6 +160,7 @@ const DataManagementControls: React.FC = () => {
         db.naoEmCasa.clear(),
         db.metadata.clear()
       ]);
+      await ensureDefaultPropertyTypesSeeded();
       await db.metadata.put({ key: 'schemaVersion', value: SCHEMA_VERSION });
       dispatch({ type: 'RESET_STATE' });
       toast.success(t('app.clearSuccess'));

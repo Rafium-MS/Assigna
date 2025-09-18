@@ -1,7 +1,14 @@
 import 'fake-indexeddb/auto';
 import Dexie from 'dexie';
 import { describe, it, expect, beforeEach } from 'vitest';
-import { db, migrate, getSchemaVersion, SCHEMA_VERSION, DEFAULT_PROPERTY_TYPE_NAMES } from './db';
+import {
+  db,
+  migrate,
+  getSchemaVersion,
+  SCHEMA_VERSION,
+  DEFAULT_PROPERTY_TYPE_NAMES,
+  ensureDefaultPropertyTypesSeeded
+} from './db';
 import { TerritorioRepository, BuildingVillageRepository, NaoEmCasaRepository } from './repositories';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
@@ -172,6 +179,35 @@ describe('IndexedDB persistence', () => {
       const matches = propertyTypes.filter((type) => type.name === name);
       expect(matches).toHaveLength(1);
     }
+  });
+
+  it('restores default property types after clearing the table', async () => {
+    await migrate();
+    await db.propertyTypes.clear();
+
+    expect(await db.propertyTypes.count()).toBe(0);
+
+    const expectedNames = Array.from(DEFAULT_PROPERTY_TYPE_NAMES).sort();
+
+    await ensureDefaultPropertyTypesSeeded();
+
+    let propertyTypes = await db.propertyTypes.toArray();
+    expect(propertyTypes).toHaveLength(DEFAULT_PROPERTY_TYPE_NAMES.length);
+    expect(propertyTypes.map((type) => type.name).sort()).toEqual(expectedNames);
+
+    await db.propertyTypes
+      .where('name')
+      .equals(DEFAULT_PROPERTY_TYPE_NAMES[0])
+      .delete();
+
+    propertyTypes = await db.propertyTypes.toArray();
+    expect(propertyTypes).toHaveLength(DEFAULT_PROPERTY_TYPE_NAMES.length - 1);
+
+    await ensureDefaultPropertyTypesSeeded();
+
+    propertyTypes = await db.propertyTypes.toArray();
+    expect(propertyTypes).toHaveLength(DEFAULT_PROPERTY_TYPE_NAMES.length);
+    expect(propertyTypes.map((type) => type.name).sort()).toEqual(expectedNames);
   });
 
   it('migrates legacy territorios buildings into the dedicated store', async () => {
