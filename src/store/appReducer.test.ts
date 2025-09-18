@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { appReducer, initialState, type AppState, type AuthUser } from './appReducer';
+import {
+  selectCurrentUser,
+  selectDesignacoes,
+  selectNaoEmCasa,
+  selectSaidas,
+  selectSugestoes,
+  selectTerritorios,
+} from './selectors';
 import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
@@ -40,6 +48,43 @@ const baseNaoEmCasa: NaoEmCasaRegistro = {
   addressId: 1,
   recordedAt: '2024-03-01',
   followUpAt: '2024-07-01',
+  completedAt: null,
+};
+
+const otherTerritorio: Territorio = {
+  id: 'territorio-99',
+  nome: 'Outro Território',
+  publisherId: 'publisher-2',
+};
+const otherSaida: Saida = {
+  id: 'saida-99',
+  nome: 'Saída 99',
+  diaDaSemana: 5,
+  hora: '10:00',
+  publisherId: 'publisher-2',
+};
+const otherDesignacao: Designacao = {
+  id: 'designacao-99',
+  territorioId: 'territorio-99',
+  saidaId: 'saida-99',
+  dataInicial: '2024-05-01',
+  dataFinal: '2024-05-07',
+  publisherId: 'publisher-2',
+};
+const otherSugestao: Sugestao = {
+  territorioId: 'territorio-99',
+  saidaId: 'saida-99',
+  dataInicial: '2024-05-08',
+  dataFinal: '2024-05-14',
+  publisherId: 'publisher-2',
+};
+const otherNaoEmCasa: NaoEmCasaRegistro = {
+  id: 'registro-99',
+  territorioId: 'territorio-99',
+  publisherId: 'publisher-2',
+  addressId: 99,
+  recordedAt: '2024-05-01',
+  followUpAt: '2024-09-01',
   completedAt: null,
 };
 
@@ -235,5 +280,42 @@ describe('appReducer', () => {
     const nextState = appReducer(populated, { type: 'RESET_STATE' });
 
     expect(nextState).toEqual(initialState);
+  });
+
+  it('overwrites slices with scoped payloads and exposes them through selectors', () => {
+    const preexisting: AppState = {
+      auth: { currentUser: null },
+      territorios: [otherTerritorio],
+      saidas: [otherSaida],
+      designacoes: [otherDesignacao],
+      sugestoes: [otherSugestao],
+      naoEmCasa: [otherNaoEmCasa],
+    };
+
+    let state = appReducer(preexisting, { type: 'SIGN_IN', payload: baseUser });
+    state = appReducer(state, { type: 'SET_TERRITORIOS', payload: [baseTerritorio] });
+    state = appReducer(state, { type: 'SET_SAIDAS', payload: [baseSaida] });
+    state = appReducer(state, { type: 'SET_DESIGNACOES', payload: [baseDesignacao] });
+    state = appReducer(state, { type: 'SET_SUGESTOES', payload: [baseSugestao] });
+    state = appReducer(state, { type: 'SET_NAO_EM_CASA', payload: [baseNaoEmCasa] });
+
+    expect(state.territorios).toEqual([baseTerritorio]);
+    expect(state.saidas).toEqual([baseSaida]);
+    expect(state.designacoes).toEqual([baseDesignacao]);
+    expect(state.sugestoes).toEqual([baseSugestao]);
+    expect(state.naoEmCasa).toEqual([baseNaoEmCasa]);
+
+    expect(selectCurrentUser(state)).toEqual(baseUser);
+    expect(selectTerritorios(state)).toEqual([baseTerritorio]);
+    expect(selectSaidas(state)).toEqual([baseSaida]);
+    expect(selectDesignacoes(state)).toEqual([baseDesignacao]);
+    expect(selectSugestoes(state)).toEqual([baseSugestao]);
+    expect(selectNaoEmCasa(state)).toEqual([baseNaoEmCasa]);
+
+    expect(preexisting.territorios).toEqual([otherTerritorio]);
+    expect(preexisting.saidas).toEqual([otherSaida]);
+    expect(preexisting.designacoes).toEqual([otherDesignacao]);
+    expect(preexisting.sugestoes).toEqual([otherSugestao]);
+    expect(preexisting.naoEmCasa).toEqual([otherNaoEmCasa]);
   });
 });
