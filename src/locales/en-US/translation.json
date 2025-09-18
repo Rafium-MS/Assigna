@@ -47,12 +47,41 @@
     "assignments": "Assignments",
     "calendar": "Calendar",
     "suggestions": "Suggestions",
+    "notAtHome": "Not at Home",
     "dashboard": "Dashboard",
     "reports": "Reports",
     "maps": "Maps",
     "users": "Users",
     "settings": "Settings",
     "notifications": "Notifications"
+  },
+  "naoEmCasa": {
+    "title": "Not at Home",
+    "todayAssignments": "Territories assigned for today ({{count}})",
+    "noAssignments": "No territories assigned for today.",
+    "miniMapAlt": "{{name}} territory mini map",
+    "noImage": "No image available",
+    "addressesTitle": "Addresses",
+    "noAddresses": "No addresses registered for this territory.",
+    "table": {
+      "street": "Street",
+      "numbers": "Numbers",
+      "type": "Type",
+      "actions": "Actions"
+    },
+    "residential": "Residential",
+    "commercial": "Commercial",
+    "other": "Other",
+    "recordNotAtHome": "Record not at home",
+    "scheduledFor": "Return scheduled for {{date}}",
+    "followUpsTitle": "Scheduled returns ({{count}})",
+    "noFollowUps": "No pending returns.",
+    "followUpOn": "Return on {{date}}",
+    "recordedOn": "Recorded on {{date}}",
+    "markCompleted": "Mark as completed",
+    "unknownStreet": "Unknown street",
+    "unknownType": "Unknown type",
+    "addressLabel": "{{street}} • no. {{range}}"
   },
 
   "buildingsVillages": {

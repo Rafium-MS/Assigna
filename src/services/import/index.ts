@@ -4,7 +4,8 @@ import {
   DesignacaoRepository,
   SaidaRepository,
   SugestaoRepository,
-  TerritorioRepository
+  TerritorioRepository,
+  NaoEmCasaRepository
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
 import { db, SCHEMA_VERSION } from '../db';
@@ -59,6 +60,7 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
     db.designacoes,
     db.sugestoes,
     db.buildingsVillages,
+    db.naoEmCasa,
     db.streets,
     db.propertyTypes,
     db.addresses,
@@ -72,6 +74,7 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
         DesignacaoRepository.clear(),
         SugestaoRepository.clear(),
         BuildingVillageRepository.clear(),
+        NaoEmCasaRepository.clear(),
         db.streets.clear(),
         db.propertyTypes.clear(),
         db.addresses.clear(),
@@ -91,6 +94,9 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
       }
       if (data.sugestoes.length > 0) {
         await SugestaoRepository.bulkAdd(data.sugestoes);
+      }
+      if (data.naoEmCasa.length > 0) {
+        await NaoEmCasaRepository.bulkAdd(data.naoEmCasa);
       }
       if (data.buildingsVillages.length > 0) {
         await BuildingVillageRepository.bulkAdd(data.buildingsVillages);

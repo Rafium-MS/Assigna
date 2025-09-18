@@ -2,7 +2,8 @@ import {
   DesignacaoRepository,
   SaidaRepository,
   SugestaoRepository,
-  TerritorioRepository
+  TerritorioRepository,
+  NaoEmCasaRepository
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
 import { db, SCHEMA_VERSION } from '../db';
@@ -21,11 +22,12 @@ const formatTimestamp = (date: Date): string => {
 };
 
 const buildExportPayload = async (): Promise<ExportedData> => {
-  const [territorios, saidas, designacoes, sugestoes, buildingsVillages] = await Promise.all([
+  const [territorios, saidas, designacoes, sugestoes, naoEmCasa, buildingsVillages] = await Promise.all([
     TerritorioRepository.all(),
     SaidaRepository.all(),
     DesignacaoRepository.all(),
     SugestaoRepository.all(),
+    NaoEmCasaRepository.all(),
     BuildingVillageRepository.all()
   ]);
 
@@ -46,6 +48,7 @@ const buildExportPayload = async (): Promise<ExportedData> => {
     saidas,
     designacoes,
     sugestoes,
+    naoEmCasa,
     buildingsVillages,
     streets,
     propertyTypes,

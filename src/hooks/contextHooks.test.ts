@@ -30,6 +30,7 @@ vi.mock('../services/repositories', () => ({
   SaidaRepository: createRepositoryMock(),
   DesignacaoRepository: createRepositoryMock(),
   SugestaoRepository: createRepositoryMock(),
+  NaoEmCasaRepository: createRepositoryMock(),
 }));
 
 import { useContext } from 'react';
@@ -39,12 +40,14 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import * as selectors from '../store/selectors';
 import { useApp } from './useApp';
 import { useTerritorios } from './useTerritorios';
 import { useSaidas } from './useSaidas';
 import { useDesignacoes } from './useDesignacoes';
 import { useSugestoes } from './useSugestoes';
+import { useNaoEmCasa } from './useNaoEmCasa';
 
 const mockedUseContext = useContext as unknown as ReturnType<typeof vi.fn>;
 
@@ -78,6 +81,16 @@ const createAppState = (): AppState => ({
       saidaId: 'saida-1',
       dataInicial: '2024-02-01',
       dataFinal: '2024-02-07',
+    },
+  ],
+  naoEmCasa: [
+    {
+      id: 'registro-1',
+      territorioId: 'territorio-1',
+      addressId: 1,
+      recordedAt: '2024-03-01',
+      followUpAt: '2024-07-01',
+      completedAt: null,
     },
   ],
 });
@@ -294,6 +307,59 @@ describe('App context hooks', () => {
         expect.objectContaining({
           type: 'ADD_SUGESTAO',
           payload: expect.objectContaining({ territorioId: newSugestao.territorioId }),
+        }),
+      );
+
+      selectSpy.mockRestore();
+    });
+  });
+
+  describe('useNaoEmCasa', () => {
+    it('selects registros from the current state', () => {
+      const { state } = setupContext();
+      const selected: NaoEmCasaRegistro[] = [
+        {
+          id: 'registro-2',
+          territorioId: 'territorio-2',
+          addressId: 5,
+          recordedAt: '2024-04-01',
+          followUpAt: '2024-08-01',
+          completedAt: null,
+        },
+      ];
+      const selectSpy = vi
+        .spyOn(selectors, 'selectNaoEmCasa')
+        .mockReturnValue(selected);
+
+      const { registros } = useNaoEmCasa();
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(selectSpy).toHaveBeenCalledWith(state);
+      expect(registros).toBe(selected);
+
+      selectSpy.mockRestore();
+    });
+
+    it('dispatches an action to add a registro', async () => {
+      const { dispatch, state } = setupContext();
+      const selectSpy = vi
+        .spyOn(selectors, 'selectNaoEmCasa')
+        .mockReturnValue(state.naoEmCasa);
+
+      const { addNaoEmCasa } = useNaoEmCasa();
+      await addNaoEmCasa({
+        territorioId: 'territorio-1',
+        addressId: 3,
+        recordedAt: '2024-05-01',
+        followUpAt: '2024-09-01',
+        completedAt: null,
+      });
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_NAO_EM_CASA',
+          payload: expect.objectContaining({ territorioId: 'territorio-1' }),
         }),
       );
 

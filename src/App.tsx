@@ -13,6 +13,7 @@ import ExitsPage from './pages/ExitsPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import CalendarPage from './pages/CalendarPage';
 import SuggestionsPage from './pages/SuggestionsPage';
+import NaoEmCasaPage from './pages/NaoEmCasaPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
 import { useToast } from './components/feedback/Toast';
@@ -23,7 +24,8 @@ import {
   TerritorioRepository,
   SaidaRepository,
   DesignacaoRepository,
-  SugestaoRepository
+  SugestaoRepository,
+  NaoEmCasaRepository
 } from './services/repositories';
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
@@ -37,6 +39,7 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   assignments: AssignmentsPage,
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
+  notAtHome: NaoEmCasaPage,
 };
 
 const DataManagementControls: React.FC = () => {
@@ -70,6 +73,7 @@ const DataManagementControls: React.FC = () => {
       dispatch({ type: 'SET_SAIDAS', payload: data.saidas });
       dispatch({ type: 'SET_DESIGNACOES', payload: data.designacoes });
       dispatch({ type: 'SET_SUGESTOES', payload: data.sugestoes });
+      dispatch({ type: 'SET_NAO_EM_CASA', payload: data.naoEmCasa });
       toast.success(t('app.importSuccess'));
     } catch (error) {
       console.error(t('app.importError'), error);
@@ -90,12 +94,14 @@ const DataManagementControls: React.FC = () => {
         SaidaRepository.clear(),
         DesignacaoRepository.clear(),
         SugestaoRepository.clear(),
+        NaoEmCasaRepository.clear(),
         BuildingVillageRepository.clear(),
         db.streets.clear(),
         db.propertyTypes.clear(),
         db.addresses.clear(),
         db.derivedTerritories.clear(),
         db.derivedTerritoryAddresses.clear(),
+        db.naoEmCasa.clear(),
         db.metadata.clear()
       ]);
       await db.metadata.put({ key: 'schemaVersion', value: SCHEMA_VERSION });

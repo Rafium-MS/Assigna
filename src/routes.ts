@@ -7,7 +7,8 @@ export const routePaths: Record<TabKey, string> = {
   exits: '/exits',
   assignments: '/assignments',
   calendar: '/calendar',
-  suggestions: '/suggestions'
+  suggestions: '/suggestions',
+  notAtHome: '/nao-em-casa'
 };
 
 export const routeEntries = Object.entries(routePaths) as Array<[

@@ -8,6 +8,7 @@ import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import type { BuildingVillage } from '../types/building_village';
 import type { DerivedTerritory } from '../types/derived-territory';
+import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 /**
@@ -95,6 +96,8 @@ class AppDB extends Dexie {
   derivedTerritoryAddresses!: Table<DerivedTerritoryAddress, [number, number]>;
   /** Table for storing metadata. */
   metadata!: Table<Metadata, string>;
+  /** Table for storing not-at-home records. */
+  naoEmCasa!: Table<NaoEmCasaRegistro, string>;
 
   constructor() {
     super('assigna');
@@ -124,10 +127,25 @@ class AppDB extends Dexie {
       derived_territories: '++id, baseTerritoryId, name',
       derived_territory_addresses: '[derivedTerritoryId+addressId]'
     });
+    this.version(5).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+      buildingsVillages: 'id, territory_id',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]',
+      nao_em_casa: 'id, territorioId, followUpAt, completedAt'
+    });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
     this.derivedTerritoryAddresses = this.table('derived_territory_addresses');
+    this.naoEmCasa = this.table('nao_em_casa');
   }
 }
 
@@ -138,7 +156,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 /**
  * Gets the current schema version from the database.
@@ -176,6 +194,7 @@ export async function migrate(): Promise<void> {
         }
 
         const { legacyBuildings: _legacyBuildings, ...territorioWithoutLegacy } = territorio;
+        void _legacyBuildings;
         await db.territorios.put(territorioWithoutLegacy as Territorio);
 
         const pickString = (...values: Array<string | null | undefined>): string | null => {
