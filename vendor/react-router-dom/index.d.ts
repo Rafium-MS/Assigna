@@ -44,3 +44,9 @@ export interface NavigateProps {
   replace?: boolean;
 }
 export declare function Navigate(props: NavigateProps): null;
+
+export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+  to: string | { pathname?: string };
+  replace?: boolean;
+}
+export declare function Link(props: LinkProps): React.ReactElement;
