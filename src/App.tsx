@@ -33,8 +33,10 @@ import { BuildingVillageRepository } from './services/repositories/buildings_vil
 import type { TabKey } from './types/navigation';
 import { routeEntries } from './routes';
 import UnauthorizedPage from './pages/UnauthorizedPage';
+import { ADMIN_MASTER_ROLE } from './constants/roles';
 
 const UNAUTHORIZED_ROUTE = '/unauthorized';
+const ADMIN_MASTER_ROLE_NORMALIZED = ADMIN_MASTER_ROLE.toLowerCase();
 
 const pagesByTab: Record<TabKey, ComponentType> = {
   territories: TerritoriesPage,
@@ -186,9 +188,11 @@ const DataManagementControls: React.FC = () => {
   );
 };
 
-const AppContent = () => {
+export const AppContent = () => {
   const { currentUser } = useAuth();
   const currentRole = currentUser?.role ?? null;
+  const normalizedRole = currentRole?.toLowerCase() ?? null;
+  const canManageScheduler = normalizedRole === ADMIN_MASTER_ROLE_NORMALIZED;
 
   return (
     <Shell>
@@ -213,7 +217,7 @@ const AppContent = () => {
         <Route path={UNAUTHORIZED_ROUTE} element={<UnauthorizedPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      <SchedulerControls />
+      {canManageScheduler && <SchedulerControls />}
       <DataManagementControls />
     </Shell>
   );

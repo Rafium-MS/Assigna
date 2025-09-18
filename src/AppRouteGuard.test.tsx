@@ -5,6 +5,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 
 import { RouteGuard } from './App';
 import { routes } from './routes';
+import { ADMIN_MASTER_ROLE } from './constants/roles';
 
 describe('RouteGuard', () => {
   const fallbackLabel = 'Acesso negado';
@@ -77,5 +78,21 @@ describe('RouteGuard', () => {
     await waitFor(() => {
       expect(screen.getByText(fallbackLabel)).toBeDefined();
     });
+  });
+
+  it('allows the admin master role to access management routes', async () => {
+    expect(RouteGuard).toBeDefined();
+
+    renderGuard({
+      component: ManagementComponent,
+      allowedRoles: routes.buildingsVillages.allowedRoles,
+      currentRole: ADMIN_MASTER_ROLE.toUpperCase(),
+      path: routes.buildingsVillages.path,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Gestão')).toBeDefined();
+    });
+    expect(screen.queryByText(fallbackLabel)).toBeNull();
   });
 });
