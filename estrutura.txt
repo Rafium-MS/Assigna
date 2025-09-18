@@ -1,0 +1,180 @@
+.
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+├── apple-touch-icon.png
+├── docs/
+│   ├── Group 1.png
+│   ├── Group 2.png
+│   ├── Group 3.png
+│   ├── icon 5.svg
+│   ├── icon.png
+│   ├── icon_bg.png
+│   ├── installation.md
+│   └── screenshots/
+│       ├── calendario.png
+│       ├── calendario_dark.png
+│       ├── designacoes.png
+│       ├── designacoes_dark.png
+│       ├── saidas.png
+│       ├── saidas_dark.png
+│       ├── sugestoes.png
+│       ├── sugestoes_dark.png
+│       ├── territorios.png
+│       └── territorios_dark.png
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public/
+│   ├── manifest.webmanifest
+│   └── sw.js
+├── pwa-192x192.png
+├── src/
+│   ├── App.tsx
+│   ├── AppContent.test.tsx
+│   ├── AppRouteGuard.test.tsx
+│   ├── components/
+│   │   ├── ImageAnnotator.test.tsx
+│   │   ├── ImageAnnotator.tsx
+│   │   ├── auth/
+│   │   │   └── AuthControls.tsx
+│   │   ├── calendar/
+│   │   │   └── SchedulerControls.tsx
+│   │   ├── feedback/
+│   │   │   ├── Badge.tsx
+│   │   │   ├── ConfirmDialog.test.tsx
+│   │   │   ├── ConfirmDialog.tsx
+│   │   │   ├── Toast.test.tsx
+│   │   │   └── Toast.tsx
+│   │   ├── forms/
+│   │   │   └── LanguageSelector.tsx
+│   │   ├── layout/
+│   │   │   ├── Modal.tsx
+│   │   │   ├── NavBar.tsx
+│   │   │   ├── Shell.tsx
+│   │   │   └── Sidebar.tsx
+│   │   └── ui/
+│   │       ├── Button.tsx
+│   │       ├── Card.tsx
+│   │       ├── ImagePicker.tsx
+│   │       ├── Input.tsx
+│   │       ├── Label.tsx
+│   │       └── index.ts
+│   ├── constants/
+│   │   ├── addresses.ts
+│   │   └── roles.ts
+│   ├── hooks/
+│   │   ├── contextHooks.test.ts
+│   │   ├── useApp.ts
+│   │   ├── useAuth.ts
+│   │   ├── useDesignacoes.ts
+│   │   ├── useLocalStorage.ts
+│   │   ├── useMonthlyExportScheduler.test.tsx
+│   │   ├── useMonthlyExportScheduler.ts
+│   │   ├── useNaoEmCasa.ts
+│   │   ├── useSaidas.ts
+│   │   ├── useSugestoes.ts
+│   │   ├── useSuggestionRules.ts
+│   │   ├── useTerritorios.test.ts
+│   │   ├── useTerritorios.ts
+│   │   └── useWarningDays.ts
+│   ├── i18n.ts
+│   ├── index.css
+│   ├── locales/
+│   │   ├── en-US/
+│   │   │   └── translation.json
+│   │   ├── es-ES/
+│   │   │   └── translation.json
+│   │   └── pt-BR/
+│   │       └── translation.json
+│   ├── main.tsx
+│   ├── pages/
+│   │   ├── AssignmentsPage.tsx
+│   │   ├── CalendarPage.tsx
+│   │   ├── CartasPage.tsx
+│   │   ├── ExitsPage.tsx
+│   │   ├── NaoEmCasaPage.tsx
+│   │   ├── PrediosVilas.tsx
+│   │   ├── Relatorios.tsx
+│   │   ├── RuasNumeracoesPage.test.tsx
+│   │   ├── RuasNumeracoesPage.tsx
+│   │   ├── SuggestionsPage.tsx
+│   │   ├── TerritoriesPage.tsx
+│   │   ├── UnauthorizedPage.tsx
+│   │   └── publisherScoping.test.tsx
+│   ├── routes.ts
+│   ├── services/
+│   │   ├── data-transfer.ts
+│   │   ├── db.test.ts
+│   │   ├── db.ts
+│   │   ├── export/
+│   │   │   └── index.ts
+│   │   ├── import/
+│   │   │   └── index.ts
+│   │   ├── notifications.ts
+│   │   └── repositories/
+│   │       ├── buildings_villages.ts
+│   │       ├── designacoes.ts
+│   │       ├── index.ts
+│   │       ├── nao-em-casa.ts
+│   │       ├── repositories.test.ts
+│   │       ├── saidas.ts
+│   │       ├── sugestoes.ts
+│   │       └── territorios.ts
+│   ├── store/
+│   │   ├── AppProvider.tsx
+│   │   ├── appReducer.test.ts
+│   │   ├── appReducer.ts
+│   │   ├── localStore.tsx
+│   │   └── selectors.ts
+│   ├── types/
+│   │   ├── address.ts
+│   │   ├── assignment.ts
+│   │   ├── building_village.ts
+│   │   ├── derived-territory.ts
+│   │   ├── designacao.ts
+│   │   ├── field-exit.ts
+│   │   ├── nao-em-casa.ts
+│   │   ├── navigation.ts
+│   │   ├── property-type.ts
+│   │   ├── saida.ts
+│   │   ├── street.ts
+│   │   ├── sugestao.ts
+│   │   ├── suggestion-rule-config.ts
+│   │   ├── territorio.ts
+│   │   └── territory.ts
+│   ├── utils/
+│   │   ├── assignments.ts
+│   │   ├── calendar.ts
+│   │   ├── csv.test.ts
+│   │   ├── csv.ts
+│   │   ├── dates.test.ts
+│   │   ├── dates.ts
+│   │   ├── format.test.ts
+│   │   ├── format.ts
+│   │   ├── guards.test.ts
+│   │   ├── guards.ts
+│   │   ├── id.test.ts
+│   │   ├── id.ts
+│   │   ├── lookups.ts
+│   │   ├── report.test.ts
+│   │   ├── report.ts
+│   │   ├── score.test.ts
+│   │   ├── score.ts
+│   │   ├── storage.test.ts
+│   │   └── storage.ts
+│   └── vite-env.d.ts
+├── tailwind.config.js
+├── test-utils/
+│   └── testing-library-react.tsx
+├── tsconfig.json
+├── tsconfig.node.json
+├── vendor/
+│   └── react-router-dom/
+│       ├── index.d.ts
+│       ├── index.js
+│       └── package.json
+├── vite.config.ts
+└── vitest.config.ts
