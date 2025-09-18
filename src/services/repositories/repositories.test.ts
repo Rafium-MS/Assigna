@@ -24,7 +24,7 @@ beforeEach(async () => {
 
 describe('TerritorioRepository', () => {
   it('adds a territorio and retrieves it with all', async () => {
-    const territorio: Territorio = { id: 'territorio-1', nome: 'Territory 1' };
+    const territorio: Territorio = { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' };
 
     await TerritorioRepository.add(territorio);
     const stored = await TerritorioRepository.all();
@@ -34,9 +34,9 @@ describe('TerritorioRepository', () => {
 
   it('bulk adds multiple territorios and retrieves them all', async () => {
     const territorios: Territorio[] = [
-      { id: 'territorio-1', nome: 'Territory 1' },
-      { id: 'territorio-2', nome: 'Territory 2' },
-      { id: 'territorio-3', nome: 'Territory 3' }
+      { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
+      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
+      { id: 'territorio-3', nome: 'Territory 3', publisherId: 'publisher-3' }
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
@@ -48,8 +48,8 @@ describe('TerritorioRepository', () => {
 
   it('removes a territorio by id', async () => {
     const territorios: Territorio[] = [
-      { id: 'territorio-1', nome: 'Territory 1' },
-      { id: 'territorio-2', nome: 'Territory 2' }
+      { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
+      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' }
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
@@ -62,8 +62,8 @@ describe('TerritorioRepository', () => {
 
   it('clears all territorios', async () => {
     const territorios: Territorio[] = [
-      { id: 'territorio-1', nome: 'Territory 1' },
-      { id: 'territorio-2', nome: 'Territory 2' }
+      { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
+      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' }
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
@@ -80,7 +80,8 @@ describe('SaidaRepository', () => {
       id: 'saida-1',
       nome: 'Saida 1',
       diaDaSemana: 1,
-      hora: '08:00'
+      hora: '08:00',
+      publisherId: 'publisher-1'
     };
 
     await SaidaRepository.add(saida);
@@ -91,8 +92,8 @@ describe('SaidaRepository', () => {
 
   it('bulk adds multiple saidas and retrieves them all', async () => {
     const saidas: Saida[] = [
-      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00' },
-      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30' }
+      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
+      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' }
     ];
 
     await SaidaRepository.bulkAdd(saidas);
@@ -104,8 +105,8 @@ describe('SaidaRepository', () => {
 
   it('removes a saida by id', async () => {
     const saidas: Saida[] = [
-      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00' },
-      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30' }
+      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
+      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' }
     ];
 
     await SaidaRepository.bulkAdd(saidas);
@@ -124,7 +125,8 @@ describe('DesignacaoRepository', () => {
       territorioId: 'territorio-1',
       saidaId: 'saida-1',
       dataInicial: '2024-01-01',
-      dataFinal: '2024-01-31'
+      dataFinal: '2024-01-31',
+      publisherId: 'publisher-1'
     };
 
     await DesignacaoRepository.add(designacao);
@@ -140,14 +142,16 @@ describe('DesignacaoRepository', () => {
         territorioId: 'territorio-1',
         saidaId: 'saida-1',
         dataInicial: '2024-01-01',
-        dataFinal: '2024-01-31'
+        dataFinal: '2024-01-31',
+        publisherId: 'publisher-1'
       },
       {
         id: 'designacao-2',
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-02-01',
-        dataFinal: '2024-02-29'
+        dataFinal: '2024-02-29',
+        publisherId: 'publisher-2'
       }
     ];
 
@@ -165,14 +169,16 @@ describe('DesignacaoRepository', () => {
         territorioId: 'territorio-1',
         saidaId: 'saida-1',
         dataInicial: '2024-01-01',
-        dataFinal: '2024-01-31'
+        dataFinal: '2024-01-31',
+        publisherId: 'publisher-1'
       },
       {
         id: 'designacao-2',
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-02-01',
-        dataFinal: '2024-02-29'
+        dataFinal: '2024-02-29',
+        publisherId: 'publisher-2'
       }
     ];
 
@@ -191,7 +197,8 @@ describe('SugestaoRepository', () => {
       territorioId: 'territorio-1',
       saidaId: 'saida-1',
       dataInicial: '2024-03-01',
-      dataFinal: '2024-03-31'
+      dataFinal: '2024-03-31',
+      publisherId: 'publisher-1'
     };
 
     await SugestaoRepository.add(sugestao);
@@ -206,13 +213,15 @@ describe('SugestaoRepository', () => {
         territorioId: 'territorio-1',
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
-        dataFinal: '2024-03-31'
+        dataFinal: '2024-03-31',
+        publisherId: 'publisher-1'
       },
       {
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-04-01',
-        dataFinal: '2024-04-30'
+        dataFinal: '2024-04-30',
+        publisherId: 'publisher-2'
       }
     ];
 
@@ -229,13 +238,15 @@ describe('SugestaoRepository', () => {
         territorioId: 'territorio-1',
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
-        dataFinal: '2024-03-31'
+        dataFinal: '2024-03-31',
+        publisherId: 'publisher-1'
       },
       {
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-04-01',
-        dataFinal: '2024-04-30'
+        dataFinal: '2024-04-30',
+        publisherId: 'publisher-2'
       }
     ];
 
@@ -253,6 +264,7 @@ describe('NaoEmCasaRepository', () => {
     const record: NaoEmCasaRegistro = {
       id: 'record-1',
       territorioId: 'territorio-1',
+      publisherId: 'publisher-1',
       addressId: 1,
       streetId: 2,
       streetName: 'Main St',
@@ -276,6 +288,7 @@ describe('NaoEmCasaRepository', () => {
       {
         id: 'record-1',
         territorioId: 'territorio-1',
+        publisherId: 'publisher-1',
         addressId: 1,
         recordedAt: '2024-01-01',
         followUpAt: '2024-05-01',
@@ -284,6 +297,7 @@ describe('NaoEmCasaRepository', () => {
       {
         id: 'record-2',
         territorioId: 'territorio-2',
+        publisherId: 'publisher-2',
         addressId: 2,
         recordedAt: '2024-02-01',
         followUpAt: '2024-06-01',
@@ -304,6 +318,7 @@ describe('BuildingVillageRepository', () => {
     const buildingVillage: BuildingVillage = {
       id: 'bv-1',
       territory_id: 'territory-1',
+      publisherId: 'publisher-1',
       name: 'Building One',
       address_line: '123 Main St',
       type: 'building',
@@ -340,6 +355,7 @@ describe('BuildingVillageRepository', () => {
       {
         id: 'bv-1',
         territory_id: 'territory-1',
+        publisherId: 'publisher-1',
         name: 'Building One',
         address_line: '123 Main St',
         type: 'building',
@@ -367,6 +383,7 @@ describe('BuildingVillageRepository', () => {
       {
         id: 'bv-2',
         territory_id: 'territory-2',
+        publisherId: 'publisher-2',
         name: 'Village Two',
         address_line: null,
         type: null,
@@ -398,6 +415,7 @@ describe('BuildingVillageRepository', () => {
       {
         id: 'bv-1',
         territory_id: 'territory-1',
+        publisherId: 'publisher-1',
         name: 'Building One',
         address_line: '123 Main St',
         type: 'building',
@@ -425,6 +443,7 @@ describe('BuildingVillageRepository', () => {
       {
         id: 'bv-2',
         territory_id: 'territory-2',
+        publisherId: 'publisher-2',
         name: 'Village Two',
         address_line: null,
         type: null,

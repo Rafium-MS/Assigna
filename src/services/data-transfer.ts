@@ -14,6 +14,7 @@ import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 const territorioSchema = z.object({
   id: z.string(),
   nome: z.string(),
+  publisherId: z.string().optional().default(''),
   imagem: z.string().optional(),
   imageUrl: z.string().optional()
 });
@@ -22,7 +23,8 @@ const saidaSchema = z.object({
   id: z.string(),
   nome: z.string(),
   diaDaSemana: z.number(),
-  hora: z.string()
+  hora: z.string(),
+  publisherId: z.string().optional().default('')
 });
 
 const designacaoSchema = z.object({
@@ -31,6 +33,7 @@ const designacaoSchema = z.object({
   saidaId: z.string(),
   dataInicial: z.string(),
   dataFinal: z.string(),
+  publisherId: z.string().optional().default(''),
   devolvido: z.boolean().optional()
 });
 
@@ -38,7 +41,8 @@ const sugestaoSchema = z.object({
   territorioId: z.string(),
   saidaId: z.string(),
   dataInicial: z.string(),
-  dataFinal: z.string()
+  dataFinal: z.string(),
+  publisherId: z.string().optional().default('')
 });
 
 const letterStatusSchema = z.enum(LETTER_STATUS_VALUES);
@@ -53,6 +57,7 @@ const buildingVillageLetterHistorySchema = z.object({
 const buildingVillageSchema = z.object({
   id: z.string(),
   territory_id: z.string(),
+  publisherId: z.string().optional().default(''),
   name: z.string().nullable(),
   address_line: z.string().nullable(),
   type: z.string().nullable(),
@@ -96,6 +101,7 @@ const addressSchema = z.object({
 const naoEmCasaSchema = z.object({
   id: z.string(),
   territorioId: z.string(),
+  publisherId: z.string().optional().default(''),
   addressId: z.number().nullable().optional(),
   streetId: z.number().nullable().optional(),
   streetName: z.string().nullable().optional(),

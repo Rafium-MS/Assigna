@@ -55,12 +55,18 @@ let dispatchSpy: Dispatch;
 beforeEach(() => {
   state = {
     auth: {
-      currentUser: null,
+      currentUser: {
+        id: 'user-1',
+        role: 'publisher',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z',
+      },
     },
     territorios: [
       {
         id: 'territorio-inicial',
         nome: 'Território Inicial',
+        publisherId: 'publisher-inicial',
       },
     ],
     saidas: [],
@@ -89,7 +95,7 @@ afterEach(() => {
 describe('useTerritorios', () => {
   it('exposes the territorios selected from the state', () => {
     const selected: Territorio[] = [
-      { id: 'territorio-2', nome: 'Outro Território' },
+      { id: 'territorio-2', nome: 'Outro Território', publisherId: 'publisher-2' },
     ];
     mockedSelectTerritorios.mockReturnValueOnce(selected);
 
@@ -109,33 +115,41 @@ describe('useTerritorios', () => {
     });
 
     expect(generateIdMock).toHaveBeenCalled();
-    expect(repositoryAddMock).toHaveBeenCalledWith({ id: 'generated-id', ...payload });
+    expect(repositoryAddMock).toHaveBeenCalledWith({
+      id: 'generated-id',
+      publisherId: 'user-1',
+      ...payload,
+    });
     expect(dispatchSpy).toHaveBeenCalledWith({
       type: 'ADD_TERRITORIO',
-      payload: { id: 'generated-id', ...payload },
+      payload: { id: 'generated-id', publisherId: 'user-1', ...payload },
     });
     expect(toastSuccessMock).toHaveBeenCalledWith('Território salvo');
-    expect(created).toEqual({ id: 'generated-id', ...payload });
+    expect(created).toEqual({ id: 'generated-id', publisherId: 'user-1', ...payload });
   });
 
   it('updates an existing território using updateTerritorio', async () => {
     const { result } = renderHook(() => useTerritorios());
-    const updatePayload: Omit<Territorio, 'id'> = {
+    const updatePayload: Omit<Territorio, 'id' | 'publisherId'> = {
       nome: 'Território Atualizado',
     };
 
     let updated: Territorio | undefined;
     await act(async () => {
-      updated = await result.current.updateTerritorio('territorio-1', updatePayload);
+      updated = await result.current.updateTerritorio('territorio-inicial', updatePayload);
     });
 
-    expect(repositoryAddMock).toHaveBeenCalledWith({ id: 'territorio-1', ...updatePayload });
+    expect(repositoryAddMock).toHaveBeenCalledWith({
+      id: 'territorio-inicial',
+      publisherId: 'publisher-inicial',
+      ...updatePayload,
+    });
     expect(dispatchSpy).toHaveBeenCalledWith({
       type: 'UPDATE_TERRITORIO',
-      payload: { id: 'territorio-1', ...updatePayload },
+      payload: { id: 'territorio-inicial', publisherId: 'publisher-inicial', ...updatePayload },
     });
     expect(toastSuccessMock).toHaveBeenCalledWith('Território atualizado');
-    expect(updated).toEqual({ id: 'territorio-1', ...updatePayload });
+    expect(updated).toEqual({ id: 'territorio-inicial', publisherId: 'publisher-inicial', ...updatePayload });
   });
 
   it('removes a território when removeTerritorio is invoked', async () => {

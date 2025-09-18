@@ -15,6 +15,7 @@ export const useSaidas = () => {
   const { state, dispatch } = useApp();
   const toast = useToast();
   const saidas = selectSaidas(state);
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   return {
     /** The list of all Saidas. */
@@ -24,14 +25,14 @@ export const useSaidas = () => {
      * @param saida The Saida to add.
      */
     addSaida: useCallback(
-      async (saida: Omit<Saida, 'id'>) => {
-        const record: Saida = { id: generateId(), ...saida };
+      async (saida: Omit<Saida, 'id' | 'publisherId'>) => {
+        const record: Saida = { id: generateId(), publisherId: currentUserId, ...saida };
         await SaidaRepository.add(record);
         dispatch({ type: 'ADD_SAIDA', payload: record });
         toast.success('Saída salva');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     /**
      * Updates an existing Saida.
@@ -39,14 +40,16 @@ export const useSaidas = () => {
      * @param saida Updated Saida data.
      */
     updateSaida: useCallback(
-      async (id: string, saida: Omit<Saida, 'id'>) => {
-        const record: Saida = { id, ...saida };
+      async (id: string, saida: Omit<Saida, 'id' | 'publisherId'>) => {
+        const existing = saidas.find((item) => item.id === id);
+        const publisherId = existing?.publisherId ?? currentUserId;
+        const record: Saida = { id, publisherId, ...saida };
         await SaidaRepository.add(record);
         dispatch({ type: 'UPDATE_SAIDA', payload: record });
         toast.success('Saída atualizada');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, saidas, toast]
     ),
     /**
      * Removes a Saida from persistence.
@@ -58,7 +61,7 @@ export const useSaidas = () => {
         dispatch({ type: 'REMOVE_SAIDA', payload: id });
         toast.success('Saída removida');
       },
-      [dispatch, toast],
+      [dispatch, toast]
     ),
   } as const;
 };

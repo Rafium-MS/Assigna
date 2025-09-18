@@ -160,6 +160,45 @@ class AppDB extends Dexie {
       derived_territory_addresses: '[derivedTerritoryId+addressId]',
       nao_em_casa: 'id, territorioId, followUpAt, completedAt'
     });
+    this.version(7)
+      .stores({
+        territorios: 'id, nome, publisherId',
+        saidas: 'id, nome, diaDaSemana, publisherId',
+        designacoes: 'id, territorioId, saidaId, publisherId',
+        sugestoes: '[territorioId+saidaId], territorioId, saidaId, publisherId',
+        metadata: 'key',
+        streets: '++id, territoryId, name',
+        property_types: '++id, name',
+        addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+        buildingsVillages: 'id, territory_id, publisherId',
+        derived_territories: '++id, baseTerritoryId, name',
+        derived_territory_addresses: '[derivedTerritoryId+addressId]',
+        nao_em_casa: 'id, territorioId, followUpAt, completedAt, publisherId'
+      })
+      .upgrade(async (transaction) => {
+        const fallbackPublisherId = '';
+        const tables = [
+          'territorios',
+          'saidas',
+          'designacoes',
+          'sugestoes',
+          'buildingsVillages',
+          'nao_em_casa'
+        ] as const;
+
+        await Promise.all(
+          tables.map((name) =>
+            transaction
+              .table(name)
+              .toCollection()
+              .modify((record: Record<string, unknown>) => {
+                if (typeof record.publisherId !== 'string') {
+                  record.publisherId = fallbackPublisherId;
+                }
+              })
+          )
+        );
+      });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
@@ -175,7 +214,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 6;
+export const SCHEMA_VERSION = 7;
 
 /**
  * Gets the current schema version from the database.
@@ -247,6 +286,7 @@ export async function migrate(): Promise<void> {
           return {
             id: recordId,
             territory_id: territoryId,
+            publisherId: '',
             name: pickString(legacy.name),
             address_line: pickString(legacy.addressLine, legacy.address_line),
             type: pickString(legacy.type),
@@ -557,6 +597,38 @@ export async function migrate(): Promise<void> {
         await db.metadata.put({ key: 'buildingsVillagesLettersMigrated', value: total });
       }
     });
+  }
+  if (current < 7) {
+    await db.transaction(
+      'rw',
+      db.territorios,
+      db.saidas,
+      db.designacoes,
+      db.sugestoes,
+      db.buildingsVillages,
+      db.naoEmCasa,
+      async () => {
+        const fallbackPublisherId = '';
+        const ensurePublisherId = async <T extends { publisherId?: unknown }>(
+          table: Table<T, any>
+        ) => {
+          await table.toCollection().modify((record) => {
+            if (typeof record.publisherId !== 'string') {
+              (record as T & { publisherId: string }).publisherId = fallbackPublisherId;
+            }
+          });
+        };
+
+        await Promise.all([
+          ensurePublisherId(db.territorios),
+          ensurePublisherId(db.saidas),
+          ensurePublisherId(db.designacoes),
+          ensurePublisherId(db.sugestoes),
+          ensurePublisherId(db.buildingsVillages),
+          ensurePublisherId(db.naoEmCasa),
+        ]);
+      }
+    );
   }
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);

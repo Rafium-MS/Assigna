@@ -12,6 +12,7 @@ export interface BuildingVillageLetterHistoryEntry {
 export interface BuildingVillage {
   id: string;
   territory_id: string;
+  publisherId: string;
   name: string | null;
   address_line: string | null;
   type: string | null;

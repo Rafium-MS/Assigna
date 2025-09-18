@@ -15,6 +15,7 @@ export const useDesignacoes = () => {
   const { state, dispatch } = useApp();
   const toast = useToast();
   const designacoes = selectDesignacoes(state);
+  const currentUserId = state.auth.currentUser?.id ?? '';
 
   return {
     /** The list of all designations. */
@@ -24,14 +25,19 @@ export const useDesignacoes = () => {
      * @param designacao The designation data to create.
      */
     addDesignacao: useCallback(
-      async (designacao: Omit<Designacao, 'id'>) => {
-        const record: Designacao = { id: generateId(), devolvido: false, ...designacao };
+      async (designacao: Omit<Designacao, 'id' | 'publisherId'>) => {
+        const record: Designacao = {
+          id: generateId(),
+          devolvido: false,
+          ...designacao,
+          publisherId: currentUserId,
+        };
         await DesignacaoRepository.add(record);
         dispatch({ type: 'ADD_DESIGNACAO', payload: record });
         toast.success('Designação salva');
         return record;
       },
-      [dispatch, toast],
+      [currentUserId, dispatch, toast]
     ),
     /**
      * Updates an existing designation.
@@ -48,7 +54,7 @@ export const useDesignacoes = () => {
         toast.success('Designação atualizada');
         return record;
       },
-      [designacoes, dispatch, toast],
+      [designacoes, dispatch, toast]
     ),
     /**
      * Removes a designation.
@@ -60,7 +66,7 @@ export const useDesignacoes = () => {
         dispatch({ type: 'REMOVE_DESIGNACAO', payload: id });
         toast.success('Designação removida');
       },
-      [dispatch, toast],
+      [dispatch, toast]
     ),
   } as const;
 };

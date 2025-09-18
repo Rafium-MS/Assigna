@@ -6,12 +6,17 @@ import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
-const baseTerritorio: Territorio = { id: 'territorio-1', nome: 'Território 1' };
+const baseTerritorio: Territorio = {
+  id: 'territorio-1',
+  nome: 'Território 1',
+  publisherId: 'publisher-1',
+};
 const baseSaida: Saida = {
   id: 'saida-1',
   nome: 'Saída 1',
   diaDaSemana: 1,
   hora: '08:00',
+  publisherId: 'publisher-1',
 };
 const baseDesignacao: Designacao = {
   id: 'designacao-1',
@@ -19,16 +24,19 @@ const baseDesignacao: Designacao = {
   saidaId: 'saida-1',
   dataInicial: '2024-01-01',
   dataFinal: '2024-01-07',
+  publisherId: 'publisher-1',
 };
 const baseSugestao: Sugestao = {
   territorioId: 'territorio-1',
   saidaId: 'saida-1',
   dataInicial: '2024-02-01',
   dataFinal: '2024-02-07',
+  publisherId: 'publisher-1',
 };
 const baseNaoEmCasa: NaoEmCasaRegistro = {
   id: 'registro-1',
   territorioId: 'territorio-1',
+  publisherId: 'publisher-1',
   addressId: 1,
   recordedAt: '2024-03-01',
   followUpAt: '2024-07-01',
@@ -55,7 +63,7 @@ describe('appReducer', () => {
   it('adds a território without mutating existing state', () => {
     const state = createState();
     const originalTerritorios = state.territorios;
-    const newTerritorio: Territorio = { id: 'territorio-2', nome: 'Novo Território' };
+    const newTerritorio: Territorio = { id: 'territorio-2', nome: 'Novo Território', publisherId: 'publisher-2' };
 
     const nextState = appReducer(state, { type: 'ADD_TERRITORIO', payload: newTerritorio });
 
@@ -78,6 +86,7 @@ describe('appReducer', () => {
       nome: 'Nova Saída',
       diaDaSemana: 2,
       hora: '09:00',
+      publisherId: 'publisher-2',
     };
 
     const nextState = appReducer(state, { type: 'ADD_SAIDA', payload: newSaida });
@@ -102,6 +111,7 @@ describe('appReducer', () => {
       saidaId: 'saida-1',
       dataInicial: '2024-02-01',
       dataFinal: '2024-02-07',
+      publisherId: 'publisher-2',
     };
 
     const nextState = appReducer(state, { type: 'ADD_DESIGNACAO', payload: newDesignacao });
@@ -125,6 +135,7 @@ describe('appReducer', () => {
       saidaId: 'saida-1',
       dataInicial: '2024-03-01',
       dataFinal: '2024-03-07',
+      publisherId: 'publisher-2',
     };
 
     const nextState = appReducer(state, { type: 'ADD_SUGESTAO', payload: newSugestao });
@@ -143,8 +154,8 @@ describe('appReducer', () => {
   it('sets territorios with SET_TERRITORIOS', () => {
     const state = createState();
     const territorios: Territorio[] = [
-      { id: 'territorio-2', nome: 'Outro' },
-      { id: 'territorio-3', nome: 'Mais um' },
+      { id: 'territorio-2', nome: 'Outro', publisherId: 'publisher-2' },
+      { id: 'territorio-3', nome: 'Mais um', publisherId: 'publisher-3' },
     ];
 
     const nextState = appReducer(state, { type: 'SET_TERRITORIOS', payload: territorios });
@@ -174,6 +185,7 @@ describe('appReducer', () => {
     const newRecord: NaoEmCasaRegistro = {
       id: 'registro-2',
       territorioId: 'territorio-2',
+      publisherId: 'publisher-2',
       addressId: 5,
       recordedAt: '2024-04-01',
       followUpAt: '2024-08-01',

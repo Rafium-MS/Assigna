@@ -1,6 +1,7 @@
 export interface NaoEmCasaRegistro {
   id: string;
   territorioId: string;
+  publisherId: string;
   addressId?: number | null;
   streetId?: number | null;
   streetName?: string | null;

@@ -3,4 +3,5 @@ export interface Saida {
   nome: string;
   diaDaSemana: number;
   hora: string;
+  publisherId: string;
 }
