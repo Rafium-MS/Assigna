@@ -8,7 +8,8 @@ import {
   SaidaRepository,
   SugestaoRepository,
   TerritorioRepository,
-  NaoEmCasaRepository
+  NaoEmCasaRepository,
+  UserRepository
 } from '.';
 import type { BuildingVillage } from '../../types/building_village';
 import type { Designacao } from '../../types/designacao';
@@ -16,6 +17,7 @@ import type { Saida } from '../../types/saida';
 import type { Sugestao } from '../../types/sugestao';
 import type { Territorio } from '../../types/territorio';
 import type { NaoEmCasaRegistro } from '../../types/nao-em-casa';
+import type { User } from '../../types/user';
 
 beforeEach(async () => {
   await db.delete();
@@ -687,5 +689,71 @@ describe('BuildingVillageRepository', () => {
     await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
       buildingsVillages[1]
     ]);
+  });
+});
+
+describe('UserRepository', () => {
+  it('adds and retrieves all users', async () => {
+    const users: User[] = [
+      {
+        id: 'user-1',
+        name: 'Alice',
+        email: 'alice@example.com',
+        role: 'admin',
+        createdAt: '2024-01-01T00:00:00.000Z',
+        updatedAt: '2024-01-01T00:00:00.000Z'
+      },
+      {
+        id: 'user-2',
+        name: 'Bob',
+        email: 'bob@example.com',
+        role: 'publisher',
+        createdAt: '2024-01-02T00:00:00.000Z',
+        updatedAt: '2024-01-02T00:00:00.000Z'
+      }
+    ];
+
+    await UserRepository.bulkAdd(users);
+
+    await expect(UserRepository.all()).resolves.toEqual(users);
+  });
+
+  it('updates an existing user', async () => {
+    const user: User = {
+      id: 'user-3',
+      name: 'Carol',
+      email: 'carol@example.com',
+      role: 'viewer',
+      createdAt: '2024-03-01T00:00:00.000Z',
+      updatedAt: '2024-03-01T00:00:00.000Z'
+    };
+
+    await UserRepository.add(user);
+
+    const updated: User = {
+      ...user,
+      name: 'Caroline',
+      updatedAt: '2024-03-05T00:00:00.000Z'
+    };
+
+    await UserRepository.update(updated);
+
+    await expect(UserRepository.all()).resolves.toEqual([updated]);
+  });
+
+  it('removes a user by id', async () => {
+    const user: User = {
+      id: 'user-4',
+      name: 'Dave',
+      email: 'dave@example.com',
+      role: 'manager',
+      createdAt: '2024-04-01T00:00:00.000Z',
+      updatedAt: '2024-04-01T00:00:00.000Z'
+    };
+
+    await UserRepository.add(user);
+    await UserRepository.remove(user.id);
+
+    await expect(UserRepository.all()).resolves.toEqual([]);
   });
 });

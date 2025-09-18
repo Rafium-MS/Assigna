@@ -7,6 +7,7 @@ export interface RouteDefinition {
 }
 
 const managementRoles = [ADMIN_MASTER_ROLE, 'admin', 'manager'] as const;
+const adminMasterOnlyRoles = [ADMIN_MASTER_ROLE] as const;
 const publisherRoles = [...managementRoles, 'publisher'] as const;
 const readOnlyRoles = [...publisherRoles, 'viewer'] as const;
 
@@ -17,6 +18,7 @@ export const routes: Record<TabKey, RouteDefinition> = {
   letters: { path: '/letters', allowedRoles: publisherRoles },
   exits: { path: '/exits', allowedRoles: managementRoles },
   assignments: { path: '/assignments', allowedRoles: managementRoles },
+  users: { path: '/users', allowedRoles: adminMasterOnlyRoles },
   calendar: { path: '/calendar', allowedRoles: readOnlyRoles },
   suggestions: { path: '/suggestions', allowedRoles: managementRoles },
   notAtHome: { path: '/nao-em-casa', allowedRoles: publisherRoles }

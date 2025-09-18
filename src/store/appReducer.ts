@@ -3,6 +3,7 @@ import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
+import type { User } from '../types/user';
 
 export interface AuthUser {
   id: string;
@@ -22,6 +23,7 @@ export interface AppState {
   designacoes: Designacao[];
   sugestoes: Sugestao[];
   naoEmCasa: NaoEmCasaRegistro[];
+  users: User[];
 }
 
 export const initialState: AppState = {
@@ -33,6 +35,7 @@ export const initialState: AppState = {
   designacoes: [],
   sugestoes: [],
   naoEmCasa: [],
+  users: [],
 };
 
 export type Action =
@@ -58,6 +61,10 @@ export type Action =
   | { type: 'ADD_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
   | { type: 'UPDATE_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
   | { type: 'REMOVE_NAO_EM_CASA'; payload: string }
+  | { type: 'SET_USERS'; payload: User[] }
+  | { type: 'ADD_USER'; payload: User }
+  | { type: 'UPDATE_USER'; payload: User }
+  | { type: 'REMOVE_USER'; payload: string }
   | { type: 'RESET_STATE' };
 
 export function appReducer(state: AppState, action: Action): AppState {
@@ -138,6 +145,17 @@ export function appReducer(state: AppState, action: Action): AppState {
       };
     case 'REMOVE_NAO_EM_CASA':
       return { ...state, naoEmCasa: state.naoEmCasa.filter((registro) => registro.id !== action.payload) };
+    case 'SET_USERS':
+      return { ...state, users: [...action.payload] };
+    case 'ADD_USER':
+      return { ...state, users: [...state.users, action.payload] };
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        users: state.users.map((user) => (user.id === action.payload.id ? action.payload : user)),
+      };
+    case 'REMOVE_USER':
+      return { ...state, users: state.users.filter((user) => user.id !== action.payload) };
     case 'RESET_STATE':
       return initialState;
     default:

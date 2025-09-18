@@ -276,6 +276,41 @@
     "confirmDelete": "Excluir saída?",
     "delete": "Excluir"
   },
+  "users": {
+    "pageTitle": "Gerenciamento de usuários",
+    "form": {
+      "createTitle": "Novo usuário",
+      "editTitle": "Editar usuário",
+      "name": "Nome",
+      "email": "E-mail",
+      "role": "Papel",
+      "namePlaceholder": "Nome completo",
+      "emailPlaceholder": "nome@exemplo.com",
+      "save": "Salvar usuário",
+      "update": "Atualizar usuário",
+      "cancel": "Cancelar edição"
+    },
+    "listTitle": "Usuários cadastrados ({{count}})",
+    "empty": "Nenhum usuário cadastrado.",
+    "noEmail": "Nenhum e-mail informado",
+    "actions": {
+      "edit": "Editar",
+      "delete": "Excluir"
+    },
+    "confirmDelete": "Deseja realmente remover {{name}}?",
+    "toast": {
+      "createSuccess": "Usuário salvo",
+      "updateSuccess": "Usuário atualizado",
+      "deleteSuccess": "Usuário removido"
+    },
+    "roles": {
+      "admin_master": "Admin master",
+      "admin": "Administrador",
+      "manager": "Gerente",
+      "publisher": "Publicador",
+      "viewer": "Leitor"
+    }
+  },
   "territories": {
     "createTerritory": "Cadastrar Território",
     "editTerritory": "Editar Território",

@@ -47,6 +47,15 @@ const SuggestIcon = () => (
   </svg>
 );
 
+const UsersIcon = () => (
+  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 00-3-3.87" />
+    <path d="M16 3.13a4 4 0 010 7.75" />
+  </svg>
+);
+
 const BuildingIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 21h18" />
@@ -81,6 +90,7 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'letters', label: 'sidebar.letters', icon: <LetterIcon /> },
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
+  { id: 'users', label: 'sidebar.users', icon: <UsersIcon /> },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
   { id: 'notAtHome', label: 'sidebar.notAtHome', icon: <HomeOffIcon /> },
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },

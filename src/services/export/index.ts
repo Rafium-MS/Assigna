@@ -3,7 +3,8 @@ import {
   SaidaRepository,
   SugestaoRepository,
   TerritorioRepository,
-  NaoEmCasaRepository
+  NaoEmCasaRepository,
+  UserRepository
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
 import { db, SCHEMA_VERSION } from '../db';
@@ -22,14 +23,16 @@ const formatTimestamp = (date: Date): string => {
 };
 
 const buildExportPayload = async (publisherId: string): Promise<ExportedData> => {
-  const [territorios, saidas, designacoes, sugestoes, naoEmCasa, buildingsVillages] = await Promise.all([
-    TerritorioRepository.forPublisher(publisherId),
-    SaidaRepository.forPublisher(publisherId),
-    DesignacaoRepository.forPublisher(publisherId),
-    SugestaoRepository.forPublisher(publisherId),
-    NaoEmCasaRepository.forPublisher(publisherId),
-    BuildingVillageRepository.forPublisher(publisherId)
-  ]);
+  const [territorios, saidas, designacoes, sugestoes, naoEmCasa, buildingsVillages, users] =
+    await Promise.all([
+      TerritorioRepository.forPublisher(publisherId),
+      SaidaRepository.forPublisher(publisherId),
+      DesignacaoRepository.forPublisher(publisherId),
+      SugestaoRepository.forPublisher(publisherId),
+      NaoEmCasaRepository.forPublisher(publisherId),
+      BuildingVillageRepository.forPublisher(publisherId),
+      UserRepository.all()
+    ]);
 
   const [streets, propertyTypes, addresses, derivedTerritories, derivedTerritoryAddresses, metadata] =
     await Promise.all([
@@ -50,6 +53,7 @@ const buildExportPayload = async (publisherId: string): Promise<ExportedData> =>
     sugestoes,
     naoEmCasa,
     buildingsVillages,
+    users,
     streets,
     propertyTypes,
     addresses,
