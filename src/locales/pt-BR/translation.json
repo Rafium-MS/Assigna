@@ -43,6 +43,7 @@
     "territories": "Territórios",
     "streets": "Ruas",
     "buildingsVillages": "Prédios & Vilas",
+    "letters": "Cartas",
     "exits": "Saídas",
     "assignments": "Designações",
     "calendar": "Calendário",
@@ -115,6 +116,9 @@
       "reception": "Tipo de recepção",
       "residences": "Quantidade de residências",
       "responsible": "Responsável",
+      "contactMethod": "Método de contato",
+      "letterStatus": "Status da correspondência",
+      "letterHistory": "Histórico de correspondências",
       "assignedAt": "Designado em",
       "returnedAt": "Devolvido em",
       "block": "Bloco",
@@ -129,8 +133,25 @@
       "modality": "Condomínio, vila fechada...",
       "reception": "Portaria, interfone...",
       "responsible": "Nome do síndico, porteiro...",
+      "contactMethod": "Telefone, e-mail, portaria...",
       "block": "Identificação do bloco",
       "notes": "Detalhes relevantes, horários, instruções de acesso..."
+    },
+    "letterStatus": {
+      "notSent": "Nenhuma carta enviada",
+      "inProgress": "Correspondência em andamento",
+      "sent": "Carta enviada",
+      "responded": "Resposta recebida",
+      "unknown": "Status não informado"
+    },
+    "letterHistory": {
+      "add": "Adicionar registro",
+      "empty": "Nenhuma correspondência registrada.",
+      "sentAt": "Data de envio",
+      "status": "Status",
+      "remove": "Remover",
+      "notes": "Anotações",
+      "notesPlaceholder": "Resumo do conteúdo, resposta recebida..."
     },
     "modal": {
       "editTitle": "Editar registro",
@@ -152,6 +173,24 @@
       "saveError": "Não foi possível salvar o registro"
     },
     "confirmDelete": "Deseja realmente remover este registro?"
+  },
+
+  "letters": {
+    "title": "Correspondências",
+    "subtitle": "Acompanhe cartas enviadas e respostas por responsável.",
+    "summary": "Responsáveis acompanhados: {{responsibles}} • Cartas registradas: {{letters}}",
+    "loading": "Carregando correspondências...",
+    "empty": "Nenhuma correspondência registrada até o momento.",
+    "feedback": {
+      "loadError": "Não foi possível carregar as correspondências"
+    },
+    "groupSummary": "Cartas registradas: {{letters}} • Imóveis: {{buildings}}",
+    "contactMethods": "Métodos de contato: {{methods}}",
+    "contactMethod": "Contato preferencial",
+    "history": "Histórico",
+    "noHistory": "Nenhuma carta registrada para este imóvel.",
+    "unnamedBuilding": "Prédio/Vila sem nome",
+    "unknownTerritory": "Território não identificado"
   },
     
   "ruasNumeracoes": {

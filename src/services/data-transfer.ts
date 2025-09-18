@@ -3,7 +3,7 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
-import type { BuildingVillage } from '../types/building_village';
+import { LETTER_STATUS_VALUES, type BuildingVillage } from '../types/building_village';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
@@ -41,6 +41,15 @@ const sugestaoSchema = z.object({
   dataFinal: z.string()
 });
 
+const letterStatusSchema = z.enum(LETTER_STATUS_VALUES);
+
+const buildingVillageLetterHistorySchema = z.object({
+  id: z.string(),
+  status: letterStatusSchema,
+  sent_at: z.string().nullable().optional().default(null),
+  notes: z.string().nullable().optional().default(null)
+});
+
 const buildingVillageSchema = z.object({
   id: z.string(),
   territory_id: z.string(),
@@ -52,6 +61,12 @@ const buildingVillageSchema = z.object({
   modality: z.string().nullable(),
   reception_type: z.string().nullable(),
   responsible: z.string().nullable(),
+  contact_method: z.string().nullable().optional().default(null),
+  letter_status: letterStatusSchema.nullable().optional().default(null),
+  letter_history: z
+    .array(buildingVillageLetterHistorySchema)
+    .optional()
+    .default([]),
   assigned_at: z.string().nullable(),
   returned_at: z.string().nullable(),
   block: z.string().nullable(),

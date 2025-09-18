@@ -36,6 +36,16 @@ describe('IndexedDB persistence', () => {
         modality: 'vertical',
         reception_type: 'concierge',
         responsible: 'John Doe',
+        contact_method: 'Phone',
+        letter_status: 'sent',
+        letter_history: [
+          {
+            id: 'history-1',
+            status: 'sent',
+            sent_at: '2024-01-02T00:00:00.000Z',
+            notes: 'Initial letter sent'
+          }
+        ],
         assigned_at: '2024-01-01T00:00:00.000Z',
         returned_at: null,
         block: 'A',
@@ -53,6 +63,9 @@ describe('IndexedDB persistence', () => {
         modality: null,
         reception_type: null,
         responsible: null,
+        contact_method: null,
+        letter_status: null,
+        letter_history: [],
         assigned_at: null,
         returned_at: null,
         block: null,
@@ -115,7 +128,17 @@ describe('IndexedDB persistence', () => {
       returned_at: null,
       block: null,
       notes: 'Created during migration test',
-      created_at: '2024-01-02T00:00:00.000Z'
+      created_at: '2024-01-02T00:00:00.000Z',
+      contact_method: 'Email',
+      letter_status: 'in_progress',
+      letter_history: [
+        {
+          id: 'history-migrate-1',
+          status: 'in_progress',
+          sent_at: '2024-01-02T00:00:00.000Z',
+          notes: 'Awaiting confirmation'
+        }
+      ]
     };
 
     await BuildingVillageRepository.add(buildingVillage);

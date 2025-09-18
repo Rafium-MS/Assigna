@@ -43,6 +43,7 @@
     "territories": "Territorios",
     "streets": "Calles",
     "buildingsVillages": "Edificios y Villas",
+    "letters": "Correspondencia",
     "exits": "Salidas",
     "assignments": "Asignaciones",
     "calendar": "Calendario",
@@ -114,6 +115,9 @@
       "reception": "Tipo de recepción",
       "residences": "Cantidad de residencias",
       "responsible": "Responsable",
+      "contactMethod": "Método de contacto",
+      "letterStatus": "Estado de la correspondencia",
+      "letterHistory": "Historial de correspondencia",
       "assignedAt": "Asignado el",
       "returnedAt": "Devuelto el",
       "block": "Bloque",
@@ -128,8 +132,25 @@
       "modality": "Condominio, villa cerrada...",
       "reception": "Portería, intercomunicador...",
       "responsible": "Nombre del síndico, portero...",
+      "contactMethod": "Teléfono, correo, portería...",
       "block": "Identificación del bloque",
       "notes": "Detalles relevantes, horarios, instrucciones de acceso..."
+    },
+    "letterStatus": {
+      "notSent": "Ninguna carta enviada",
+      "inProgress": "Correspondencia en curso",
+      "sent": "Carta enviada",
+      "responded": "Respuesta recibida",
+      "unknown": "Estado desconocido"
+    },
+    "letterHistory": {
+      "add": "Agregar registro",
+      "empty": "No se ha registrado correspondencia.",
+      "sentAt": "Fecha de envío",
+      "status": "Estado",
+      "remove": "Eliminar",
+      "notes": "Notas",
+      "notesPlaceholder": "Resumen, respuesta, detalles de seguimiento..."
     },
     "modal": {
       "editTitle": "Editar registro",
@@ -151,6 +172,23 @@
       "saveError": "No se pudo guardar el registro"
     },
     "confirmDelete": "¿Desea realmente eliminar este registro?"
+  },
+  "letters": {
+    "title": "Correspondencia",
+    "subtitle": "Revisa cartas enviadas y respuestas agrupadas por responsable.",
+    "summary": "Responsables registrados: {{responsibles}} • Cartas registradas: {{letters}}",
+    "loading": "Cargando correspondencia...",
+    "empty": "Aún no se ha registrado correspondencia.",
+    "feedback": {
+      "loadError": "No se pudo cargar la correspondencia"
+    },
+    "groupSummary": "Cartas registradas: {{letters}} • Propiedades: {{buildings}}",
+    "contactMethods": "Métodos de contacto: {{methods}}",
+    "contactMethod": "Contacto preferido",
+    "history": "Historial",
+    "noHistory": "No hay cartas registradas para esta propiedad.",
+    "unnamedBuilding": "Edificio/Villa sin nombre",
+    "unknownTerritory": "Territorio desconocido"
   },
   "ruasNumeracoes": {
     "tabs": {
