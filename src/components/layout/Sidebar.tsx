@@ -2,7 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import type { TabKey } from '../../types/navigation';
-import { routePaths } from '../../routes';
+import { routePaths, routes } from '../../routes';
+import { useAuth } from '../../hooks/useAuth';
 
 const iconCls = 'w-5 h-5';
 
@@ -86,10 +87,18 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
 
 export const Sidebar: React.FC = () => {
   const { t } = useTranslation();
+  const { currentUser } = useAuth();
+  const normalizedRole = currentUser?.role?.toLowerCase() ?? null;
+
+  const visibleItems = normalizedRole
+    ? items.filter((it) =>
+        routes[it.id].allowedRoles.some((role) => role.toLowerCase() === normalizedRole),
+      )
+    : [];
 
   return (
     <nav className="bg-white dark:bg-neutral-900 border-r p-2 flex md:flex-col gap-2 md:w-48">
-      {items.map((it) => (
+      {visibleItems.map((it) => (
         <NavLink
           key={it.id}
           to={routePaths[it.id]}
