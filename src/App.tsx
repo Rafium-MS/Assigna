@@ -55,7 +55,7 @@ interface GuardedRouteProps {
   path: string;
 }
 
-const RouteGuard = ({ component: Component, allowedRoles, currentRole, path }: GuardedRouteProps): JSX.Element => {
+export const RouteGuard = ({ component: Component, allowedRoles, currentRole, path }: GuardedRouteProps): JSX.Element => {
   const normalizedRole = currentRole?.toLowerCase() ?? null;
   const canAccess =
     normalizedRole !== null &&
