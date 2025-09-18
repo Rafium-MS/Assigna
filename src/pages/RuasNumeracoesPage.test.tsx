@@ -5,6 +5,7 @@ import type { Address } from '../types/address';
 import type { AddressForm } from './RuasNumeracoesPage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 const {
   territoriesStore,
@@ -201,7 +202,15 @@ const basePropertyTypes: PropertyType[] = [
 ];
 
 const baseAddresses: Address[] = [
-  { id: 5, streetId: 1, numberStart: 1, numberEnd: 10, propertyTypeId: 10 },
+  {
+    id: 5,
+    streetId: 1,
+    numberStart: 1,
+    numberEnd: 10,
+    propertyTypeId: 10,
+    lastSuccessfulVisit: null,
+    nextVisitAllowed: null,
+  },
 ];
 
 beforeEach(() => {
@@ -377,6 +386,8 @@ describe('RuasNumeracoesPage', () => {
       propertyTypeId: 10,
       numberStart: 100,
       numberEnd: 200,
+      lastSuccessfulVisit: null,
+      nextVisitAllowed: null,
     });
   });
 
@@ -387,6 +398,8 @@ describe('RuasNumeracoesPage', () => {
       numberStart: 20,
       numberEnd: 30,
       propertyTypeId: 20,
+      lastSuccessfulVisit: null,
+      nextVisitAllowed: null,
     });
 
     const originalImplementation = dbMock.addresses.where.getMockImplementation();
@@ -435,6 +448,72 @@ describe('RuasNumeracoesPage', () => {
       } else {
         dbMock.addresses.where.mockImplementation(defaultAddressesWhere);
       }
+    }
+  });
+
+  it('marks a successful visit and enforces the cooldown state', async () => {
+    vi.useFakeTimers();
+    const now = new Date('2024-05-01T12:00:00.000Z');
+    vi.setSystemTime(now);
+
+    try {
+      render(<RuasNumeracoesPage />);
+
+      await waitFor(() => {
+        expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Rua Principal')).toBeTruthy();
+      });
+
+      const addressesTab = screen.getByRole('button', { name: 'ruasNumeracoes.tabs.addresses' });
+
+      await act(async () => {
+        addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      const markButton = screen.getByRole('button', {
+        name: 'ruasNumeracoes.addressesTable.markVisit',
+      }) as HTMLButtonElement;
+
+      expect(markButton.disabled).toBe(false);
+
+      await act(async () => {
+        markButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        await Promise.resolve();
+      });
+
+      const expectedLastVisit = now.toISOString();
+      const expectedNextVisit = new Date(now.getTime() + ADDRESS_VISIT_COOLDOWN_MS).toISOString();
+
+      await waitFor(() => {
+        expect(dbMock.addresses.put).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 5,
+            streetId: 1,
+            numberStart: 1,
+            numberEnd: 10,
+            propertyTypeId: 10,
+            lastSuccessfulVisit: expectedLastVisit,
+            nextVisitAllowed: expectedNextVisit,
+          }),
+        );
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('ruasNumeracoes.addressesTable.cooldownAlert (1)')).toBeTruthy();
+      });
+
+      const disabledButton = screen.getByRole('button', {
+        name: 'ruasNumeracoes.addressesTable.markVisit',
+      }) as HTMLButtonElement;
+
+      expect(disabledButton.disabled).toBe(true);
+      expect(disabledButton.title).toBe('ruasNumeracoes.addressesTable.cooldownTooltip');
+      expect(screen.getByText('ruasNumeracoes.addressesTable.cooldownActive')).toBeTruthy();
+    } finally {
+      vi.useRealTimers();
     }
   });
 });

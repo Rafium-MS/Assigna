@@ -3,6 +3,7 @@ import Dexie from 'dexie';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { db, migrate, getSchemaVersion, SCHEMA_VERSION } from './db';
 import { TerritorioRepository, BuildingVillageRepository } from './repositories';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 describe('IndexedDB persistence', () => {
   beforeEach(async () => {
@@ -271,5 +272,84 @@ describe('IndexedDB persistence', () => {
 
     const migrationMetadata = await db.metadata.get('derivedTerritoriesMigrated');
     expect(migrationMetadata?.value).toBe(1);
+  });
+
+  it('adds visit metadata to existing addresses when migrating to schema 4', async () => {
+    const legacyDb = new Dexie('assigna');
+    legacyDb.version(3).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd',
+      buildingsVillages: 'id, territory_id',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]'
+    });
+
+    await legacyDb.open();
+
+    await legacyDb.table('addresses').bulkPut([
+      {
+        id: 1,
+        streetId: 1,
+        numberStart: 10,
+        numberEnd: 20,
+        propertyTypeId: 100
+      },
+      {
+        id: 2,
+        streetId: 1,
+        numberStart: 30,
+        numberEnd: 40,
+        propertyTypeId: 100,
+        lastSuccessfulVisit: '2024-01-01T00:00:00.000Z'
+      },
+      {
+        id: 3,
+        streetId: 1,
+        numberStart: 50,
+        numberEnd: 60,
+        propertyTypeId: 100,
+        lastSuccessfulVisit: 'not-a-date',
+        nextVisitAllowed: '2024-07-01T00:00:00.000Z'
+      }
+    ]);
+    await legacyDb.table('metadata').put({ key: 'schemaVersion', value: 3 });
+    await legacyDb.close();
+
+    await migrate();
+
+    const addresses = await db.addresses.orderBy('id').toArray();
+    expect(addresses).toHaveLength(3);
+
+    const [first, second, third] = addresses;
+    expect(first).toMatchObject({
+      id: 1,
+      lastSuccessfulVisit: null,
+      nextVisitAllowed: null
+    });
+
+    const expectedSecondNext = new Date(
+      new Date('2024-01-01T00:00:00.000Z').getTime() + ADDRESS_VISIT_COOLDOWN_MS
+    ).toISOString();
+
+    expect(second).toMatchObject({
+      id: 2,
+      lastSuccessfulVisit: '2024-01-01T00:00:00.000Z',
+      nextVisitAllowed: expectedSecondNext
+    });
+
+    expect(third).toMatchObject({
+      id: 3,
+      lastSuccessfulVisit: null,
+      nextVisitAllowed: '2024-07-01T00:00:00.000Z'
+    });
+
+    const visitMetadata = await db.metadata.get('addressVisitsMigrated');
+    expect(visitMetadata?.value).toBe(3);
   });
 });

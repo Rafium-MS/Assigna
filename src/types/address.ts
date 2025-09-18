@@ -4,5 +4,7 @@ export interface Address {
   numberStart: number;
   numberEnd: number;
   propertyTypeId: number;
+  lastSuccessfulVisit?: string | null;
+  nextVisitAllowed?: string | null;
 }
 

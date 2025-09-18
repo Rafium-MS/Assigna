@@ -150,7 +150,17 @@
       "street": "Street",
       "start": "Start",
       "end": "End",
-      "type": "Type"
+      "type": "Type",
+      "lastVisit": "Last successful visit",
+      "nextVisit": "Next visit allowed",
+      "actions": "Actions",
+      "markVisit": "Mark successful visit",
+      "neverVisited": "Never visited",
+      "cooldownNotScheduled": "No cooldown scheduled",
+      "cooldownActive": "This address is locked until {{date}}.",
+      "cooldownTooltip": "Next visit allowed on {{date}}",
+      "cooldownAlert": "{{count}} address cannot be revisited until its cooldown expires.",
+      "cooldownAlert_plural": "{{count}} addresses cannot be revisited until their cooldowns expire."
     },
     "summary": {
       "totalStreets": "Total streets: {{count}}",

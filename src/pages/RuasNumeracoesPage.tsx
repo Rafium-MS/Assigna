@@ -7,6 +7,7 @@ import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import { db } from '../services/db';
 import ImageAnnotator from '../components/ImageAnnotator';
 
@@ -16,7 +17,9 @@ export const addressSchema = z.object({
   streetId: z.coerce.number(),
   numberStart: z.coerce.number(),
   numberEnd: z.coerce.number(),
-  propertyTypeId: z.coerce.number()
+  propertyTypeId: z.coerce.number(),
+  lastSuccessfulVisit: z.string().nullable().optional(),
+  nextVisitAllowed: z.string().nullable().optional()
 });
 
 export type AddressForm = z.infer<typeof addressSchema>;
@@ -63,6 +66,48 @@ export default function RuasNumeracoesPage(): JSX.Element {
     }
     return uniquePropertyTypes.size;
   }, [filteredAddresses]);
+
+  const isAddressOnCooldown = useCallback((address: Address): boolean => {
+    const nextVisit = address.nextVisitAllowed;
+    if (!nextVisit) {
+      return false;
+    }
+    const parsed = new Date(nextVisit);
+    return !Number.isNaN(parsed.getTime()) && parsed.getTime() > Date.now();
+  }, []);
+
+  const lockedAddresses = useMemo(
+    () => filteredAddresses.filter(isAddressOnCooldown),
+    [filteredAddresses, isAddressOnCooldown]
+  );
+
+  const formatLastVisit = useCallback(
+    (value: string | null | undefined): string => {
+      if (!value) {
+        return t('ruasNumeracoes.addressesTable.neverVisited');
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return t('ruasNumeracoes.addressesTable.neverVisited');
+      }
+      return date.toLocaleString();
+    },
+    [t]
+  );
+
+  const formatNextVisit = useCallback(
+    (value: string | null | undefined): string => {
+      if (!value) {
+        return t('ruasNumeracoes.addressesTable.cooldownNotScheduled');
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return t('ruasNumeracoes.addressesTable.cooldownNotScheduled');
+      }
+      return date.toLocaleString();
+    },
+    [t]
+  );
 
   const refreshTerritoryData = useCallback(
     async (id: string): Promise<void> => {
@@ -134,10 +179,35 @@ export default function RuasNumeracoesPage(): JSX.Element {
   });
 
   const saveAddress = async (data: AddressForm): Promise<void> => {
-    await db.addresses.put(data);
+    await db.addresses.put({
+      ...data,
+      lastSuccessfulVisit: data.lastSuccessfulVisit ?? null,
+      nextVisitAllowed: data.nextVisitAllowed ?? null
+    });
     await refreshTerritoryData(territoryId);
     reset();
   };
+
+  const handleMarkSuccessfulVisit = useCallback(
+    async (address: Address): Promise<void> => {
+      if (address.id === undefined) {
+        return;
+      }
+      const now = new Date();
+      const lastSuccessfulVisit = now.toISOString();
+      const nextVisitAllowed = new Date(now.getTime() + ADDRESS_VISIT_COOLDOWN_MS).toISOString();
+
+      await db.addresses.put({
+        ...address,
+        lastSuccessfulVisit,
+        nextVisitAllowed
+      });
+
+      const currentTerritoryId = territoryIdRef.current ?? '';
+      await refreshTerritoryData(currentTerritoryId);
+    },
+    [refreshTerritoryData]
+  );
 
   const saveStreet = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -289,6 +359,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 {t('common.save')}
               </button>
             </form>
+            {lockedAddresses.length > 0 && (
+              <div className="mb-2 rounded border border-yellow-400 bg-yellow-50 p-2 text-sm text-yellow-800">
+                {t('ruasNumeracoes.addressesTable.cooldownAlert', { count: lockedAddresses.length })}
+              </div>
+            )}
             <table className="w-full text-sm">
               <thead>
                 <tr>
@@ -304,17 +379,57 @@ export default function RuasNumeracoesPage(): JSX.Element {
                   <th className="text-left">
                     {t('ruasNumeracoes.addressesTable.type')}
                   </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.lastVisit')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.nextVisit')}
+                  </th>
+                  <th className="text-left">
+                    {t('ruasNumeracoes.addressesTable.actions')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {filteredAddresses.map(a => (
-                  <tr key={a.id}>
-                    <td>{territoryStreets.find(s => s.id === a.streetId)?.name}</td>
-                    <td>{a.numberStart}</td>
-                    <td>{a.numberEnd}</td>
-                    <td>{propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}</td>
-                  </tr>
-                ))}
+                {filteredAddresses.map(a => {
+                  const isCooldown = isAddressOnCooldown(a);
+                  const cooldownTooltip = isCooldown
+                    ? t('ruasNumeracoes.addressesTable.cooldownTooltip', {
+                        date: formatNextVisit(a.nextVisitAllowed ?? null)
+                      })
+                    : undefined;
+
+                  return (
+                    <tr key={a.id}>
+                      <td>{territoryStreets.find(s => s.id === a.streetId)?.name}</td>
+                      <td>{a.numberStart}</td>
+                      <td>{a.numberEnd}</td>
+                      <td>{propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}</td>
+                      <td>{formatLastVisit(a.lastSuccessfulVisit ?? null)}</td>
+                      <td>{formatNextVisit(a.nextVisitAllowed ?? null)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="border px-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          onClick={() => {
+                            void handleMarkSuccessfulVisit(a);
+                          }}
+                          disabled={isCooldown}
+                          title={cooldownTooltip}
+                        >
+                          {t('ruasNumeracoes.addressesTable.markVisit')}
+                        </button>
+                        {isCooldown && (
+                          <p className="mt-1 text-xs text-yellow-700">
+                            {t('ruasNumeracoes.addressesTable.cooldownActive', {
+                              date: formatNextVisit(a.nextVisitAllowed ?? null)
+                            })}
+                          </p>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
