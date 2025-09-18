@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980">
+
+<style>
+    .badge { font-family: Inter,Segoe UI,Arial; font-size: 12px; fill: #374151; }
+</style>
+<defs>
+  <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="#f9fafb"/>
+    <stop offset="100%" stop-color="#eef2ff"/>
+  </linearGradient>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#111827"/>
+  </marker>
+</defs>
+
+<text x="40" y="56" font-family="Inter,Segoe UI,Arial" font-size="32" font-weight="700" fill="#111827"><tspan x="40" dy="0">Territory Manager – Arquitetura</tspan></text>
+<text x="40" y="86" font-family="Inter,Segoe UI,Arial" font-size="18" font-weight="400" fill="#374151"><tspan x="40" dy="0">SPA + PWA • React + Vite + Tailwind • IndexedDB (Dexie) • i18next</tspan></text>
+<rect x="40" y="120" width="640" height="260" rx="14" ry="14" fill="url(#card)" stroke="#111827" stroke-width="2"/><text x="56" y="156" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">Camada de UI (React + Tailwind)</text><text x="56" y="184" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Componentes e Páginas</text>
+<rect x="60" y="170" width="290" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="76" y="206" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">components/</text><text x="76" y="234" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">UI, layout, forms, feedback</text>
+<text x="80" y="210" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="80" dy="0">- ui/: Button, Card, Input, Label</tspan><tspan x="80" dy="20">- layout/: NavBar, Sidebar, Modal, Shell</tspan><tspan x="80" dy="20">- feedback/: Toast, ConfirmDialog</tspan><tspan x="80" dy="20">- ImageAnnotator.tsx</tspan></text>
+<rect x="330" y="170" width="330" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="346" y="206" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">pages/</text><text x="346" y="234" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Rotas principais</text>
+<text x="350" y="210" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="350" dy="0">- TerritoriesPage, RuasNumeracoesPage</tspan><tspan x="350" dy="20">- ExitsPage, AssignmentsPage, SuggestionsPage</tspan><tspan x="350" dy="20">- CalendarPage, Relatorios, CartasPage,</tspan><tspan x="350" dy="20">  NaoEmCasaPage, PrediosVilas</tspan></text>
+<rect x="720" y="120" width="640" height="260" rx="14" ry="14" fill="url(#card)" stroke="#111827" stroke-width="2"/><text x="736" y="156" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">Estado & Lógica de Interface</text><text x="736" y="184" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">store/ + hooks/</text>
+<rect x="740" y="170" width="300" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="756" y="206" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">store/</text><text x="756" y="234" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Context + Reducer</text>
+<text x="760" y="210" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="760" dy="0">- AppProvider.tsx</tspan><tspan x="760" dy="20">- appReducer.ts</tspan><tspan x="760" dy="20">- selectors.ts</tspan><tspan x="760" dy="20">- localStore.tsx</tspan></text>
+<rect x="1020" y="170" width="320" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="1036" y="206" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">hooks/</text><text x="1036" y="234" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Acesso e regras</text>
+<text x="1040" y="210" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="1040" dy="0">- useTerritorios, useSaidas, useDesignacoes</tspan><tspan x="1040" dy="20">- useSugestoes, useSuggestionRules</tspan><tspan x="1040" dy="20">- useNaoEmCasa, useWarningDays</tspan><tspan x="1040" dy="20">- useMonthlyExportScheduler</tspan></text>
+<rect x="40" y="420" width="1320" height="460" rx="14" ry="14" fill="url(#card)" stroke="#111827" stroke-width="2"/><text x="56" y="456" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">Serviços, Dados e Integrações</text><text x="56" y="484" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">services/ + utils/ + types/ + i18n + PWA</text>
+<rect x="60" y="470" width="420" height="380" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="76" y="506" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">services/</text><text x="76" y="534" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">db, repositories, import/export, notifications</text>
+<text x="80" y="510" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="80" dy="0">- db.ts (Dexie + migrações de schema)</tspan><tspan x="80" dy="20">- repositories/: territorios, saidas, designacoes,</tspan><tspan x="80" dy="20">  sugestoes, nao-em-casa, buildings_villages</tspan><tspan x="80" dy="20">- import/ e export/ (JSON)</tspan><tspan x="80" dy="20">- notifications.ts (usa VITE_NOTIFICATIONS_API_URL – opcional)</tspan></text>
+<rect x="520" y="470" width="260" height="160" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="536" y="506" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">IndexedDB</text><text x="536" y="534" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Dexie.js</text>
+<text x="540" y="510" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="540" dy="0">Dados locais offline</tspan><tspan x="540" dy="20">Migrações automáticas</tspan><tspan x="540" dy="20">SCHEMA_VERSION = 6</tspan></text>
+<rect x="520" y="660" width="260" height="90" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="536" y="696" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">i18n</text><text x="536" y="724" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">i18next + react-i18next</text>
+<text x="540" y="700" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="540" dy="0">locales/: pt-BR, en-US, es-ES</tspan><tspan x="540" dy="20">Persistência de locale (localStorage)</tspan></text>
+<rect x="520" y="770" width="260" height="80" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="536" y="806" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">PWA</text><text x="536" y="834" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Manifest + Service Worker</text>
+<text x="540" y="808" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="540" dy="0">Instalável (desktop/mobile)</tspan><tspan x="540" dy="20">Funciona offline</tspan></text>
+<rect x="820" y="470" width="260" height="160" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="836" y="506" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">utils/</text><text x="836" y="534" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">datas, csv, report, guards, id</text>
+<rect x="820" y="660" width="260" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="836" y="696" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">types/</text><text x="836" y="724" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Tipagens TS</text>
+<text x="840" y="700" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="840" dy="0">address, street, territory</tspan><tspan x="840" dy="20">field-exit, assignment, sugestao,</tspan><tspan x="840" dy="20">nao-em-casa, building_village,</tspan><tspan x="840" dy="20">... e outros</tspan></text>
+<rect x="1110" y="470" width="250" height="160" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="1126" y="506" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">vendor/react-router-dom</text><text x="1126" y="534" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">Roteador customizado</text>
+<text x="1130" y="510" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="1130" dy="0">Versão local simplificada</tspan><tspan x="1130" dy="20">Integração direta com pages/</tspan></text>
+<rect x="1110" y="660" width="250" height="190" rx="14" ry="14" fill="#ffffff" stroke="#111827" stroke-width="2"/><text x="1126" y="696" font-family="Inter,Segoe UI,Arial" font-size="20" font-weight="700" fill="#111827">Relatórios & Calendário</text><text x="1126" y="724" font-family="Inter,Segoe UI,Arial" font-size="16" fill="#374151">pages/ + utils/ + hooks/</text>
+<text x="1130" y="700" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#111827"><tspan x="1130" dy="0">- CalendarPage.tsx</tspan><tspan x="1130" dy="20">- Relatorios.tsx</tspan><tspan x="1130" dy="20">- Geração de indicadores</tspan></text>
+<line x1="680" y1="250" x2="720" y2="250" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="360" y1="380" x2="360" y2="470" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="1040" y1="380" x2="1040" y2="470" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="480" y1="560" x2="520" y2="560" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="480" y1="705" x2="520" y2="705" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<line x1="480" y1="810" x2="520" y2="810" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1080" y="920" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#374151"><tspan x="1080" dy="0">Fluxo principal de dados</tspan></text>
+<line x1="1040" y1="915" x2="1070" y2="915" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="1230" y="920" font-family="Inter,Segoe UI,Arial" font-size="14" font-weight="400" fill="#374151"><tspan x="1230" dy="0">Ops. offline e persistência</tspan></text>
+<rect x="1200" y="903" width="18" height="12" fill="#ffffff" stroke="#111827" stroke-width="2"/>
+</svg>
