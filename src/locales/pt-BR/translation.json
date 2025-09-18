@@ -373,8 +373,8 @@
     "clearSuccess": "Dados limpos",
     "clearError": "Não foi possível limpar os dados",
     "theme": {
-      "light": "Tema claro",
-      "dark": "Tema escuro"
+      "light": "Claro",
+      "dark": "Escuro"
     }
   },
   "language": {

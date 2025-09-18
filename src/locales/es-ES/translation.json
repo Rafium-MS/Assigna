@@ -369,8 +369,8 @@
     "clearSuccess": "Datos borrados",
     "clearError": "No se pudieron borrar los datos",
     "theme": {
-      "light": "Tema claro",
-      "dark": "Tema oscuro"
+      "light": "Claro",
+      "dark": "Oscuro"
     }
   },
   "language": {
