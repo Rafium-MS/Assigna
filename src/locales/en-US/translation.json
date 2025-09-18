@@ -43,6 +43,7 @@
     "territories": "Territories",
     "streets": "Streets",
     "buildingsVillages": "Buildings & Villages",
+    "letters": "Letters",
     "exits": "Exits",
     "assignments": "Assignments",
     "calendar": "Calendar",
@@ -115,6 +116,9 @@
       "reception": "Reception type",
       "residences": "Number of residences",
       "responsible": "Responsible person",
+      "contactMethod": "Contact method",
+      "letterStatus": "Letter status",
+      "letterHistory": "Correspondence history",
       "assignedAt": "Assigned on",
       "returnedAt": "Returned on",
       "block": "Block",
@@ -129,8 +133,25 @@
       "modality": "Condominium, gated community...",
       "reception": "Reception desk, intercom...",
       "responsible": "Name of the superintendent, doorman...",
+      "contactMethod": "Phone, email, concierge...",
       "block": "Block identification",
       "notes": "Relevant details, schedules, access instructions..."
+    },
+    "letterStatus": {
+      "notSent": "No letter sent",
+      "inProgress": "Correspondence in progress",
+      "sent": "Letter sent",
+      "responded": "Response received",
+      "unknown": "Status unknown"
+    },
+    "letterHistory": {
+      "add": "Add entry",
+      "empty": "No correspondence recorded yet.",
+      "sentAt": "Sent on",
+      "status": "Status",
+      "remove": "Remove",
+      "notes": "Notes",
+      "notesPlaceholder": "Summary, follow-up, reply details..."
     },
     "modal": {
       "editTitle": "Edit record",
@@ -152,6 +173,24 @@
       "saveError": "Could not save the record"
     },
     "confirmDelete": "Do you really want to remove this record?"
+  },
+
+  "letters": {
+    "title": "Letters",
+    "subtitle": "Review correspondence sent and responses grouped by responsible person.",
+    "summary": "Responsibles tracked: {{responsibles}} • Letters recorded: {{letters}}",
+    "loading": "Loading correspondence...",
+    "empty": "No correspondence has been recorded yet.",
+    "feedback": {
+      "loadError": "Failed to load correspondence data"
+    },
+    "groupSummary": "Letters recorded: {{letters}} • Properties: {{buildings}}",
+    "contactMethods": "Contact methods: {{methods}}",
+    "contactMethod": "Preferred contact",
+    "history": "History",
+    "noHistory": "No letters recorded for this property.",
+    "unnamedBuilding": "Unnamed building/village",
+    "unknownTerritory": "Territory unknown"
   },
     "ruasNumeracoes": {
     "tabs": {

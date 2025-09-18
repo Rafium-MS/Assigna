@@ -56,6 +56,13 @@ const BuildingIcon = () => (
   </svg>
 );
 
+const LetterIcon = () => (
+  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="5" width="18" height="14" rx="2" />
+    <path d="M3 7l9 6 9-6" />
+  </svg>
+);
+
 const HomeOffIcon = () => (
   <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 9l9-6 9 6" />
@@ -69,6 +76,7 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
   { id: 'streets', label: 'sidebar.streets', icon: <MapIcon /> },
   { id: 'buildingsVillages', label: 'sidebar.buildingsVillages', icon: <BuildingIcon /> },
+  { id: 'letters', label: 'sidebar.letters', icon: <LetterIcon /> },
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },

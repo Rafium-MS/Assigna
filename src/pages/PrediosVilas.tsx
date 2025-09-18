@@ -1,10 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
-import type { BuildingVillage } from '../types/building_village';
+import {
+  LETTER_STATUS_VALUES,
+  type BuildingVillage,
+  type BuildingVillageLetterHistoryEntry,
+  type BuildingVillageLetterStatus
+} from '../types/building_village';
 import type { Territorio } from '../types/territorio';
 import { BuildingVillageRepository } from '../services/repositories/buildings_villages';
 import { TerritorioRepository } from '../services/repositories/territorios';
@@ -42,6 +47,18 @@ const createBuildingVillageSchema = (t: TFunction) =>
     modality: z.string().trim().optional(),
     reception_type: z.string().trim().optional(),
     responsible: z.string().trim().optional(),
+    contact_method: z.string().trim().optional(),
+    letter_status: z.enum(LETTER_STATUS_VALUES),
+    letter_history: z
+      .array(
+        z.object({
+          id: z.string(),
+          status: z.enum(LETTER_STATUS_VALUES),
+          sent_at: z.string().optional(),
+          notes: z.string().optional()
+        })
+      )
+      .optional(),
     assigned_at: z.string().optional(),
     returned_at: z.string().optional(),
     block: z.string().trim().optional(),
@@ -57,6 +74,9 @@ type Filters = {
   modality: string;
 };
 
+const defaultLetterStatus: BuildingVillageLetterStatus = 'not_sent';
+const defaultHistoryStatus: BuildingVillageLetterStatus = 'sent';
+
 const emptyFormValues: BuildingVillageFormValues = {
   territory_id: '',
   name: '',
@@ -67,10 +87,20 @@ const emptyFormValues: BuildingVillageFormValues = {
   modality: '',
   reception_type: '',
   responsible: '',
+  contact_method: '',
+  letter_status: defaultLetterStatus,
+  letter_history: [],
   assigned_at: '',
   returned_at: '',
   block: '',
   notes: ''
+};
+
+const letterStatusTranslationKeys: Record<BuildingVillageLetterStatus, string> = {
+  not_sent: 'buildingsVillages.letterStatus.notSent',
+  in_progress: 'buildingsVillages.letterStatus.inProgress',
+  sent: 'buildingsVillages.letterStatus.sent',
+  responded: 'buildingsVillages.letterStatus.responded'
 };
 
 const createId = () =>
@@ -98,6 +128,16 @@ const normalizeText = (value?: string | null) => {
   return trimmed.length === 0 ? null : trimmed;
 };
 
+const sortLetterHistory = (
+  history: BuildingVillageLetterHistoryEntry[]
+): BuildingVillageLetterHistoryEntry[] => {
+  return [...history].sort((a, b) => {
+    const aDate = a.sent_at ?? '';
+    const bDate = b.sent_at ?? '';
+    return bDate.localeCompare(aDate);
+  });
+};
+
 export default function PrediosVilas(): JSX.Element {
   const [villages, setVillages] = useState<BuildingVillage[]>([]);
   const [territories, setTerritories] = useState<Territorio[]>([]);
@@ -121,10 +161,21 @@ export default function PrediosVilas(): JSX.Element {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting }
   } = useForm<BuildingVillageFormValues>({
     resolver,
     defaultValues: emptyFormValues
+  });
+
+  const {
+    fields: letterHistoryFields,
+    append: appendLetterHistory,
+    remove: removeLetterHistory
+  } = useFieldArray({
+    control,
+    name: 'letter_history',
+    keyName: 'fieldId'
   });
 
   useEffect(() => {
@@ -171,6 +222,31 @@ export default function PrediosVilas(): JSX.Element {
     return Array.from(values).sort((a, b) => a.localeCompare(b));
   }, [villages]);
 
+  const letterStatusOptions = useMemo(
+    () =>
+      LETTER_STATUS_VALUES.map((value) => ({
+        value,
+        label: t(letterStatusTranslationKeys[value])
+      })),
+    [t]
+  );
+
+  const getLetterStatusLabel = (status: BuildingVillageLetterStatus | null | undefined) => {
+    if (!status) {
+      return t('buildingsVillages.letterStatus.unknown');
+    }
+    return t(letterStatusTranslationKeys[status]);
+  };
+
+  const handleAddLetterHistory = () => {
+    appendLetterHistory({
+      id: createId(),
+      status: defaultHistoryStatus,
+      sent_at: '',
+      notes: ''
+    });
+  };
+
   const filteredVillages = useMemo(() => {
     const term = filters.search.trim().toLowerCase();
     return villages
@@ -182,7 +258,15 @@ export default function PrediosVilas(): JSX.Element {
             item.address_line,
             item.responsible,
             item.block,
-            item.notes
+            item.notes,
+            item.contact_method,
+            item.letter_status ? getLetterStatusLabel(item.letter_status) : null,
+            ...(Array.isArray(item.letter_history)
+              ? item.letter_history.flatMap((entry) => [
+                  entry.notes,
+                  getLetterStatusLabel(entry.status)
+                ])
+              : [])
           ]
             .filter(Boolean)
             .some((value) => value!.toLowerCase().includes(term));
@@ -194,7 +278,7 @@ export default function PrediosVilas(): JSX.Element {
         return matchesSearch && matchesTerritory && matchesType && matchesModality;
       })
       .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
-  }, [filters, villages]);
+  }, [filters, villages, t]);
 
   const handleDelete = async (item: BuildingVillage) => {
     const confirmed = await confirm(t('buildingsVillages.confirmDelete'));
@@ -243,6 +327,16 @@ export default function PrediosVilas(): JSX.Element {
       modality: item.modality ?? '',
       reception_type: item.reception_type ?? '',
       responsible: item.responsible ?? '',
+      contact_method: item.contact_method ?? '',
+      letter_status: item.letter_status ?? defaultLetterStatus,
+      letter_history: Array.isArray(item.letter_history)
+        ? item.letter_history.map((entry) => ({
+            id: entry.id,
+            status: entry.status ?? defaultHistoryStatus,
+            sent_at: getDateInputValue(entry.sent_at),
+            notes: entry.notes ?? ''
+          }))
+        : [],
       assigned_at: getDateInputValue(item.assigned_at),
       returned_at: getDateInputValue(item.returned_at),
       block: item.block ?? '',
@@ -252,8 +346,28 @@ export default function PrediosVilas(): JSX.Element {
   };
 
   const onSubmit = handleSubmit(async (values) => {
+    const entityId = values.id ?? editing?.id ?? createId();
+    const normalizedHistory: BuildingVillageLetterHistoryEntry[] = Array.isArray(
+      values.letter_history
+    )
+      ? values.letter_history
+          .map((entry, index) => {
+            const rawId = typeof entry.id === 'string' ? entry.id.trim() : '';
+            const fallbackId = `${entityId}-letter-${index + 1}`;
+            const sentAt = typeof entry.sent_at === 'string' ? entry.sent_at.trim() : '';
+
+            return {
+              id: rawId.length > 0 ? rawId : fallbackId,
+              status: entry.status,
+              sent_at: sentAt.length > 0 ? sentAt : null,
+              notes: normalizeText(entry.notes)
+            };
+          })
+          .filter((entry) => entry.sent_at !== null || entry.notes !== null)
+      : [];
+
     const entity: BuildingVillage = {
-      id: values.id ?? editing?.id ?? createId(),
+      id: entityId,
       territory_id: values.territory_id,
       name: values.name.trim(),
       address_line: normalizeText(values.address_line),
@@ -266,6 +380,9 @@ export default function PrediosVilas(): JSX.Element {
       modality: normalizeText(values.modality),
       reception_type: normalizeText(values.reception_type),
       responsible: normalizeText(values.responsible),
+      contact_method: normalizeText(values.contact_method),
+      letter_status: values.letter_status ?? null,
+      letter_history: normalizedHistory,
       assigned_at: values.assigned_at ? values.assigned_at : null,
       returned_at: values.returned_at ? values.returned_at : null,
       block: normalizeText(values.block),
@@ -478,6 +595,53 @@ export default function PrediosVilas(): JSX.Element {
                       <dd>{item.responsible}</dd>
                     </div>
                   )}
+                  {item.contact_method && (
+                    <div>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">
+                        {t('buildingsVillages.fields.contactMethod')}
+                      </dt>
+                      <dd>{item.contact_method}</dd>
+                    </div>
+                  )}
+                  {item.letter_status && (
+                    <div>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">
+                        {t('buildingsVillages.fields.letterStatus')}
+                      </dt>
+                      <dd>{getLetterStatusLabel(item.letter_status)}</dd>
+                    </div>
+                  )}
+                  {item.letter_history.length > 0 && (
+                    <div>
+                      <dt className="font-medium text-neutral-500 dark:text-neutral-400">
+                        {t('buildingsVillages.fields.letterHistory')}
+                      </dt>
+                      <dd>
+                        <ul className="space-y-1">
+                          {sortLetterHistory(item.letter_history).map((entry) => {
+                            const info = [
+                              entry.sent_at ? formatDate(entry.sent_at) : null,
+                              getLetterStatusLabel(entry.status)
+                            ]
+                              .filter(Boolean)
+                              .join(' • ');
+                            return (
+                              <li key={entry.id} className="rounded-lg bg-neutral-50 px-2 py-1 dark:bg-neutral-800/60">
+                                <span className="block text-xs font-medium text-neutral-700 dark:text-neutral-200">
+                                  {info}
+                                </span>
+                                {entry.notes && (
+                                  <span className="block text-xs text-neutral-500 dark:text-neutral-400">
+                                    {entry.notes}
+                                  </span>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </dd>
+                    </div>
+                  )}
                   {item.assigned_at && (
                     <div>
                       <dt className="font-medium text-neutral-500 dark:text-neutral-400">{t('buildingsVillages.fields.assignedAt')}</dt>
@@ -645,6 +809,36 @@ export default function PrediosVilas(): JSX.Element {
               </label>
 
               <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                <span className="mb-1">{t('buildingsVillages.fields.contactMethod')}</span>
+                <input
+                  type="text"
+                  {...register('contact_method')}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
+                  placeholder={t('buildingsVillages.placeholders.contactMethod')}
+                />
+                {errors.contact_method && (
+                  <span className="mt-1 text-xs text-red-600">{errors.contact_method.message}</span>
+                )}
+              </label>
+
+              <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                <span className="mb-1">{t('buildingsVillages.fields.letterStatus')}</span>
+                <select
+                  {...register('letter_status')}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-950"
+                >
+                  {letterStatusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.letter_status && (
+                  <span className="mt-1 text-xs text-red-600">{errors.letter_status.message}</span>
+                )}
+              </label>
+
+              <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">
                 <span className="mb-1">{t('buildingsVillages.fields.residences')}</span>
                 <input
                   type="number"
@@ -692,6 +886,79 @@ export default function PrediosVilas(): JSX.Element {
                   <span className="mt-1 text-xs text-red-600">{errors.returned_at.message}</span>
                 )}
               </label>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <span className="text-sm font-medium text-neutral-600 dark:text-neutral-300">
+                  {t('buildingsVillages.fields.letterHistory')}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleAddLetterHistory}
+                  className="self-start rounded-lg border border-blue-500 px-3 py-1 text-xs font-medium text-blue-600 transition hover:bg-blue-50 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-500/20"
+                >
+                  {t('buildingsVillages.letterHistory.add')}
+                </button>
+              </div>
+
+              {letterHistoryFields.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-black/10 px-3 py-2 text-xs text-neutral-500 dark:border-white/10 dark:text-neutral-400">
+                  {t('buildingsVillages.letterHistory.empty')}
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {letterHistoryFields.map((field, index) => (
+                    <div
+                      key={field.fieldId}
+                      className="space-y-2 rounded-xl border border-black/10 p-3 shadow-sm dark:border-white/10 dark:bg-neutral-950/40"
+                    >
+                      <input type="hidden" {...register(`letter_history.${index}.id` as const)} />
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <label className="flex flex-col text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                          <span className="mb-1">{t('buildingsVillages.letterHistory.sentAt')}</span>
+                          <input
+                            type="date"
+                            {...register(`letter_history.${index}.sent_at` as const)}
+                            className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-900"
+                          />
+                        </label>
+                        <label className="flex flex-col text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                          <span className="mb-1">{t('buildingsVillages.letterHistory.status')}</span>
+                          <select
+                            {...register(`letter_history.${index}.status` as const)}
+                            className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-900"
+                          >
+                            {letterStatusOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                        <div className="flex items-end justify-end">
+                          <button
+                            type="button"
+                            onClick={() => removeLetterHistory(index)}
+                            className="rounded-lg border border-red-200 px-3 py-1 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/40"
+                          >
+                            {t('buildingsVillages.letterHistory.remove')}
+                          </button>
+                        </div>
+                      </div>
+                      <label className="flex flex-col text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                        <span className="mb-1">{t('buildingsVillages.letterHistory.notes')}</span>
+                        <textarea
+                          rows={2}
+                          {...register(`letter_history.${index}.notes` as const)}
+                          className="w-full rounded-lg border border-black/10 bg-white px-2 py-1.5 text-sm shadow-sm outline-none focus:ring-2 focus:ring-blue-500 dark:border-white/10 dark:bg-neutral-900"
+                          placeholder={t('buildingsVillages.letterHistory.notesPlaceholder')}
+                        />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <label className="flex flex-col text-sm font-medium text-neutral-600 dark:text-neutral-300">

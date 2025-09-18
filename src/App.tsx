@@ -9,6 +9,7 @@ import { Shell } from './components/layout/Shell';
 import TerritoriesPage from './pages/TerritoriesPage';
 import StreetsPage from './pages/RuasNumeracoesPage';
 import BuildingsVillagesPage from './pages/PrediosVilas';
+import CartasPage from './pages/CartasPage';
 import ExitsPage from './pages/ExitsPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import CalendarPage from './pages/CalendarPage';
@@ -35,6 +36,7 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   territories: TerritoriesPage,
   streets: StreetsPage,
   buildingsVillages: BuildingsVillagesPage,
+  letters: CartasPage,
   exits: ExitsPage,
   assignments: AssignmentsPage,
   calendar: CalendarPage,

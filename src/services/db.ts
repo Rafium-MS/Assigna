@@ -6,7 +6,12 @@ import type { Sugestao } from '../types/sugestao';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
-import type { BuildingVillage } from '../types/building_village';
+import {
+  LETTER_STATUS_VALUES,
+  type BuildingVillage,
+  type BuildingVillageLetterHistoryEntry,
+  type BuildingVillageLetterStatus
+} from '../types/building_village';
 import type { DerivedTerritory } from '../types/derived-territory';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
@@ -141,6 +146,20 @@ class AppDB extends Dexie {
       derived_territory_addresses: '[derivedTerritoryId+addressId]',
       nao_em_casa: 'id, territorioId, followUpAt, completedAt'
     });
+    this.version(6).stores({
+      territorios: 'id, nome',
+      saidas: 'id, nome, diaDaSemana',
+      designacoes: 'id, territorioId, saidaId',
+      sugestoes: '[territorioId+saidaId]',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+      buildingsVillages: 'id, territory_id',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]',
+      nao_em_casa: 'id, territorioId, followUpAt, completedAt'
+    });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
@@ -156,7 +175,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 5;
+export const SCHEMA_VERSION = 6;
 
 /**
  * Gets the current schema version from the database.
@@ -236,6 +255,9 @@ export async function migrate(): Promise<void> {
             modality: pickString(legacy.modality),
             reception_type: pickString(legacy.receptionType, legacy.reception_type),
             responsible: pickString(legacy.responsible),
+            contact_method: null,
+            letter_status: null,
+            letter_history: [],
             assigned_at: pickString(legacy.assignedAt, legacy.assigned_at),
             returned_at: pickString(legacy.returnedAt, legacy.returned_at),
             block: pickString(legacy.block),
@@ -385,6 +407,154 @@ export async function migrate(): Promise<void> {
         const existing = await db.metadata.get('addressVisitsMigrated');
         const total = (existing?.value ?? 0) + updatedCount;
         await db.metadata.put({ key: 'addressVisitsMigrated', value: total });
+      }
+    });
+  }
+  if (current < 5) {
+    // Schema version 5 introduces correspondence tracking fields for buildings/villages.
+    await db.transaction('rw', db.buildingsVillages, db.metadata, async () => {
+      const statusSet = new Set<BuildingVillageLetterStatus>(LETTER_STATUS_VALUES);
+      const sanitizeText = (value: unknown): string | null => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+        const trimmed = value.trim();
+        return trimmed.length > 0 ? trimmed : null;
+      };
+      const sanitizeDate = (value: unknown): string | null => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+        const trimmed = value.trim();
+        if (trimmed.length === 0) {
+          return null;
+        }
+        if (/^\d{4}-\d{2}-\d{2}/.test(trimmed) && trimmed.length > 10) {
+          return trimmed.slice(0, 10);
+        }
+        return trimmed;
+      };
+      const sanitizeHistoryEntry = (
+        buildingId: string,
+        entry: unknown,
+        index: number
+      ): BuildingVillageLetterHistoryEntry | null => {
+        if (typeof entry !== 'object' || entry === null) {
+          return null;
+        }
+        const candidate = entry as Record<string, unknown>;
+        const rawId = candidate.id;
+        const fallbackId = `${buildingId}-letter-${index + 1}`;
+        const id = typeof rawId === 'string' && rawId.trim().length > 0 ? rawId.trim() : fallbackId;
+
+        const rawStatus = candidate.status;
+        const status =
+          typeof rawStatus === 'string' && statusSet.has(rawStatus as BuildingVillageLetterStatus)
+            ? (rawStatus as BuildingVillageLetterStatus)
+            : 'sent';
+
+        const sent_at = sanitizeDate(
+          typeof candidate.sent_at === 'string'
+            ? candidate.sent_at
+            : typeof candidate.sentAt === 'string'
+            ? (candidate.sentAt as string)
+            : null
+        );
+
+        const notes = sanitizeText(
+          typeof candidate.notes === 'string'
+            ? candidate.notes
+            : typeof candidate.description === 'string'
+            ? (candidate.description as string)
+            : null
+        );
+
+        return { id, status, sent_at, notes };
+      };
+
+      const buildings = await db.buildingsVillages.toArray();
+      let updatedCount = 0;
+
+      for (const building of buildings) {
+        const update: Partial<BuildingVillage> = {};
+
+        const rawContact = (building as { contact_method?: unknown }).contact_method;
+        if (typeof rawContact === 'string') {
+          const trimmed = rawContact.trim();
+          if (trimmed.length === 0) {
+            update.contact_method = null;
+          } else if (trimmed !== rawContact) {
+            update.contact_method = trimmed;
+          }
+        } else if (rawContact === undefined) {
+          update.contact_method = null;
+        } else if (rawContact !== null) {
+          update.contact_method = null;
+        }
+
+        const rawStatus = (building as { letter_status?: unknown }).letter_status;
+        let normalizedStatus: BuildingVillageLetterStatus | null = null;
+        if (typeof rawStatus === 'string' && statusSet.has(rawStatus as BuildingVillageLetterStatus)) {
+          normalizedStatus = rawStatus as BuildingVillageLetterStatus;
+        }
+        if (rawStatus !== normalizedStatus) {
+          update.letter_status = normalizedStatus;
+        }
+
+        const historyRaw = (building as { letter_history?: unknown }).letter_history;
+        const normalizedHistory = Array.isArray(historyRaw)
+          ? historyRaw
+              .map((entry, index) => sanitizeHistoryEntry(building.id, entry, index))
+              .filter((entry): entry is BuildingVillageLetterHistoryEntry => entry !== null)
+          : [];
+
+        let historyChanged = true;
+        if (Array.isArray(historyRaw)) {
+          historyChanged =
+            historyRaw.length !== normalizedHistory.length ||
+            historyRaw.some((entry, index) => {
+              const normalizedEntry = normalizedHistory[index];
+              if (!normalizedEntry) {
+                return true;
+              }
+              const candidate = entry as Partial<BuildingVillageLetterHistoryEntry> & {
+                sentAt?: unknown;
+                description?: unknown;
+              };
+              const currentSentAt =
+                typeof candidate?.sent_at === 'string'
+                  ? candidate.sent_at
+                  : typeof candidate?.sentAt === 'string'
+                  ? (candidate.sentAt as string)
+                  : null;
+              const currentNotes =
+                typeof candidate?.notes === 'string'
+                  ? candidate.notes
+                  : typeof candidate?.description === 'string'
+                  ? (candidate.description as string)
+                  : null;
+              return (
+                candidate?.id !== normalizedEntry.id ||
+                candidate?.status !== normalizedEntry.status ||
+                currentSentAt !== normalizedEntry.sent_at ||
+                currentNotes !== normalizedEntry.notes
+              );
+            });
+        }
+        if (historyChanged) {
+          update.letter_history = normalizedHistory;
+        }
+
+        if (Object.keys(update).length > 0) {
+          await db.buildingsVillages.update(building.id, update);
+          updatedCount++;
+        }
+      }
+
+      if (updatedCount > 0) {
+        const existing = await db.metadata.get('buildingsVillagesLettersMigrated');
+        const total = (existing?.value ?? 0) + updatedCount;
+        await db.metadata.put({ key: 'buildingsVillagesLettersMigrated', value: total });
       }
     });
   }

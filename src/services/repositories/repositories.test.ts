@@ -312,6 +312,16 @@ describe('BuildingVillageRepository', () => {
       modality: 'vertical',
       reception_type: 'concierge',
       responsible: 'John Doe',
+      contact_method: 'Phone',
+      letter_status: 'sent',
+      letter_history: [
+        {
+          id: 'history-1',
+          status: 'sent',
+          sent_at: '2024-05-02T00:00:00.000Z',
+          notes: 'Initial contact'
+        }
+      ],
       assigned_at: '2024-05-01',
       returned_at: null,
       block: 'A',
@@ -338,6 +348,16 @@ describe('BuildingVillageRepository', () => {
         modality: 'vertical',
         reception_type: 'concierge',
         responsible: 'John Doe',
+        contact_method: 'Phone',
+        letter_status: 'sent',
+        letter_history: [
+          {
+            id: 'history-1',
+            status: 'sent',
+            sent_at: '2024-05-02T00:00:00.000Z',
+            notes: 'Initial contact'
+          }
+        ],
         assigned_at: '2024-05-01',
         returned_at: null,
         block: 'A',
@@ -355,6 +375,9 @@ describe('BuildingVillageRepository', () => {
         modality: null,
         reception_type: null,
         responsible: null,
+        contact_method: null,
+        letter_status: null,
+        letter_history: [],
         assigned_at: null,
         returned_at: null,
         block: null,
@@ -383,6 +406,16 @@ describe('BuildingVillageRepository', () => {
         modality: 'vertical',
         reception_type: 'concierge',
         responsible: 'John Doe',
+        contact_method: 'Phone',
+        letter_status: 'sent',
+        letter_history: [
+          {
+            id: 'history-1',
+            status: 'sent',
+            sent_at: '2024-05-02T00:00:00.000Z',
+            notes: 'Initial contact'
+          }
+        ],
         assigned_at: '2024-05-01',
         returned_at: null,
         block: 'A',
@@ -400,6 +433,9 @@ describe('BuildingVillageRepository', () => {
         modality: null,
         reception_type: null,
         responsible: null,
+        contact_method: null,
+        letter_status: null,
+        letter_history: [],
         assigned_at: null,
         returned_at: null,
         block: null,

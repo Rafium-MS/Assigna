@@ -4,6 +4,7 @@ export const routePaths: Record<TabKey, string> = {
   territories: '/',
   streets: '/streets',
   buildingsVillages: '/buildings-villages',
+  letters: '/letters',
   exits: '/exits',
   assignments: '/assignments',
   calendar: '/calendar',
