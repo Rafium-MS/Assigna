@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { appReducer, initialState, type AppState } from './appReducer';
+import { appReducer, initialState, type AppState, type AuthUser } from './appReducer';
 import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
@@ -35,7 +35,15 @@ const baseNaoEmCasa: NaoEmCasaRegistro = {
   completedAt: null,
 };
 
+const baseUser: AuthUser = {
+  id: 'user-1',
+  role: 'admin',
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+};
+
 const createState = (): AppState => ({
+  auth: { currentUser: null },
   territorios: [{ ...baseTerritorio }],
   saidas: [{ ...baseSaida }],
   designacoes: [{ ...baseDesignacao }],
@@ -184,6 +192,25 @@ describe('appReducer', () => {
     const nextState = appReducer(state, { type: 'REMOVE_SAIDA', payload: 'saida-1' });
 
     expect(nextState.saidas).toHaveLength(0);
+  });
+
+  it('updates the auth slice when signing in', () => {
+    const nextState = appReducer(initialState, { type: 'SIGN_IN', payload: baseUser });
+
+    expect(nextState.auth.currentUser).toEqual(baseUser);
+    expect(initialState.auth.currentUser).toBeNull();
+  });
+
+  it('resets the entire state when signing out', () => {
+    const signedState: AppState = {
+      ...createState(),
+      auth: { currentUser: baseUser },
+    };
+
+    const nextState = appReducer(signedState, { type: 'SIGN_OUT' });
+
+    expect(nextState).toEqual(initialState);
+    expect(signedState.auth.currentUser).toBe(baseUser);
   });
 
   it('resets state with RESET_STATE', () => {

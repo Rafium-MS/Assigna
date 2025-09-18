@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { LanguageSelector } from '../forms/LanguageSelector';
+import { AuthControls } from '../auth/AuthControls';
 
 interface ShellProps {
   children: React.ReactNode;
@@ -27,9 +28,10 @@ export const Shell: React.FC<ShellProps> = ({ children }) => {
       <Sidebar />
       <div className="flex-1">
         <header className="sticky top-0 z-10 backdrop-blur bg-white/60 dark:bg-neutral-950/50 border-b">
-          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
             <h1 className="font-bold tracking-tight">Territory Manager</h1>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <AuthControls className="flex-shrink-0" />
               <LanguageSelector />
               <button onClick={() => setDark((value) => !value)} className="rounded-xl px-3 py-2 border">
                 {dark ? `☀️ ${t('app.theme.light')}` : `🌙 ${t('app.theme.dark')}`}

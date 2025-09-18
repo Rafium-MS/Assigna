@@ -4,7 +4,19 @@ import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
+export interface AuthUser {
+  id: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthState {
+  currentUser: AuthUser | null;
+}
+
 export interface AppState {
+  auth: AuthState;
   territorios: Territorio[];
   saidas: Saida[];
   designacoes: Designacao[];
@@ -13,6 +25,9 @@ export interface AppState {
 }
 
 export const initialState: AppState = {
+  auth: {
+    currentUser: null,
+  },
   territorios: [],
   saidas: [],
   designacoes: [],
@@ -21,6 +36,8 @@ export const initialState: AppState = {
 };
 
 export type Action =
+  | { type: 'SIGN_IN'; payload: AuthUser }
+  | { type: 'SIGN_OUT' }
   | { type: 'SET_TERRITORIOS'; payload: Territorio[] }
   | { type: 'ADD_TERRITORIO'; payload: Territorio }
   | { type: 'UPDATE_TERRITORIO'; payload: Territorio }
@@ -45,6 +62,13 @@ export type Action =
 
 export function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'SIGN_IN':
+      return {
+        ...state,
+        auth: { currentUser: action.payload },
+      };
+    case 'SIGN_OUT':
+      return initialState;
     case 'SET_TERRITORIOS':
       return { ...state, territorios: [...action.payload] };
     case 'ADD_TERRITORIO':
