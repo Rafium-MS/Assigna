@@ -118,6 +118,39 @@ export function Route() {
   return null;
 }
 
+function useHref(to) {
+  return typeof to === 'string' ? to : to?.pathname ?? '/';
+}
+
+function isModifiedEvent(event) {
+  return event.metaKey || event.altKey || event.ctrlKey || event.shiftKey;
+}
+
+export function Link({ to, onClick, replace = false, ...rest }) {
+  const { navigate } = React.useContext(RouterContext);
+  const href = useHref(to);
+
+  const handleClick = event => {
+    if (onClick) {
+      onClick(event);
+    }
+
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      (rest.target && rest.target !== '_self') ||
+      isModifiedEvent(event)
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    navigate(href, { replace });
+  };
+
+  return React.createElement('a', { ...rest, href, onClick: handleClick });
+}
+
 export function NavLink({
   to,
   className,
@@ -127,7 +160,7 @@ export function NavLink({
   ...rest
 }) {
   const { location, navigate } = React.useContext(RouterContext);
-  const href = typeof to === 'string' ? to : to?.pathname ?? '/';
+  const href = useHref(to);
   const isActive = end ? matchExact(href, location.pathname) : matchLoose(href, location.pathname);
 
   const classValue =
@@ -148,10 +181,7 @@ export function NavLink({
       event.defaultPrevented ||
       event.button !== 0 ||
       (rest.target && rest.target !== '_self') ||
-      event.metaKey ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.shiftKey
+      isModifiedEvent(event)
     ) {
       return;
     }
