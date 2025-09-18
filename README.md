@@ -53,6 +53,38 @@ VITE_NOTIFICATIONS_API_URL="https://sua-api.com"
 
 Quando essa variável não estiver definida, as notificações de devolução permanecerão apenas no modo offline.
 
+## Internacionalização (i18n)
+- Idiomas suportados: `en-US`, `pt-BR` e `es-ES`.
+- O idioma selecionado persiste em `localStorage` sob a chave `locale`.
+- Seletor de idioma disponível na interface.
+- Para adicionar um novo idioma:
+  - Crie `src/locales/<codigo>/translation.json` (ex.: `fr-FR`).
+  - Registre-o em `src/i18n.ts`.
+
+## Ruas & Numerações
+- Gerencie ruas, faixas de numerações e tipos de propriedade por território.
+- Registre a **�sltima visita bem-sucedida** e controle o **próximo retorno** automático.
+- Bloqueio (cooldown) de visitas ap��s sucesso: padrão de 120 dias (ajuste em `src/constants/addresses.ts`).
+- Tabelas mostram estado de bloqueio, prazos e a��es de marca��ǜo de visita.
+- Anota��ǜo de imagem do territ��rio (componente `src/components/ImageAnnotator.tsx`) para apoiar o mapeamento visual.
+
+## Scripts
+- `npm run dev` inicia o ambiente de desenvolvimento.
+- `npm run build` gera o build de produ��ǜo.
+- `npm run preview` faz o preview do build.
+- `npm run lint` roda ESLint.
+- `npm run format` aplica Prettier.
+- `npm test` executa a suíte de testes (Vitest).
+
+## Testes
+- Testes unitários com **Vitest** e ambiente **jsdom**.
+- Mocks de IndexedDB com **fake-indexeddb**.
+
+## Banco de Dados (Offline)
+- Todos os dados são armazenados no **IndexedDB** via **Dexie.js** (`src/services/db.ts`).
+- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação (versão atual: `SCHEMA_VERSION = 6`).
+- Campos de visitas em endereços: `lastSuccessfulVisit` e `nextVisitAllowed`.
+
 ## Screenshots
 
 Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminhos conforme preferir):
