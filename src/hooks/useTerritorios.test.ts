@@ -54,6 +54,9 @@ let dispatchSpy: Dispatch;
 
 beforeEach(() => {
   state = {
+    auth: {
+      currentUser: null,
+    },
     territorios: [
       {
         id: 'territorio-inicial',
@@ -63,6 +66,7 @@ beforeEach(() => {
     saidas: [],
     designacoes: [],
     sugestoes: [],
+    naoEmCasa: [],
   };
   dispatchSpy = vi.fn();
 

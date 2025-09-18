@@ -7,6 +7,7 @@ import type { Territory } from '../types/territory';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { generateId } from '../utils/id';
 import { notifyTerritoryReturn } from '../services/notifications';
+import type { AuthState } from './appReducer';
 
 export interface StoreContextValue {
   territories: Territory[];
@@ -149,4 +150,58 @@ export const useStoreContext = (): StoreContextValue => {
     throw new Error('StoreContext is missing');
   }
   return context;
+};
+
+const AUTH_STORAGE_KEY = 'tm.auth';
+
+export const loadPersistedAuthState = (): AuthState => {
+  try {
+    const raw = localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) {
+      return { currentUser: null };
+    }
+
+    const parsed = JSON.parse(raw) as Partial<AuthState>;
+    if (parsed && typeof parsed === 'object' && 'currentUser' in parsed) {
+      const { currentUser } = parsed;
+      if (!currentUser || typeof currentUser !== 'object') {
+        return { currentUser: null };
+      }
+      if (typeof currentUser.id === 'string' && typeof currentUser.role === 'string') {
+        const fallbackTimestamp = new Date().toISOString();
+        return {
+          currentUser: {
+            ...currentUser,
+            createdAt: typeof currentUser.createdAt === 'string' ? currentUser.createdAt : fallbackTimestamp,
+            updatedAt: typeof currentUser.updatedAt === 'string' ? currentUser.updatedAt : fallbackTimestamp,
+          },
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load auth state from storage', error);
+  }
+
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to remove invalid auth state', error);
+  }
+  return { currentUser: null };
+};
+
+export const persistAuthState = (auth: AuthState) => {
+  try {
+    localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(auth));
+  } catch (error) {
+    console.error('Failed to persist auth state', error);
+  }
+};
+
+export const clearPersistedAuthState = () => {
+  try {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch (error) {
+    console.error('Failed to clear auth state from storage', error);
+  }
 };

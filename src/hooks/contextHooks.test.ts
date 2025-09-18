@@ -52,6 +52,9 @@ import { useNaoEmCasa } from './useNaoEmCasa';
 const mockedUseContext = useContext as unknown as ReturnType<typeof vi.fn>;
 
 const createAppState = (): AppState => ({
+  auth: {
+    currentUser: null,
+  },
   territorios: [
     {
       id: 'territorio-1',
