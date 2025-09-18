@@ -16,6 +16,8 @@ const {
   defaultAddressesWhere,
   dbMock,
   toastMock,
+  useAuthMock,
+  territorioRepositoryMock,
 } = vi.hoisted(() => {
   const territoriesStore: Territorio[] = [];
   const streetsStore: Street[] = [];
@@ -54,6 +56,15 @@ const {
   });
 
   const toastMock = { success: vi.fn(), error: vi.fn() };
+
+  const useAuthMock = vi.fn();
+  const territorioRepositoryMock = {
+    forPublisher: vi.fn(async (publisherId: string) =>
+      territoriesStore
+        .filter((territory) => territory.publisherId === publisherId)
+        .map((territory) => ({ ...territory }))
+    ),
+  };
 
   const dbMock = {
     territorios: {
@@ -120,11 +131,21 @@ const {
     defaultAddressesWhere,
     dbMock,
     toastMock,
+    useAuthMock,
+    territorioRepositoryMock,
   };
 });
 
 vi.mock('../services/db', () => ({
   db: dbMock,
+}));
+
+vi.mock('../hooks/useAuth', () => ({
+  useAuth: () => useAuthMock(),
+}));
+
+vi.mock('../services/repositories/territorios', () => ({
+  TerritorioRepository: territorioRepositoryMock,
 }));
 
 vi.mock('../components/feedback/Toast', () => ({
@@ -227,8 +248,8 @@ vi.mock('react-i18next', () => ({
 import RuasNumeracoesPage from './RuasNumeracoesPage';
 
 const baseTerritories: Territorio[] = [
-  { id: 'territorio-1', nome: 'Território 1', imageUrl: 'image-1.png' },
-  { id: 'territorio-2', nome: 'Território 2', imageUrl: 'image-2.png' },
+  { id: 'territorio-1', nome: 'Território 1', imageUrl: 'image-1.png', publisherId: 'publisher-1' },
+  { id: 'territorio-2', nome: 'Território 2', imageUrl: 'image-2.png', publisherId: 'publisher-1' },
 ];
 
 const baseStreets: Street[] = [
@@ -254,6 +275,19 @@ const baseAddresses: Address[] = [
 ];
 
 beforeEach(() => {
+  useAuthMock.mockReset();
+  useAuthMock.mockReturnValue({
+    currentUser: {
+      id: 'publisher-1',
+      role: 'admin',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-01T00:00:00.000Z',
+    },
+    isAuthenticated: true,
+    signIn: vi.fn(),
+    signOut: vi.fn(),
+  });
+
   territoriesStore.splice(0, territoriesStore.length, ...baseTerritories.map((territory) => ({ ...territory })));
   streetsStore.splice(0, streetsStore.length, ...baseStreets.map((street) => ({ ...street })));
   propertyTypesStore.splice(
@@ -274,6 +308,8 @@ beforeEach(() => {
   dbMock.addresses.where.mockClear();
   dbMock.addresses.put.mockClear();
 
+  territorioRepositoryMock.forPublisher.mockClear();
+
   toastMock.success.mockClear();
   toastMock.error.mockClear();
 
@@ -290,7 +326,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     await waitFor(() => {
@@ -306,7 +342,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     await waitFor(() => {
@@ -339,7 +375,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     const propertyTypesTab = screen.getByRole('button', {
@@ -380,7 +416,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     const propertyTypesTab = screen.getByRole('button', {
@@ -441,7 +477,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     const propertyTypesTab = screen.getByRole('button', {
@@ -486,7 +522,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     const propertyTypesTab = screen.getByRole('button', {
@@ -583,7 +619,7 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(dbMock.territorios.toArray).toHaveBeenCalled();
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
     });
 
     await waitFor(() => {
@@ -709,7 +745,7 @@ describe('RuasNumeracoesPage', () => {
       render(<RuasNumeracoesPage />);
 
       await waitFor(() => {
-        expect(dbMock.territorios.toArray).toHaveBeenCalled();
+        expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
       });
 
       await waitFor(() => {
@@ -752,7 +788,7 @@ describe('RuasNumeracoesPage', () => {
       render(<RuasNumeracoesPage />);
 
       await waitFor(() => {
-        expect(dbMock.territorios.toArray).toHaveBeenCalled();
+        expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
       });
 
       await waitFor(() => {

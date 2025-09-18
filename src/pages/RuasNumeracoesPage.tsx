@@ -9,7 +9,9 @@ import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import { db } from '../services/db';
+import { TerritorioRepository } from '../services/repositories/territorios';
 import { useToast } from '../components/feedback/Toast';
+import { useAuth } from '../hooks/useAuth';
 import ImageAnnotator from '../components/ImageAnnotator';
 
 // schema and form types
@@ -28,6 +30,7 @@ export type AddressForm = z.infer<typeof addressSchema>;
 export default function RuasNumeracoesPage(): JSX.Element {
   const { t } = useTranslation();
   const toast = useToast();
+  const { currentUser } = useAuth();
   const [territories, setTerritories] = useState<Territorio[]>([]);
   const [streets, setStreets] = useState<Street[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
@@ -37,6 +40,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
   const [editingPropertyTypeName, setEditingPropertyTypeName] = useState<string>('');
   const [territoryId, setTerritoryId] = useState<string>('');
   const territoryIdRef = useRef<string>(territoryId);
+  const publisherId = currentUser?.id ?? null;
 
   const territory = useMemo(
     () => territories.find(t => t.id === territoryId),
@@ -119,8 +123,15 @@ export default function RuasNumeracoesPage(): JSX.Element {
   }, []);
 
   const refreshTerritoryData = useCallback(
-    async (id: string): Promise<void> => {
-      if (!id) {
+    async (id: string, publisher: string | null): Promise<void> => {
+      if (!id || !publisher) {
+        setStreets([]);
+        setAddresses([]);
+        return;
+      }
+
+      const matchingTerritory = territories.find(territoryItem => territoryItem.id === id);
+      if (!matchingTerritory || matchingTerritory.publisherId !== publisher) {
         setStreets([]);
         setAddresses([]);
         return;
@@ -152,39 +163,79 @@ export default function RuasNumeracoesPage(): JSX.Element {
       }
       setAddresses(territoryAddresses);
     },
-    []
+    [territories]
   );
 
   useEffect(() => {
+    let active = true;
+
     const load = async (): Promise<void> => {
       try {
+        if (!publisherId) {
+          if (!active) {
+            return;
+          }
+          setTerritories([]);
+          setPropertyTypes([]);
+          setStreets([]);
+          setAddresses([]);
+          setTerritoryId('');
+          return;
+        }
+
         const [territoriesData, propertyTypesData] = await Promise.all([
-          db.territorios.toArray(),
+          TerritorioRepository.forPublisher(publisherId),
           db.propertyTypes.toArray()
         ]);
+
+        if (!active) {
+          return;
+        }
+
         setTerritories(territoriesData);
         setPropertyTypes(propertyTypesData);
         setTerritoryId(currentId => {
-          if (currentId && territoriesData.some(territoryData => territoryData.id === currentId)) {
+          if (
+            currentId &&
+            territoriesData.some(
+              territoryData =>
+                territoryData.id === currentId && territoryData.publisherId === publisherId
+            )
+          ) {
             return currentId;
           }
           return territoriesData[0]?.id ?? '';
         });
+
+        if (territoriesData.length === 0) {
+          setStreets([]);
+          setAddresses([]);
+        }
       } catch (error) {
         console.error(error);
+        if (!active) {
+          return;
+        }
         setTerritories([]);
         setPropertyTypes([]);
+        setStreets([]);
+        setAddresses([]);
         setTerritoryId('');
         toast.error(t('ruasNumeracoes.feedback.loadError'));
       }
     };
+
     void load();
-  }, [t, toast]);
+
+    return () => {
+      active = false;
+    };
+  }, [publisherId, t, toast]);
 
   useEffect(() => {
     territoryIdRef.current = territoryId;
-    void refreshTerritoryData(territoryId);
-  }, [territoryId, refreshTerritoryData]);
+    void refreshTerritoryData(territoryId, publisherId);
+  }, [territoryId, refreshTerritoryData, publisherId]);
 
   // address form
   const {
@@ -196,12 +247,17 @@ export default function RuasNumeracoesPage(): JSX.Element {
   });
 
   const saveAddress = async (data: AddressForm): Promise<void> => {
+    const currentPublisherId = publisherId;
+    if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+      return;
+    }
+
     await db.addresses.put({
       ...data,
       lastSuccessfulVisit: data.lastSuccessfulVisit ?? null,
       nextVisitAllowed: data.nextVisitAllowed ?? null
     });
-    await refreshTerritoryData(territoryId);
+    await refreshTerritoryData(territoryId, currentPublisherId);
     reset();
   };
 
@@ -210,6 +266,18 @@ export default function RuasNumeracoesPage(): JSX.Element {
       if (address.id === undefined) {
         return;
       }
+
+      const currentPublisherId = publisherId;
+      const currentTerritoryId = territoryIdRef.current ?? '';
+      if (!currentPublisherId) {
+        return;
+      }
+
+      const matchingTerritory = territories.find(item => item.id === currentTerritoryId);
+      if (!matchingTerritory || matchingTerritory.publisherId !== currentPublisherId) {
+        return;
+      }
+
       const now = new Date();
       const lastSuccessfulVisit = now.toISOString();
       const nextVisitAllowed = new Date(now.getTime() + ADDRESS_VISIT_COOLDOWN_MS).toISOString();
@@ -220,10 +288,9 @@ export default function RuasNumeracoesPage(): JSX.Element {
         nextVisitAllowed
       });
 
-      const currentTerritoryId = territoryIdRef.current ?? '';
-      await refreshTerritoryData(currentTerritoryId);
+      await refreshTerritoryData(currentTerritoryId, currentPublisherId);
     },
-    [refreshTerritoryData]
+    [publisherId, refreshTerritoryData, territories]
   );
 
   const saveStreet = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
@@ -232,8 +299,12 @@ export default function RuasNumeracoesPage(): JSX.Element {
     const formData = new FormData(form);
     const name = String(formData.get('name'));
     if (!territoryId || !name) return;
+    const currentPublisherId = publisherId;
+    if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+      return;
+    }
     await db.streets.put({ territoryId, name });
-    await refreshTerritoryData(territoryId);
+    await refreshTerritoryData(territoryId, currentPublisherId);
     form.reset();
   };
 
