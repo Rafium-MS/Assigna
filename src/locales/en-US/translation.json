@@ -274,6 +274,41 @@
     "confirmDelete": "Delete exit?",
     "delete": "Delete"
   },
+  "users": {
+    "pageTitle": "User management",
+    "form": {
+      "createTitle": "New user",
+      "editTitle": "Edit user",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "namePlaceholder": "Full name",
+      "emailPlaceholder": "name@example.com",
+      "save": "Save user",
+      "update": "Update user",
+      "cancel": "Cancel edit"
+    },
+    "listTitle": "Registered users ({{count}})",
+    "empty": "No users registered.",
+    "noEmail": "No email provided",
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "confirmDelete": "Are you sure you want to remove {{name}}?",
+    "toast": {
+      "createSuccess": "User saved",
+      "updateSuccess": "User updated",
+      "deleteSuccess": "User removed"
+    },
+    "roles": {
+      "admin_master": "Admin master",
+      "admin": "Administrator",
+      "manager": "Manager",
+      "publisher": "Publisher",
+      "viewer": "Viewer"
+    }
+  },
   "territories": {
     "createTerritory": "Create Territory",
     "editTerritory": "Edit Territory",

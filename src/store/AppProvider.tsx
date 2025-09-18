@@ -4,7 +4,8 @@ import {
   SaidaRepository,
   DesignacaoRepository,
   SugestaoRepository,
-  NaoEmCasaRepository
+  NaoEmCasaRepository,
+  UserRepository
 } from '../services/repositories';
 import { appReducer, initialState, AppState, Action } from './appReducer';
 import { loadPersistedAuthState, persistAuthState, clearPersistedAuthState } from './localStore';
@@ -59,16 +60,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
             dispatch({ type: 'SET_DESIGNACOES', payload: [] });
             dispatch({ type: 'SET_SUGESTOES', payload: [] });
             dispatch({ type: 'SET_NAO_EM_CASA', payload: [] });
+            dispatch({ type: 'SET_USERS', payload: [] });
           }
           return;
         }
 
-        const [territorios, saidas, designacoes, sugestoes, naoEmCasa] = await Promise.all([
+        const [territorios, saidas, designacoes, sugestoes, naoEmCasa, users] = await Promise.all([
           TerritorioRepository.forPublisher(currentUserId),
           SaidaRepository.forPublisher(currentUserId),
           DesignacaoRepository.forPublisher(currentUserId),
           SugestaoRepository.forPublisher(currentUserId),
-          NaoEmCasaRepository.forPublisher(currentUserId)
+          NaoEmCasaRepository.forPublisher(currentUserId),
+          UserRepository.all()
         ]);
 
         if (!active) return;
@@ -78,6 +81,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         dispatch({ type: 'SET_DESIGNACOES', payload: designacoes });
         dispatch({ type: 'SET_SUGESTOES', payload: sugestoes });
         dispatch({ type: 'SET_NAO_EM_CASA', payload: naoEmCasa });
+        dispatch({ type: 'SET_USERS', payload: users });
       } catch (error) {
         console.error('Falha ao carregar dados iniciais', error);
       }

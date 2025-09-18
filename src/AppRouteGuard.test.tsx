@@ -11,6 +11,7 @@ describe('RouteGuard', () => {
   const fallbackLabel = 'Acesso negado';
   const ManagementComponent = () => <div>Gestão</div>;
   const LettersComponent = () => <div>Cartas</div>;
+  const UsersComponent = () => <div>Usuários</div>;
 
   afterEach(() => {
     cleanup();
@@ -80,6 +81,21 @@ describe('RouteGuard', () => {
     });
   });
 
+  it('redirects admin users without master privileges from the users route', async () => {
+    expect(RouteGuard).toBeDefined();
+
+    renderGuard({
+      component: UsersComponent,
+      allowedRoles: routes.users.allowedRoles,
+      currentRole: 'admin',
+      path: routes.users.path,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(fallbackLabel)).toBeDefined();
+    });
+  });
+
   it('allows the admin master role to access management routes', async () => {
     expect(RouteGuard).toBeDefined();
 
@@ -92,6 +108,22 @@ describe('RouteGuard', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Gestão')).toBeDefined();
+    });
+    expect(screen.queryByText(fallbackLabel)).toBeNull();
+  });
+
+  it('allows the admin master role to access the users route', async () => {
+    expect(RouteGuard).toBeDefined();
+
+    renderGuard({
+      component: UsersComponent,
+      allowedRoles: routes.users.allowedRoles,
+      currentRole: ADMIN_MASTER_ROLE,
+      path: routes.users.path,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Usuários')).toBeDefined();
     });
     expect(screen.queryByText(fallbackLabel)).toBeNull();
   });

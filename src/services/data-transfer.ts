@@ -10,6 +10,8 @@ import type { Address } from '../types/address';
 import type { DerivedTerritory } from '../types/derived-territory';
 import type { Metadata } from './db';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
+import type { User } from '../types/user';
+import { AVAILABLE_ROLES } from '../constants/roles';
 
 const territorioSchema = z.object({
   id: z.string(),
@@ -125,6 +127,15 @@ const derivedTerritoryAddressSchema = z.object({
   addressId: z.number()
 });
 
+const userSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string(),
+  role: z.enum(AVAILABLE_ROLES),
+  createdAt: z.string(),
+  updatedAt: z.string()
+});
+
 const metadataSchema = z.object({
   key: z.string(),
   value: z.number()
@@ -145,7 +156,8 @@ export const exportedDataSchema = z
     naoEmCasa: z.array(naoEmCasaSchema).optional().default([]),
     derivedTerritories: z.array(derivedTerritorySchema).optional().default([]),
     derivedTerritoryAddresses: z.array(derivedTerritoryAddressSchema).optional().default([]),
-    metadata: z.array(metadataSchema).optional().default([])
+    metadata: z.array(metadataSchema).optional().default([]),
+    users: z.array(userSchema).optional().default([])
   })
   .transform((data) => ({
     ...data,
@@ -161,7 +173,8 @@ export const exportedDataSchema = z
     naoEmCasa: data.naoEmCasa ?? [],
     derivedTerritories: data.derivedTerritories ?? [],
     derivedTerritoryAddresses: data.derivedTerritoryAddresses ?? [],
-    metadata: data.metadata ?? []
+    metadata: data.metadata ?? [],
+    users: data.users ?? []
   }));
 
 export type ExportedData = {
@@ -179,4 +192,5 @@ export type ExportedData = {
   derivedTerritories: DerivedTerritory[];
   derivedTerritoryAddresses: Array<{ derivedTerritoryId: number; addressId: number }>;
   metadata: Metadata[];
+  users: User[];
 };

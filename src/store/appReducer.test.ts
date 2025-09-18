@@ -7,12 +7,14 @@ import {
   selectSaidas,
   selectSugestoes,
   selectTerritorios,
+  selectUsers,
 } from './selectors';
 import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
+import type { User } from '../types/user';
 
 const baseTerritorio: Territorio = {
   id: 'territorio-1',
@@ -88,7 +90,25 @@ const otherNaoEmCasa: NaoEmCasaRegistro = {
   completedAt: null,
 };
 
-const baseUser: AuthUser = {
+const baseManagedUser: User = {
+  id: 'managed-user-1',
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  role: 'admin',
+  createdAt: '2024-01-01T00:00:00.000Z',
+  updatedAt: '2024-01-01T00:00:00.000Z',
+};
+
+const otherManagedUser: User = {
+  id: 'managed-user-2',
+  name: 'John Smith',
+  email: 'john@example.com',
+  role: 'publisher',
+  createdAt: '2024-02-01T00:00:00.000Z',
+  updatedAt: '2024-02-01T00:00:00.000Z',
+};
+
+const baseAuthUser: AuthUser = {
   id: 'user-1',
   role: 'admin',
   createdAt: '2024-01-01T00:00:00.000Z',
@@ -102,6 +122,7 @@ const createState = (): AppState => ({
   designacoes: [{ ...baseDesignacao }],
   sugestoes: [{ ...baseSugestao }],
   naoEmCasa: [{ ...baseNaoEmCasa }],
+  users: [{ ...baseManagedUser }],
 });
 
 describe('appReducer', () => {
@@ -121,6 +142,7 @@ describe('appReducer', () => {
     expect(nextState.designacoes).toBe(state.designacoes);
     expect(nextState.sugestoes).toBe(state.sugestoes);
     expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('adds a saída without mutating existing state', () => {
@@ -145,6 +167,7 @@ describe('appReducer', () => {
     expect(nextState.designacoes).toBe(state.designacoes);
     expect(nextState.sugestoes).toBe(state.sugestoes);
     expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('adds a designação without mutating existing state', () => {
@@ -170,6 +193,7 @@ describe('appReducer', () => {
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.sugestoes).toBe(state.sugestoes);
     expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('adds a sugestão without mutating existing state', () => {
@@ -194,6 +218,7 @@ describe('appReducer', () => {
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.designacoes).toBe(state.designacoes);
     expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('sets territorios with SET_TERRITORIOS', () => {
@@ -208,6 +233,7 @@ describe('appReducer', () => {
     expect(nextState.territorios).toEqual(territorios);
     expect(nextState.saidas).toBe(state.saidas);
     expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('updates a designacao preserving other entries', () => {
@@ -241,6 +267,74 @@ describe('appReducer', () => {
 
     expect(nextState.naoEmCasa).toEqual([...originalRegistros, newRecord]);
     expect(state.naoEmCasa).toBe(originalRegistros);
+    expect(nextState.users).toBe(state.users);
+  });
+
+  it('sets users with SET_USERS', () => {
+    const state = createState();
+    const newUsers: User[] = [
+      { ...otherManagedUser },
+      {
+        id: 'managed-user-3',
+        name: 'Maria Doe',
+        email: 'maria@example.com',
+        role: 'viewer',
+        createdAt: '2024-03-01T00:00:00.000Z',
+        updatedAt: '2024-03-01T00:00:00.000Z',
+      },
+    ];
+
+    const nextState = appReducer(state, { type: 'SET_USERS', payload: newUsers });
+
+    expect(nextState.users).toEqual(newUsers);
+    expect(nextState.territorios).toBe(state.territorios);
+    expect(nextState.naoEmCasa).toBe(state.naoEmCasa);
+  });
+
+  it('adds a user without mutating existing state', () => {
+    const state = createState();
+    const originalUsers = state.users;
+    const newUser: User = {
+      id: 'managed-user-4',
+      name: 'New User',
+      email: 'new@example.com',
+      role: 'manager',
+      createdAt: '2024-04-01T00:00:00.000Z',
+      updatedAt: '2024-04-01T00:00:00.000Z',
+    };
+
+    const nextState = appReducer(state, { type: 'ADD_USER', payload: newUser });
+
+    expect(nextState.users).toEqual([...originalUsers, newUser]);
+    expect(nextState.users).not.toBe(originalUsers);
+    expect(state.users).toBe(originalUsers);
+    expect(nextState.saidas).toBe(state.saidas);
+  });
+
+  it('updates an existing user', () => {
+    const state = createState();
+    const updatedUser: User = {
+      ...state.users[0],
+      name: 'Jane Updated',
+      updatedAt: '2024-05-01T00:00:00.000Z',
+    };
+
+    const nextState = appReducer(state, { type: 'UPDATE_USER', payload: updatedUser });
+
+    expect(nextState.users[0]).toEqual(updatedUser);
+    expect(nextState.users).toHaveLength(state.users.length);
+  });
+
+  it('removes a user with REMOVE_USER', () => {
+    const state = createState();
+
+    const nextState = appReducer(state, {
+      type: 'REMOVE_USER',
+      payload: baseManagedUser.id,
+    });
+
+    expect(nextState.users).toHaveLength(0);
+    expect(state.users).toHaveLength(1);
   });
 
   it('removes a saida with REMOVE_SAIDA', () => {
@@ -249,25 +343,26 @@ describe('appReducer', () => {
     const nextState = appReducer(state, { type: 'REMOVE_SAIDA', payload: 'saida-1' });
 
     expect(nextState.saidas).toHaveLength(0);
+    expect(nextState.users).toBe(state.users);
   });
 
   it('updates the auth slice when signing in', () => {
-    const nextState = appReducer(initialState, { type: 'SIGN_IN', payload: baseUser });
+    const nextState = appReducer(initialState, { type: 'SIGN_IN', payload: baseAuthUser });
 
-    expect(nextState.auth.currentUser).toEqual(baseUser);
+    expect(nextState.auth.currentUser).toEqual(baseAuthUser);
     expect(initialState.auth.currentUser).toBeNull();
   });
 
   it('resets the entire state when signing out', () => {
     const signedState: AppState = {
       ...createState(),
-      auth: { currentUser: baseUser },
+      auth: { currentUser: baseAuthUser },
     };
 
     const nextState = appReducer(signedState, { type: 'SIGN_OUT' });
 
     expect(nextState).toEqual(initialState);
-    expect(signedState.auth.currentUser).toBe(baseUser);
+    expect(signedState.auth.currentUser).toBe(baseAuthUser);
   });
 
   it('resets state with RESET_STATE', () => {
@@ -290,32 +385,37 @@ describe('appReducer', () => {
       designacoes: [otherDesignacao],
       sugestoes: [otherSugestao],
       naoEmCasa: [otherNaoEmCasa],
+      users: [otherManagedUser],
     };
 
-    let state = appReducer(preexisting, { type: 'SIGN_IN', payload: baseUser });
+    let state = appReducer(preexisting, { type: 'SIGN_IN', payload: baseAuthUser });
     state = appReducer(state, { type: 'SET_TERRITORIOS', payload: [baseTerritorio] });
     state = appReducer(state, { type: 'SET_SAIDAS', payload: [baseSaida] });
     state = appReducer(state, { type: 'SET_DESIGNACOES', payload: [baseDesignacao] });
     state = appReducer(state, { type: 'SET_SUGESTOES', payload: [baseSugestao] });
     state = appReducer(state, { type: 'SET_NAO_EM_CASA', payload: [baseNaoEmCasa] });
+    state = appReducer(state, { type: 'SET_USERS', payload: [baseManagedUser] });
 
     expect(state.territorios).toEqual([baseTerritorio]);
     expect(state.saidas).toEqual([baseSaida]);
     expect(state.designacoes).toEqual([baseDesignacao]);
     expect(state.sugestoes).toEqual([baseSugestao]);
     expect(state.naoEmCasa).toEqual([baseNaoEmCasa]);
+    expect(state.users).toEqual([baseManagedUser]);
 
-    expect(selectCurrentUser(state)).toEqual(baseUser);
+    expect(selectCurrentUser(state)).toEqual(baseAuthUser);
     expect(selectTerritorios(state)).toEqual([baseTerritorio]);
     expect(selectSaidas(state)).toEqual([baseSaida]);
     expect(selectDesignacoes(state)).toEqual([baseDesignacao]);
     expect(selectSugestoes(state)).toEqual([baseSugestao]);
     expect(selectNaoEmCasa(state)).toEqual([baseNaoEmCasa]);
+    expect(selectUsers(state)).toEqual([baseManagedUser]);
 
     expect(preexisting.territorios).toEqual([otherTerritorio]);
     expect(preexisting.saidas).toEqual([otherSaida]);
     expect(preexisting.designacoes).toEqual([otherDesignacao]);
     expect(preexisting.sugestoes).toEqual([otherSugestao]);
     expect(preexisting.naoEmCasa).toEqual([otherNaoEmCasa]);
+    expect(preexisting.users).toEqual([otherManagedUser]);
   });
 });

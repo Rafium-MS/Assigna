@@ -9,6 +9,12 @@ vi.mock('react', async () => {
   };
 });
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => key,
+  }),
+}));
+
 vi.mock('../components/feedback/Toast', () => ({
   useToast: () => ({
     success: vi.fn(),
@@ -19,8 +25,10 @@ vi.mock('../components/feedback/Toast', () => ({
 function createRepositoryMock() {
   return {
     add: vi.fn().mockResolvedValue(undefined),
+    update: vi.fn().mockResolvedValue(undefined),
     remove: vi.fn().mockResolvedValue(undefined),
     clear: vi.fn().mockResolvedValue(undefined),
+    bulkAdd: vi.fn().mockResolvedValue(undefined),
     all: vi.fn().mockResolvedValue([]),
     forPublisher: vi.fn().mockResolvedValue([]),
   };
@@ -32,6 +40,7 @@ vi.mock('../services/repositories', () => ({
   DesignacaoRepository: createRepositoryMock(),
   SugestaoRepository: createRepositoryMock(),
   NaoEmCasaRepository: createRepositoryMock(),
+  UserRepository: createRepositoryMock(),
 }));
 
 import { useContext } from 'react';
@@ -42,6 +51,7 @@ import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
+import type { User } from '../types/user';
 import * as selectors from '../store/selectors';
 import { useApp } from './useApp';
 import { useTerritorios } from './useTerritorios';
@@ -49,6 +59,7 @@ import { useSaidas } from './useSaidas';
 import { useDesignacoes } from './useDesignacoes';
 import { useSugestoes } from './useSugestoes';
 import { useNaoEmCasa } from './useNaoEmCasa';
+import { useUsers } from './useUsers';
 
 const mockedUseContext = useContext as unknown as ReturnType<typeof vi.fn>;
 
@@ -100,6 +111,16 @@ const createAppState = (): AppState => ({
       recordedAt: '2024-03-01',
       followUpAt: '2024-07-01',
       completedAt: null,
+    },
+  ],
+  users: [
+    {
+      id: 'user-1',
+      name: 'Alice',
+      email: 'alice@example.com',
+      role: 'admin',
+      createdAt: '2024-01-01T00:00:00.000Z',
+      updatedAt: '2024-01-02T00:00:00.000Z',
     },
   ],
 });
@@ -322,6 +343,85 @@ describe('App context hooks', () => {
         expect.objectContaining({
           type: 'ADD_SUGESTAO',
           payload: expect.objectContaining({ territorioId: newSugestao.territorioId }),
+        }),
+      );
+
+      selectSpy.mockRestore();
+    });
+  });
+
+  describe('useUsers', () => {
+    it('selects users from the current state', () => {
+      const { state } = setupContext();
+      const selected: User[] = [
+        {
+          id: 'user-2',
+          name: 'Bob',
+          email: 'bob@example.com',
+          role: 'viewer',
+          createdAt: '2024-02-01T00:00:00.000Z',
+          updatedAt: '2024-02-01T00:00:00.000Z',
+        },
+      ];
+      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(selected);
+
+      const { users } = useUsers();
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(selectSpy).toHaveBeenCalledWith(state);
+      expect(users).toBe(selected);
+
+      selectSpy.mockRestore();
+    });
+
+    it('dispatches an action to add a user', async () => {
+      const { dispatch, state } = setupContext();
+      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+
+      const { addUser } = useUsers();
+      await addUser({ name: 'Charlie', email: 'charlie@example.com', role: 'manager' });
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'ADD_USER',
+          payload: expect.objectContaining({ name: 'Charlie', role: 'manager' }),
+        }),
+      );
+
+      selectSpy.mockRestore();
+    });
+
+    it('dispatches an action to update a user', async () => {
+      const { dispatch, state } = setupContext();
+      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+
+      const { updateUser } = useUsers();
+      await updateUser('user-1', { name: 'Alice Updated', email: 'alice@new.example.com', role: 'admin' });
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'UPDATE_USER',
+          payload: expect.objectContaining({ id: 'user-1', name: 'Alice Updated' }),
+        }),
+      );
+
+      selectSpy.mockRestore();
+    });
+
+    it('dispatches an action to remove a user', async () => {
+      const { dispatch, state } = setupContext();
+      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+
+      const { removeUser } = useUsers();
+      await removeUser('user-1');
+
+      expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
+      expect(dispatch).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'REMOVE_USER',
+          payload: 'user-1',
         }),
       );
 

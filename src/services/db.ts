@@ -15,6 +15,7 @@ import {
 import type { DerivedTerritory } from '../types/derived-territory';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
+import type { User } from '../types/user';
 
 export const DEFAULT_PROPERTY_TYPE_NAMES = [
   'Prédio',
@@ -110,6 +111,8 @@ class AppDB extends Dexie {
   metadata!: Table<Metadata, string>;
   /** Table for storing not-at-home records. */
   naoEmCasa!: Table<NaoEmCasaRegistro, string>;
+  /** Table for storing application users. */
+  users!: Table<User, string>;
 
   constructor() {
     super('assigna');
@@ -206,11 +209,41 @@ class AppDB extends Dexie {
           )
         );
       });
+    this.version(8).stores({
+      territorios: 'id, nome, publisherId',
+      saidas: 'id, nome, diaDaSemana, publisherId',
+      designacoes: 'id, territorioId, saidaId, publisherId',
+      sugestoes: '[territorioId+saidaId], territorioId, saidaId, publisherId',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+      buildingsVillages: 'id, territory_id, publisherId',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]',
+      nao_em_casa: 'id, territorioId, followUpAt, completedAt, publisherId'
+    });
+    this.version(9).stores({
+      territorios: 'id, nome, publisherId',
+      saidas: 'id, nome, diaDaSemana, publisherId',
+      designacoes: 'id, territorioId, saidaId, publisherId',
+      sugestoes: '[territorioId+saidaId], territorioId, saidaId, publisherId',
+      metadata: 'key',
+      streets: '++id, territoryId, name',
+      property_types: '++id, name',
+      addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+      buildingsVillages: 'id, territory_id, publisherId',
+      derived_territories: '++id, baseTerritoryId, name',
+      derived_territory_addresses: '[derivedTerritoryId+addressId]',
+      nao_em_casa: 'id, territorioId, followUpAt, completedAt, publisherId',
+      users: 'id, email, role'
+    });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
     this.derivedTerritoryAddresses = this.table('derived_territory_addresses');
     this.naoEmCasa = this.table('nao_em_casa');
+    this.users = this.table('users');
   }
 }
 
@@ -221,7 +254,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 async function ensureDefaultPropertyTypes(): Promise<void> {
   await db.transaction('rw', db.propertyTypes, async () => {

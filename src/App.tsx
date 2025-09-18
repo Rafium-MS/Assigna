@@ -15,6 +15,7 @@ import AssignmentsPage from './pages/AssignmentsPage';
 import CalendarPage from './pages/CalendarPage';
 import SuggestionsPage from './pages/SuggestionsPage';
 import NaoEmCasaPage from './pages/NaoEmCasaPage';
+import UsersPage from './pages/UsersPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
 import { useAuth } from './hooks/useAuth';
@@ -27,7 +28,8 @@ import {
   SaidaRepository,
   DesignacaoRepository,
   SugestaoRepository,
-  NaoEmCasaRepository
+  NaoEmCasaRepository,
+  UserRepository
 } from './services/repositories';
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
@@ -45,6 +47,7 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   letters: CartasPage,
   exits: ExitsPage,
   assignments: AssignmentsPage,
+  users: UsersPage,
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
   notAtHome: NaoEmCasaPage,
@@ -125,6 +128,7 @@ const DataManagementControls: React.FC = () => {
       dispatch({ type: 'SET_DESIGNACOES', payload: data.designacoes });
       dispatch({ type: 'SET_SUGESTOES', payload: data.sugestoes });
       dispatch({ type: 'SET_NAO_EM_CASA', payload: data.naoEmCasa });
+      dispatch({ type: 'SET_USERS', payload: data.users });
       toast.success(t('app.importSuccess'));
     } catch (error) {
       console.error(t('app.importError'), error);
@@ -146,6 +150,7 @@ const DataManagementControls: React.FC = () => {
         DesignacaoRepository.clear(),
         SugestaoRepository.clear(),
         NaoEmCasaRepository.clear(),
+        UserRepository.clear(),
         BuildingVillageRepository.clear(),
         db.streets.clear(),
         db.propertyTypes.clear(),
