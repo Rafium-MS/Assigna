@@ -62,15 +62,15 @@ Quando essa variável não estiver definida, as notificações de devolução pe
   - Registre-o em `src/i18n.ts`.
 
 ## Ruas & Numerações
-- Gerencie ruas, faixas de numerações e tipos de propriedade por território.
-- Registre a **�sltima visita bem-sucedida** e controle o **próximo retorno** automático.
-- Bloqueio (cooldown) de visitas ap��s sucesso: padrão de 120 dias (ajuste em `src/constants/addresses.ts`).
-- Tabelas mostram estado de bloqueio, prazos e a��es de marca��ǜo de visita.
-- Anota��ǜo de imagem do territ��rio (componente `src/components/ImageAnnotator.tsx`) para apoiar o mapeamento visual.
+- Gerencie ruas, faixas de numeração e tipos de propriedade por território.
+- Registre a **última visita bem-sucedida** e deixe que o sistema agende automaticamente o **próximo retorno**.
+- Bloqueio (cooldown) de visitas após sucesso: padrão de 120 dias (ajustável em `src/constants/addresses.ts`). Enquanto o cooldown estiver ativo, o botão de "Marcar visita" permanece desabilitado e exibe a data prevista de liberação.
+- Tabelas exibem o status de bloqueio, prazos e ações de acompanhamento diretamente na lista de endereços.
+- Canvas de anotação da imagem do território (componente `src/components/ImageAnnotator.tsx`) para apoiar o mapeamento visual; cliques, cliques com o botão direito e cliques duplos disparam os callbacks configurados.
 
 ## Scripts
 - `npm run dev` inicia o ambiente de desenvolvimento.
-- `npm run build` gera o build de produ��ǜo.
+- `npm run build` gera o build de produção.
 - `npm run preview` faz o preview do build.
 - `npm run lint` roda ESLint.
 - `npm run format` aplica Prettier.
@@ -82,7 +82,7 @@ Quando essa variável não estiver definida, as notificações de devolução pe
 
 ## Banco de Dados (Offline)
 - Todos os dados são armazenados no **IndexedDB** via **Dexie.js** (`src/services/db.ts`).
-- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação (versão atual: `SCHEMA_VERSION = 6`).
+- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação. A versão atual é controlada pela constante `SCHEMA_VERSION`, definida em [`src/services/db.ts`](src/services/db.ts) (atualmente em 9).
 - Campos de visitas em endereços: `lastSuccessfulVisit` e `nextVisitAllowed`.
 
 ## Screenshots
