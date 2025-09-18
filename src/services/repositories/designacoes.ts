@@ -14,6 +14,15 @@ export const DesignacaoRepository = {
   },
 
   /**
+   * Retrieves the designacoes assigned to a specific publisher.
+   * @param publisherId The identifier of the publisher whose designacoes should be returned.
+   * @returns A promise that resolves to an array of Designacao objects.
+   */
+  async forPublisher(publisherId: string): Promise<Designacao[]> {
+    return db.designacoes.where('publisherId').equals(publisherId).toArray();
+  },
+
+  /**
    * Adds a new designacao to the database.
    * @param designacao The Designacao object to add.
    * @returns A promise that resolves when the operation is complete.

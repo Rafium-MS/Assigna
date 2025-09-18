@@ -22,6 +22,7 @@ function createRepositoryMock() {
     remove: vi.fn().mockResolvedValue(undefined),
     clear: vi.fn().mockResolvedValue(undefined),
     all: vi.fn().mockResolvedValue([]),
+    forPublisher: vi.fn().mockResolvedValue([]),
   };
 }
 

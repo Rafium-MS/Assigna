@@ -14,6 +14,15 @@ export const SugestaoRepository = {
   },
 
   /**
+   * Retrieves suggestions belonging to a specific publisher.
+   * @param publisherId The identifier of the publisher whose suggestions should be returned.
+   * @returns A promise that resolves to an array of Sugestao objects.
+   */
+  async forPublisher(publisherId: string): Promise<Sugestao[]> {
+    return db.sugestoes.where('publisherId').equals(publisherId).toArray();
+  },
+
+  /**
    * Adds a new sugestao to the database.
    * @param sugestao The Sugestao object to add.
    * @returns A promise that resolves when the operation is complete.

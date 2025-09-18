@@ -14,6 +14,15 @@ export const SaidaRepository = {
   },
 
   /**
+   * Retrieves all saidas assigned to a specific publisher.
+   * @param publisherId The identifier of the publisher whose saidas should be returned.
+   * @returns A promise that resolves to an array of Saida objects.
+   */
+  async forPublisher(publisherId: string): Promise<Saida[]> {
+    return db.saidas.where('publisherId').equals(publisherId).toArray();
+  },
+
+  /**
    * Adds a new saida to the database.
    * @param saida The Saida object to add.
    * @returns A promise that resolves when the operation is complete.

@@ -9,6 +9,7 @@ import type { Territorio } from '../types/territorio';
 import { BuildingVillageRepository } from '../services/repositories/buildings_villages';
 import { TerritorioRepository } from '../services/repositories/territorios';
 import { useToast } from '../components/feedback/Toast';
+import { useAuth } from '../hooks/useAuth';
 
 const letterStatusTranslationKeys: Record<BuildingVillageLetterStatus, string> = {
   not_sent: 'buildingsVillages.letterStatus.notSent',
@@ -68,27 +69,49 @@ const CartasPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const toast = useToast();
   const { t } = useTranslation();
+  const { currentUser } = useAuth();
+  const publisherId = currentUser?.id ?? null;
 
   useEffect(() => {
+    let active = true;
+
     const load = async () => {
       try {
-        setLoading(true);
+        if (!publisherId) {
+          if (active) {
+            setVillages([]);
+            setTerritories([]);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (active) {
+          setLoading(true);
+        }
         const [villagesData, territoriesData] = await Promise.all([
-          BuildingVillageRepository.all(),
-          TerritorioRepository.all()
+          BuildingVillageRepository.forPublisher(publisherId),
+          TerritorioRepository.forPublisher(publisherId)
         ]);
+        if (!active) return;
         setVillages(villagesData);
         setTerritories(territoriesData);
       } catch (error) {
+        if (!active) return;
         console.error(error);
         toast.error(t('letters.feedback.loadError'));
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     void load();
-  }, [toast, t]);
+    return () => {
+      active = false;
+    };
+  }, [publisherId, toast, t]);
 
   const territoryNameById = useMemo(() => {
     return territories.reduce<Record<string, string>>((acc, territory) => {

@@ -14,6 +14,15 @@ export const TerritorioRepository = {
   },
 
   /**
+   * Retrieves territories that belong to a specific publisher.
+   * @param publisherId The identifier of the publisher whose territories should be returned.
+   * @returns A promise that resolves to an array of Territorio objects.
+   */
+  async forPublisher(publisherId: string): Promise<Territorio[]> {
+    return db.territorios.where('publisherId').equals(publisherId).toArray();
+  },
+
+  /**
    * Adds a new territorio to the database.
    * @param territorio The Territorio object to add.
    * @returns A promise that resolves when the operation is complete.

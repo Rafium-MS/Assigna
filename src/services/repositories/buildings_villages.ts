@@ -14,6 +14,15 @@ export const BuildingVillageRepository = {
   },
 
   /**
+   * Retrieves all building/village entries that belong to a specific publisher.
+   * @param publisherId The identifier of the publisher whose records should be returned.
+   * @returns A promise that resolves to an array of BuildingVillage objects.
+   */
+  async forPublisher(publisherId: string): Promise<BuildingVillage[]> {
+    return db.buildingsVillages.where('publisherId').equals(publisherId).toArray();
+  },
+
+  /**
    * Adds a new building/village entry to the database.
    * @param buildingVillage The BuildingVillage object to add.
    * @returns A promise that resolves when the operation is complete.

@@ -19,8 +19,15 @@ describe('IndexedDB persistence', () => {
       publisherId: `publisher-${i}`
     }));
     await TerritorioRepository.bulkAdd(territorios);
-    const all = await TerritorioRepository.all();
-    expect(all.length).toBe(territorios.length);
+    const total = await db.territorios.count();
+    expect(total).toBe(territorios.length);
+
+    const sampleIndexes = [0, 500, territorios.length - 1];
+    for (const index of sampleIndexes) {
+      const record = territorios[index];
+      const stored = await TerritorioRepository.forPublisher(record.publisherId);
+      expect(stored).toEqual([record]);
+    }
   });
 
   it('stores and retrieves buildings villages', async () => {
@@ -78,10 +85,15 @@ describe('IndexedDB persistence', () => {
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingVillages);
-    const stored = await BuildingVillageRepository.all();
+    const total = await db.buildingsVillages.count();
+    expect(total).toBe(buildingVillages.length);
 
-    expect(stored).toHaveLength(buildingVillages.length);
-    expect(stored).toEqual(expect.arrayContaining(buildingVillages));
+    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([
+      buildingVillages[0]
+    ]);
+    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
+      buildingVillages[1]
+    ]);
   });
 
   it('stores and retrieves not-at-home records', async () => {
@@ -103,7 +115,7 @@ describe('IndexedDB persistence', () => {
     };
 
     await NaoEmCasaRepository.add(record);
-    const stored = await NaoEmCasaRepository.all();
+    const stored = await NaoEmCasaRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([record]);
   });
@@ -147,7 +159,7 @@ describe('IndexedDB persistence', () => {
     };
 
     await BuildingVillageRepository.add(buildingVillage);
-    const stored = await BuildingVillageRepository.all();
+    const stored = await BuildingVillageRepository.forPublisher('publisher-migrate');
     expect(stored).toContainEqual(buildingVillage);
   });
 

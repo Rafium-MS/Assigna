@@ -21,14 +21,14 @@ const formatTimestamp = (date: Date): string => {
   ].join('');
 };
 
-const buildExportPayload = async (): Promise<ExportedData> => {
+const buildExportPayload = async (publisherId: string): Promise<ExportedData> => {
   const [territorios, saidas, designacoes, sugestoes, naoEmCasa, buildingsVillages] = await Promise.all([
-    TerritorioRepository.all(),
-    SaidaRepository.all(),
-    DesignacaoRepository.all(),
-    SugestaoRepository.all(),
-    NaoEmCasaRepository.all(),
-    BuildingVillageRepository.all()
+    TerritorioRepository.forPublisher(publisherId),
+    SaidaRepository.forPublisher(publisherId),
+    DesignacaoRepository.forPublisher(publisherId),
+    SugestaoRepository.forPublisher(publisherId),
+    NaoEmCasaRepository.forPublisher(publisherId),
+    BuildingVillageRepository.forPublisher(publisherId)
   ]);
 
   const [streets, propertyTypes, addresses, derivedTerritories, derivedTerritoryAddresses, metadata] =
@@ -76,8 +76,12 @@ const triggerDownload = (content: string): void => {
 /**
  * Exports all application data to a JSON file that the user can download.
  */
-export const exportData = async (): Promise<void> => {
-  const payload = await buildExportPayload();
+export const exportData = async (publisherId: string): Promise<void> => {
+  if (!publisherId) {
+    throw new Error('Publisher ID is required to export data');
+  }
+
+  const payload = await buildExportPayload(publisherId);
   const content = JSON.stringify(payload, null, 2);
   triggerDownload(content);
 };
