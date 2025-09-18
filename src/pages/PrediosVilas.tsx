@@ -16,7 +16,7 @@ import { TerritorioRepository } from '../services/repositories/territorios';
 import { Modal } from '../components/layout/Modal';
 import { useToast } from '../components/feedback/Toast';
 import { useConfirm } from '../components/feedback/ConfirmDialog';
-import { useApp } from '../hooks/useApp';
+import { useAuth } from '../hooks/useAuth';
 
 const createBuildingVillageSchema = (t: TFunction) =>
   z.object({
@@ -154,8 +154,8 @@ export default function PrediosVilas(): JSX.Element {
   const toast = useToast();
   const confirm = useConfirm();
   const { t } = useTranslation();
-  const { state } = useApp();
-  const currentUserId = state.auth.currentUser?.id ?? '';
+  const { currentUser } = useAuth();
+  const publisherId = currentUser?.id ?? null;
 
   const schema = useMemo(() => createBuildingVillageSchema(t), [t]);
   const resolver = useMemo(() => zodResolver(schema), [schema]);
@@ -182,25 +182,45 @@ export default function PrediosVilas(): JSX.Element {
   });
 
   useEffect(() => {
+    let active = true;
+
     const loadData = async (): Promise<void> => {
       try {
-        setLoading(true);
+        if (!publisherId) {
+          if (active) {
+            setVillages([]);
+            setTerritories([]);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (active) {
+          setLoading(true);
+        }
         const [allVillages, allTerritories] = await Promise.all([
-          BuildingVillageRepository.all(),
-          TerritorioRepository.all()
+          BuildingVillageRepository.forPublisher(publisherId),
+          TerritorioRepository.forPublisher(publisherId)
         ]);
+        if (!active) return;
         setVillages(allVillages);
         setTerritories(allTerritories);
       } catch (error) {
+        if (!active) return;
         console.error(error);
         toast.error(t('buildingsVillages.feedback.loadError'));
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     void loadData();
-  }, [toast, t]);
+    return () => {
+      active = false;
+    };
+  }, [publisherId, toast, t]);
 
   const territoryNameById = useMemo(() => {
     return territories.reduce<Record<string, string>>((acc, territory) => {
@@ -369,10 +389,16 @@ export default function PrediosVilas(): JSX.Element {
           .filter((entry) => entry.sent_at !== null || entry.notes !== null)
       : [];
 
+    const resolvedPublisherId = editing?.publisherId ?? publisherId;
+    if (!resolvedPublisherId) {
+      toast.error(t('buildingsVillages.feedback.saveError'));
+      return;
+    }
+
     const entity: BuildingVillage = {
       id: entityId,
       territory_id: values.territory_id,
-      publisherId: editing?.publisherId ?? currentUserId,
+      publisherId: resolvedPublisherId,
       name: values.name.trim(),
       address_line: normalizeText(values.address_line),
       type: normalizeText(values.type),

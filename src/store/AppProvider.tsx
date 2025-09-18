@@ -19,6 +19,7 @@ export const AppContext = createContext<{ state: AppState; dispatch: Dispatch<Ac
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const [authHydrated, setAuthHydrated] = useState(false);
+  const currentUserId = state.auth.currentUser?.id ?? null;
 
   useEffect(() => {
     let active = true;
@@ -28,22 +29,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (active && persistedAuth.currentUser) {
           dispatch({ type: 'SIGN_IN', payload: persistedAuth.currentUser });
         }
-
-        const [territorios, saidas, designacoes, sugestoes, naoEmCasa] = await Promise.all([
-          TerritorioRepository.all(),
-          SaidaRepository.all(),
-          DesignacaoRepository.all(),
-          SugestaoRepository.all(),
-          NaoEmCasaRepository.all()
-        ]);
-
-        if (!active) return;
-
-        dispatch({ type: 'SET_TERRITORIOS', payload: territorios });
-        dispatch({ type: 'SET_SAIDAS', payload: saidas });
-        dispatch({ type: 'SET_DESIGNACOES', payload: designacoes });
-        dispatch({ type: 'SET_SUGESTOES', payload: sugestoes });
-        dispatch({ type: 'SET_NAO_EM_CASA', payload: naoEmCasa });
       } catch (error) {
         console.error('Falha ao carregar dados iniciais', error);
       } finally {
@@ -59,6 +44,51 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       active = false;
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!authHydrated) return;
+
+    let active = true;
+
+    const loadData = async () => {
+      try {
+        if (!currentUserId) {
+          if (active) {
+            dispatch({ type: 'SET_TERRITORIOS', payload: [] });
+            dispatch({ type: 'SET_SAIDAS', payload: [] });
+            dispatch({ type: 'SET_DESIGNACOES', payload: [] });
+            dispatch({ type: 'SET_SUGESTOES', payload: [] });
+            dispatch({ type: 'SET_NAO_EM_CASA', payload: [] });
+          }
+          return;
+        }
+
+        const [territorios, saidas, designacoes, sugestoes, naoEmCasa] = await Promise.all([
+          TerritorioRepository.forPublisher(currentUserId),
+          SaidaRepository.forPublisher(currentUserId),
+          DesignacaoRepository.forPublisher(currentUserId),
+          SugestaoRepository.forPublisher(currentUserId),
+          NaoEmCasaRepository.forPublisher(currentUserId)
+        ]);
+
+        if (!active) return;
+
+        dispatch({ type: 'SET_TERRITORIOS', payload: territorios });
+        dispatch({ type: 'SET_SAIDAS', payload: saidas });
+        dispatch({ type: 'SET_DESIGNACOES', payload: designacoes });
+        dispatch({ type: 'SET_SUGESTOES', payload: sugestoes });
+        dispatch({ type: 'SET_NAO_EM_CASA', payload: naoEmCasa });
+      } catch (error) {
+        console.error('Falha ao carregar dados iniciais', error);
+      }
+    };
+
+    void loadData();
+
+    return () => {
+      active = false;
+    };
+  }, [authHydrated, currentUserId, dispatch]);
 
   useEffect(() => {
     if (!authHydrated) return;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { useMonthlyExportScheduler } from '../../hooks/useMonthlyExportScheduler';
 import { useTranslation } from 'react-i18next';
+import { useMonthlyExportScheduler } from '../../hooks/useMonthlyExportScheduler';
+import { useAuth } from '../../hooks/useAuth';
 
 /**
  * A component for controlling the monthly export scheduler.
@@ -8,7 +9,8 @@ import { useTranslation } from 'react-i18next';
  * @returns A JSX element representing the scheduler controls.
  */
 export const SchedulerControls: React.FC = () => {
-  const { config, setConfig } = useMonthlyExportScheduler();
+  const { currentUser } = useAuth();
+  const { config, setConfig } = useMonthlyExportScheduler(currentUser?.id);
   const { t } = useTranslation();
   const dateValue = new Date(config.nextRun).toISOString().slice(0, 16);
 

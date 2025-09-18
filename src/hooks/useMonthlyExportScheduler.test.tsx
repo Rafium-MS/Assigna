@@ -3,13 +3,13 @@ import React from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 
-const designacaoAllMock = vi.fn();
+const designacaoForPublisherMock = vi.fn();
 const exportToCsvMock = vi.fn();
 const downloadFileMock = vi.fn();
 
 vi.mock('../services/repositories/designacoes', () => ({
   DesignacaoRepository: {
-    all: designacaoAllMock,
+    forPublisher: designacaoForPublisherMock,
   },
 }));
 
@@ -77,7 +77,7 @@ describe('useMonthlyExportScheduler', () => {
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
     const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler());
+    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
 
     try {
       expect(result.current.config).toEqual(storedConfig);
@@ -122,14 +122,14 @@ describe('useMonthlyExportScheduler', () => {
       },
     ];
 
-    designacaoAllMock.mockResolvedValue(designacoes);
+    designacaoForPublisherMock.mockResolvedValue(designacoes);
     exportToCsvMock.mockReturnValue('csv-data');
     downloadFileMock.mockReturnValue(undefined);
 
     vi.setSystemTime(new Date('2024-02-01T00:00:00.000Z'));
 
     const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler());
+    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
 
     try {
       expect(result.current.config).toEqual({ enabled: true, nextRun });
@@ -139,7 +139,8 @@ describe('useMonthlyExportScheduler', () => {
       });
       await flushEffects();
 
-      expect(designacaoAllMock).toHaveBeenCalledTimes(1);
+      expect(designacaoForPublisherMock).toHaveBeenCalledWith('publisher-1');
+      expect(designacaoForPublisherMock).toHaveBeenCalledTimes(1);
       expect(exportToCsvMock).toHaveBeenCalledWith(
         [
           {
@@ -174,7 +175,7 @@ describe('useMonthlyExportScheduler', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ enabled: true, nextRun }));
 
     const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { unmount } = await renderHook(() => useMonthlyExportScheduler());
+    const { unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
 
     try {
       await flushEffects();

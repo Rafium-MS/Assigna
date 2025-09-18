@@ -90,10 +90,17 @@ const DataManagementControls: React.FC = () => {
   const confirm = useConfirm();
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { currentUser } = useAuth();
 
   const handleExport = async () => {
     try {
-      await exportData();
+      if (!currentUser?.id) {
+        toast.error(t('app.exportError'));
+        console.error('Exportação falhou: nenhum publicador autenticado.');
+        return;
+      }
+
+      await exportData(currentUser.id);
       toast.success(t('app.exportSuccess'));
     } catch (error) {
       console.error(t('app.exportError'), error);

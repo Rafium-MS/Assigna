@@ -53,7 +53,7 @@ function saveConfig(cfg: SchedulerConfig): void {
  * This hook manages the configuration and execution of the monthly export.
  * @returns An object with the scheduler configuration and a function to update it.
  */
-export function useMonthlyExportScheduler() {
+export function useMonthlyExportScheduler(publisherId?: string) {
   const [config, setConfig] = useState<SchedulerConfig>(() => loadConfig());
 
   useEffect(() => {
@@ -61,10 +61,10 @@ export function useMonthlyExportScheduler() {
   }, [config]);
 
   useEffect(() => {
-    if (!config.enabled) return;
+    if (!config.enabled || !publisherId) return;
     const interval = setInterval(async () => {
       if (Date.now() >= config.nextRun) {
-        const designacoes = await DesignacaoRepository.all();
+        const designacoes = await DesignacaoRepository.forPublisher(publisherId);
         const summary = monthlySummaryBySaida(designacoes).map((item) => ({ ...item }));
         const csv = exportToCsv(summary, ['saidaId', 'month', 'total']);
         const date = new Date().toISOString().split('T')[0];
@@ -75,7 +75,7 @@ export function useMonthlyExportScheduler() {
       }
     }, 60 * 60 * 1000); // check hourly
     return () => clearInterval(interval);
-  }, [config]);
+  }, [config, publisherId]);
 
   return { config, setConfig } as const;
 }

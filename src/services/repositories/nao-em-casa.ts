@@ -10,6 +10,15 @@ export const NaoEmCasaRepository = {
     return db.naoEmCasa.toArray();
   },
 
+  /**
+   * Returns the not-at-home records for a specific publisher.
+   * @param publisherId The identifier of the publisher whose records should be returned.
+   * @returns A promise that resolves to an array of not-at-home records.
+   */
+  async forPublisher(publisherId: string): Promise<NaoEmCasaRegistro[]> {
+    return db.naoEmCasa.where('publisherId').equals(publisherId).toArray();
+  },
+
   /** Adds or updates a not-at-home record. */
   async add(registro: NaoEmCasaRegistro): Promise<void> {
     await db.naoEmCasa.put(registro);

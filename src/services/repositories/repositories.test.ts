@@ -23,16 +23,16 @@ beforeEach(async () => {
 });
 
 describe('TerritorioRepository', () => {
-  it('adds a territorio and retrieves it with all', async () => {
+  it('adds a territorio and retrieves it with forPublisher', async () => {
     const territorio: Territorio = { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' };
 
     await TerritorioRepository.add(territorio);
-    const stored = await TerritorioRepository.all();
+    const stored = await TerritorioRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([territorio]);
   });
 
-  it('bulk adds multiple territorios and retrieves them all', async () => {
+  it('bulk adds multiple territorios and retrieves them per publisher', async () => {
     const territorios: Territorio[] = [
       { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
       { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
@@ -40,10 +40,15 @@ describe('TerritorioRepository', () => {
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
-    const stored = await TerritorioRepository.all();
-
-    expect(stored).toHaveLength(territorios.length);
-    expect(stored).toEqual(expect.arrayContaining(territorios));
+    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([
+      territorios[0]
+    ]);
+    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([
+      territorios[1]
+    ]);
+    await expect(TerritorioRepository.forPublisher('publisher-3')).resolves.toEqual([
+      territorios[2]
+    ]);
   });
 
   it('removes a territorio by id', async () => {
@@ -54,10 +59,10 @@ describe('TerritorioRepository', () => {
 
     await TerritorioRepository.bulkAdd(territorios);
     await TerritorioRepository.remove('territorio-1');
-    const stored = await TerritorioRepository.all();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toEqual(territorios[1]);
+    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([
+      territorios[1]
+    ]);
   });
 
   it('clears all territorios', async () => {
@@ -68,14 +73,13 @@ describe('TerritorioRepository', () => {
 
     await TerritorioRepository.bulkAdd(territorios);
     await TerritorioRepository.clear();
-    const stored = await TerritorioRepository.all();
-
-    expect(stored).toEqual([]);
+    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([]);
   });
 });
 
 describe('SaidaRepository', () => {
-  it('adds a saida and retrieves it with all', async () => {
+  it('adds a saida and retrieves it with forPublisher', async () => {
     const saida: Saida = {
       id: 'saida-1',
       nome: 'Saida 1',
@@ -85,22 +89,20 @@ describe('SaidaRepository', () => {
     };
 
     await SaidaRepository.add(saida);
-    const stored = await SaidaRepository.all();
+    const stored = await SaidaRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([saida]);
   });
 
-  it('bulk adds multiple saidas and retrieves them all', async () => {
+  it('bulk adds multiple saidas and retrieves them per publisher', async () => {
     const saidas: Saida[] = [
       { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
       { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' }
     ];
 
     await SaidaRepository.bulkAdd(saidas);
-    const stored = await SaidaRepository.all();
-
-    expect(stored).toHaveLength(saidas.length);
-    expect(stored).toEqual(expect.arrayContaining(saidas));
+    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([saidas[0]]);
+    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([saidas[1]]);
   });
 
   it('removes a saida by id', async () => {
@@ -111,15 +113,13 @@ describe('SaidaRepository', () => {
 
     await SaidaRepository.bulkAdd(saidas);
     await SaidaRepository.remove('saida-1');
-    const stored = await SaidaRepository.all();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toEqual(saidas[1]);
+    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([saidas[1]]);
   });
 });
 
 describe('DesignacaoRepository', () => {
-  it('adds a designacao and retrieves it with all', async () => {
+  it('adds a designacao and retrieves it with forPublisher', async () => {
     const designacao: Designacao = {
       id: 'designacao-1',
       territorioId: 'territorio-1',
@@ -130,12 +130,12 @@ describe('DesignacaoRepository', () => {
     };
 
     await DesignacaoRepository.add(designacao);
-    const stored = await DesignacaoRepository.all();
+    const stored = await DesignacaoRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([designacao]);
   });
 
-  it('bulk adds multiple designacoes and retrieves them all', async () => {
+  it('bulk adds multiple designacoes and retrieves them per publisher', async () => {
     const designacoes: Designacao[] = [
       {
         id: 'designacao-1',
@@ -156,10 +156,12 @@ describe('DesignacaoRepository', () => {
     ];
 
     await DesignacaoRepository.bulkAdd(designacoes);
-    const stored = await DesignacaoRepository.all();
-
-    expect(stored).toHaveLength(designacoes.length);
-    expect(stored).toEqual(expect.arrayContaining(designacoes));
+    await expect(DesignacaoRepository.forPublisher('publisher-1')).resolves.toEqual([
+      designacoes[0]
+    ]);
+    await expect(DesignacaoRepository.forPublisher('publisher-2')).resolves.toEqual([
+      designacoes[1]
+    ]);
   });
 
   it('removes a designacao by id', async () => {
@@ -184,15 +186,15 @@ describe('DesignacaoRepository', () => {
 
     await DesignacaoRepository.bulkAdd(designacoes);
     await DesignacaoRepository.remove('designacao-1');
-    const stored = await DesignacaoRepository.all();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toEqual(designacoes[1]);
+    await expect(DesignacaoRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(DesignacaoRepository.forPublisher('publisher-2')).resolves.toEqual([
+      designacoes[1]
+    ]);
   });
 });
 
 describe('SugestaoRepository', () => {
-  it('adds a sugestao and retrieves it with all', async () => {
+  it('adds a sugestao and retrieves it with forPublisher', async () => {
     const sugestao: Sugestao = {
       territorioId: 'territorio-1',
       saidaId: 'saida-1',
@@ -202,12 +204,12 @@ describe('SugestaoRepository', () => {
     };
 
     await SugestaoRepository.add(sugestao);
-    const stored = await SugestaoRepository.all();
+    const stored = await SugestaoRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([sugestao]);
   });
 
-  it('bulk adds multiple sugestoes and retrieves them all', async () => {
+  it('bulk adds multiple sugestoes and retrieves them per publisher', async () => {
     const sugestoes: Sugestao[] = [
       {
         territorioId: 'territorio-1',
@@ -226,10 +228,12 @@ describe('SugestaoRepository', () => {
     ];
 
     await SugestaoRepository.bulkAdd(sugestoes);
-    const stored = await SugestaoRepository.all();
-
-    expect(stored).toHaveLength(sugestoes.length);
-    expect(stored).toEqual(expect.arrayContaining(sugestoes));
+    await expect(SugestaoRepository.forPublisher('publisher-1')).resolves.toEqual([
+      sugestoes[0]
+    ]);
+    await expect(SugestaoRepository.forPublisher('publisher-2')).resolves.toEqual([
+      sugestoes[1]
+    ]);
   });
 
   it('removes a sugestao by composite key', async () => {
@@ -252,15 +256,15 @@ describe('SugestaoRepository', () => {
 
     await SugestaoRepository.bulkAdd(sugestoes);
     await SugestaoRepository.remove('territorio-1', 'saida-1');
-    const stored = await SugestaoRepository.all();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toEqual(sugestoes[1]);
+    await expect(SugestaoRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(SugestaoRepository.forPublisher('publisher-2')).resolves.toEqual([
+      sugestoes[1]
+    ]);
   });
 });
 
 describe('NaoEmCasaRepository', () => {
-  it('adds a record and retrieves it', async () => {
+  it('adds a record and retrieves it with forPublisher', async () => {
     const record: NaoEmCasaRegistro = {
       id: 'record-1',
       territorioId: 'territorio-1',
@@ -278,7 +282,7 @@ describe('NaoEmCasaRepository', () => {
     };
 
     await NaoEmCasaRepository.add(record);
-    const stored = await NaoEmCasaRepository.all();
+    const stored = await NaoEmCasaRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([record]);
   });
@@ -307,14 +311,13 @@ describe('NaoEmCasaRepository', () => {
 
     await NaoEmCasaRepository.bulkAdd(records);
     await NaoEmCasaRepository.remove('record-1');
-    const stored = await NaoEmCasaRepository.all();
-
-    expect(stored).toEqual([records[1]]);
+    await expect(NaoEmCasaRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(NaoEmCasaRepository.forPublisher('publisher-2')).resolves.toEqual([records[1]]);
   });
 });
 
 describe('BuildingVillageRepository', () => {
-  it('adds a building or village and retrieves it with all', async () => {
+  it('adds a building or village and retrieves it with forPublisher', async () => {
     const buildingVillage: BuildingVillage = {
       id: 'bv-1',
       territory_id: 'territory-1',
@@ -345,12 +348,12 @@ describe('BuildingVillageRepository', () => {
     };
 
     await BuildingVillageRepository.add(buildingVillage);
-    const stored = await BuildingVillageRepository.all();
+    const stored = await BuildingVillageRepository.forPublisher('publisher-1');
 
     expect(stored).toEqual([buildingVillage]);
   });
 
-  it('bulk adds multiple buildings or villages and retrieves them all', async () => {
+  it('bulk adds multiple buildings or villages and retrieves them per publisher', async () => {
     const buildingsVillages: BuildingVillage[] = [
       {
         id: 'bv-1',
@@ -404,10 +407,12 @@ describe('BuildingVillageRepository', () => {
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingsVillages);
-    const stored = await BuildingVillageRepository.all();
-
-    expect(stored).toHaveLength(buildingsVillages.length);
-    expect(stored).toEqual(expect.arrayContaining(buildingsVillages));
+    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([
+      buildingsVillages[0]
+    ]);
+    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
+      buildingsVillages[1]
+    ]);
   });
 
   it('removes a building or village by id', async () => {
@@ -465,9 +470,9 @@ describe('BuildingVillageRepository', () => {
 
     await BuildingVillageRepository.bulkAdd(buildingsVillages);
     await BuildingVillageRepository.remove('bv-1');
-    const stored = await BuildingVillageRepository.all();
-
-    expect(stored).toHaveLength(1);
-    expect(stored[0]).toEqual(buildingsVillages[1]);
+    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([]);
+    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
+      buildingsVillages[1]
+    ]);
   });
 });
