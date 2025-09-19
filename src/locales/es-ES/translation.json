@@ -224,13 +224,11 @@
     "addressesForm": {
       "selectStreet": "Selecciona una calle",
       "selectType": "Tipo",
-      "numberStart": "Inicio",
-      "numberEnd": "Fin"
+      "number": "Número"
     },
     "addressesTable": {
       "street": "Calle",
-      "start": "Inicio",
-      "end": "Fin",
+      "number": "Número",
       "type": "Tipo",
       "lastVisit": "Última visita exitosa",
       "nextVisit": "Próxima visita permitida",

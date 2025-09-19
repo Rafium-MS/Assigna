@@ -227,13 +227,11 @@
     "addressesForm": {
       "selectStreet": "Select a street",
       "selectType": "Type",
-      "numberStart": "Start",
-      "numberEnd": "End"
+      "number": "Number"
     },
     "addressesTable": {
       "street": "Street",
-      "start": "Start",
-      "end": "End",
+      "number": "Number",
       "type": "Type",
       "lastVisit": "Last successful visit",
       "nextVisit": "Next visit allowed",

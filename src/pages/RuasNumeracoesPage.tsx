@@ -269,14 +269,12 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
       const streetId = parseInteger(formData.get('streetId'));
       const propertyTypeId = parseInteger(formData.get('propertyTypeId'));
-      const numberStart = parseInteger(formData.get('numberStart'));
-      const numberEnd = parseInteger(formData.get('numberEnd'));
+      const numberValue = parseInteger(formData.get('number'));
 
       if (
         streetId === null ||
         propertyTypeId === null ||
-        numberStart === null ||
-        numberEnd === null
+        numberValue === null
       ) {
         return;
       }
@@ -292,14 +290,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
         return;
       }
 
-      const startNumber = Math.min(numberStart, numberEnd);
-      const endNumber = Math.max(numberStart, numberEnd);
-
       try {
         await db.addresses.put({
           streetId,
-          numberStart: startNumber,
-          numberEnd: endNumber,
+          numberStart: numberValue,
+          numberEnd: numberValue,
           propertyTypeId
         });
         await refreshTerritoryData(territoryId, currentPublisherId);
@@ -368,7 +363,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
     return addresses.map(address => ({
       ...address,
       streetName: streetMap.get(address.streetId) ?? '',
-      propertyTypeName: propertyTypeMap.get(address.propertyTypeId) ?? ''
+      propertyTypeName: propertyTypeMap.get(address.propertyTypeId) ?? '',
+      numberLabel:
+        address.numberStart === address.numberEnd
+          ? `${address.numberStart}`
+          : `${address.numberStart}–${address.numberEnd}`
     }));
   }, [addresses, propertyTypes, territoryStreets]);
 
@@ -513,15 +512,9 @@ export default function RuasNumeracoesPage(): JSX.Element {
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">
-                  {t('ruasNumeracoes.addressesForm.numberStart')}
+                  {t('ruasNumeracoes.addressesForm.number')}
                 </span>
-                <input name="numberStart" type="number" className="border p-1" />
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">
-                  {t('ruasNumeracoes.addressesForm.numberEnd')}
-                </span>
-                <input name="numberEnd" type="number" className="border p-1" />
+                <input name="number" type="number" className="border p-1" />
               </label>
               <div className="sm:col-span-2 lg:col-span-3">
                 <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
@@ -530,17 +523,14 @@ export default function RuasNumeracoesPage(): JSX.Element {
               </div>
             </form>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
+              <table className="w-full min-w-[560px] text-sm">
                 <thead>
                   <tr>
                     <th className="px-2 py-1 text-left whitespace-nowrap">
                       {t('ruasNumeracoes.addressesTable.street')}
                     </th>
                     <th className="px-2 py-1 text-left whitespace-nowrap">
-                      {t('ruasNumeracoes.addressesTable.start')}
-                    </th>
-                    <th className="px-2 py-1 text-left whitespace-nowrap">
-                      {t('ruasNumeracoes.addressesTable.end')}
+                      {t('ruasNumeracoes.addressesTable.number')}
                     </th>
                     <th className="px-2 py-1 text-left whitespace-nowrap">
                       {t('ruasNumeracoes.addressesTable.type')}
@@ -564,13 +554,12 @@ export default function RuasNumeracoesPage(): JSX.Element {
                     const nextVisit =
                       formatDateTime(address.nextVisitAllowed) ??
                       t('ruasNumeracoes.addressesTable.cooldownNotScheduled');
-                    return (
-                      <tr key={address.id ?? `${address.streetId}-${index}`}>
-                        <td className="px-2 py-1">{address.streetName || '—'}</td>
-                        <td className="px-2 py-1">{address.numberStart}</td>
-                        <td className="px-2 py-1">{address.numberEnd}</td>
-                        <td className="px-2 py-1">{address.propertyTypeName || '—'}</td>
-                        <td className="px-2 py-1">{lastVisit}</td>
+                      return (
+                        <tr key={address.id ?? `${address.streetId}-${index}`}>
+                          <td className="px-2 py-1">{address.streetName || '—'}</td>
+                          <td className="px-2 py-1">{address.numberLabel}</td>
+                          <td className="px-2 py-1">{address.propertyTypeName || '—'}</td>
+                          <td className="px-2 py-1">{lastVisit}</td>
                         <td className="px-2 py-1">{nextVisit}</td>
                         <td className="px-2 py-1">
                           <button

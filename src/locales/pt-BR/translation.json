@@ -228,13 +228,11 @@
     "addressesForm": {
       "selectStreet": "Selecione a rua",
       "selectType": "Tipo",
-      "numberStart": "Início",
-      "numberEnd": "Fim"
+      "number": "Número"
     },
     "addressesTable": {
       "street": "Rua",
-      "start": "Início",
-      "end": "Fim",
+      "number": "Número",
       "type": "Tipo",
       "lastVisit": "Última visita bem-sucedida",
       "nextVisit": "Próxima visita liberada",
