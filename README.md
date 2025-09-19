@@ -109,6 +109,10 @@ Adicione imagens em `docs/screenshots/` com os nomes abaixo (ou ajuste os caminh
 ![Territorios](docs/screenshots/territorios.png)
 ![Sugestoes](docs/screenshots/sugestoes.png)
 ![Designacoes](docs/screenshots/designacoes.png)
+![Saidas](docs/screenshots/saidas.png)
+![PrediosVilas](docs/screenshots/predios_vilas.png)
+![Calendario](docs/screenshots/calendario.png)
+![NaoCasa](docs/screenshots/nao_em_casa.png)
 
 ## Suporte
 Abra uma issue no [rastreador de problemas](../../issues) para relatar bugs ou solicitar recursos.
