@@ -410,7 +410,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="border rounded p-2">
         {territory && (
           <ImageAnnotator
@@ -428,7 +428,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
           </label>
           <select
             id="territory-select"
-            className="border p-1"
+            className="border p-1 w-full"
             value={territoryId}
             onChange={event => setTerritoryId(event.target.value)}
             disabled={territories.length === 0}
@@ -441,7 +441,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
             ))}
           </select>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             className={activeTab === 'ruas' ? 'font-bold' : ''}
@@ -473,40 +473,48 @@ export default function RuasNumeracoesPage(): JSX.Element {
         </div>
         {activeTab === 'ruas' && (
           <div>
-            <form onSubmit={saveStreet} className="flex gap-2 mb-2">
+            <form
+              onSubmit={saveStreet}
+              className="mb-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end"
+            >
               <input
                 name="name"
                 placeholder={t('ruasNumeracoes.streetsForm.streetNamePlaceholder')}
-                className="border p-1"
+                className="border p-1 w-full sm:flex-1"
               />
-              <button type="submit" className="border px-2">
+              <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
                 {t('common.save')}
               </button>
             </form>
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.streetsTable.name')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {territoryStreets.map(s => (
-                  <tr key={s.id}>
-                    <td>{s.name}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[320px] text-sm">
+                <thead>
+                  <tr>
+                    <th className="text-left">
+                      {t('ruasNumeracoes.streetsTable.name')}
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {territoryStreets.map(s => (
+                    <tr key={s.id}>
+                      <td>{s.name}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {activeTab === 'enderecos' && (
           <div>
-            <form onSubmit={handleSubmit(saveAddress)} className="flex gap-2 mb-2">
+            <form
+              onSubmit={handleSubmit(saveAddress)}
+              className="mb-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-5"
+            >
               <select
                 {...register('streetId', { valueAsNumber: true })}
-                className="border p-1"
+                className="border p-1 w-full sm:col-span-2 lg:col-span-2"
               >
                 <option value="">{t('ruasNumeracoes.addressesForm.selectStreet')}</option>
                 {territoryStreets.map(s => (
@@ -517,7 +525,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
               </select>
               <select
                 {...register('propertyTypeId', { valueAsNumber: true })}
-                className="border p-1"
+                className="border p-1 w-full sm:col-span-2 lg:col-span-1"
               >
                 <option value="">{t('ruasNumeracoes.addressesForm.selectType')}</option>
                 {propertyTypes.map((pt, index) => (
@@ -529,16 +537,19 @@ export default function RuasNumeracoesPage(): JSX.Element {
               <input
                 type="number"
                 placeholder={t('ruasNumeracoes.addressesForm.numberStart')}
-                className="border p-1 w-20"
+                className="border p-1 w-full sm:col-span-1 lg:col-span-1 lg:max-w-[7rem]"
                 {...register('numberStart', { valueAsNumber: true })}
               />
               <input
                 type="number"
                 placeholder={t('ruasNumeracoes.addressesForm.numberEnd')}
-                className="border p-1 w-20"
+                className="border p-1 w-full sm:col-span-1 lg:col-span-1 lg:max-w-[7rem]"
                 {...register('numberEnd', { valueAsNumber: true })}
               />
-              <button type="submit" className="border px-2">
+              <button
+                type="submit"
+                className="border px-2 py-1 w-full sm:col-span-2 sm:w-auto sm:justify-self-start lg:col-span-1"
+              >
                 {t('common.save')}
               </button>
             </form>
@@ -547,175 +558,194 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 {t('ruasNumeracoes.addressesTable.cooldownAlert', { count: lockedAddresses.length })}
               </div>
             )}
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.street')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.start')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.end')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.type')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.lastVisit')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.nextVisit')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.addressesTable.actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAddresses.map(a => {
-                  const isCooldown = isAddressOnCooldown(a);
-                  const cooldownTooltip = isCooldown
-                    ? t('ruasNumeracoes.addressesTable.cooldownTooltip', {
-                        date: formatNextVisit(a.nextVisitAllowed ?? null)
-                      })
-                    : undefined;
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.street')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.start')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.end')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.type')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.lastVisit')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.nextVisit')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.actions')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAddresses.map(a => {
+                    const isCooldown = isAddressOnCooldown(a);
+                    const cooldownTooltip = isCooldown
+                      ? t('ruasNumeracoes.addressesTable.cooldownTooltip', {
+                          date: formatNextVisit(a.nextVisitAllowed ?? null)
+                        })
+                      : undefined;
 
-                  return (
-                    <tr key={a.id}>
-                      <td>{territoryStreets.find(s => s.id === a.streetId)?.name}</td>
-                      <td>{a.numberStart}</td>
-                      <td>{a.numberEnd}</td>
-                      <td>{propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}</td>
-                      <td>{formatLastVisit(a.lastSuccessfulVisit ?? null)}</td>
-                      <td>{formatNextVisit(a.nextVisitAllowed ?? null)}</td>
-                      <td>
-                        <button
-                          type="button"
-                          className="border px-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          onClick={() => {
-                            void handleMarkSuccessfulVisit(a);
-                          }}
-                          disabled={isCooldown}
-                          title={cooldownTooltip}
-                        >
-                          {t('ruasNumeracoes.addressesTable.markVisit')}
-                        </button>
-                        {isCooldown && (
-                          <p className="mt-1 text-xs text-yellow-700">
-                            {t('ruasNumeracoes.addressesTable.cooldownActive', {
-                              date: formatNextVisit(a.nextVisitAllowed ?? null)
-                            })}
-                          </p>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <tr key={a.id}>
+                        <td className="px-2 py-1 whitespace-nowrap">
+                          {territoryStreets.find(s => s.id === a.streetId)?.name}
+                        </td>
+                        <td className="px-2 py-1 whitespace-nowrap">{a.numberStart}</td>
+                        <td className="px-2 py-1 whitespace-nowrap">{a.numberEnd}</td>
+                        <td className="px-2 py-1 whitespace-nowrap">
+                          {propertyTypes.find(pt => pt.id === a.propertyTypeId)?.name}
+                        </td>
+                        <td className="px-2 py-1 whitespace-nowrap">
+                          {formatLastVisit(a.lastSuccessfulVisit ?? null)}
+                        </td>
+                        <td className="px-2 py-1 whitespace-nowrap">
+                          {formatNextVisit(a.nextVisitAllowed ?? null)}
+                        </td>
+                        <td className="min-w-[12rem] px-2 py-1 align-top">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:flex-wrap">
+                            <button
+                              type="button"
+                              className="border px-2 py-1 w-full disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                              onClick={() => {
+                                void handleMarkSuccessfulVisit(a);
+                              }}
+                              disabled={isCooldown}
+                              title={cooldownTooltip}
+                            >
+                              {t('ruasNumeracoes.addressesTable.markVisit')}
+                            </button>
+                            {isCooldown && (
+                              <p className="text-xs text-yellow-700 sm:basis-full">
+                                {t('ruasNumeracoes.addressesTable.cooldownActive', {
+                                  date: formatNextVisit(a.nextVisitAllowed ?? null)
+                                })}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {activeTab === 'tipos' && (
           <div>
-            <form onSubmit={handleCreatePropertyType} className="mb-2 flex gap-2">
+            <form
+              onSubmit={handleCreatePropertyType}
+              className="mb-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-end"
+            >
               <input
                 name="name"
                 placeholder={t('ruasNumeracoes.propertyTypesForm.namePlaceholder')}
-                className="border p-1"
+                className="border p-1 w-full sm:flex-1"
               />
-              <button type="submit" className="border px-2">
+              <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
                 {t('common.create')}
               </button>
             </form>
-            <table className="w-full text-sm">
-              <thead>
-                <tr>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.propertyTypesTable.name')}
-                  </th>
-                  <th className="text-left">
-                    {t('ruasNumeracoes.propertyTypesTable.actions')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {propertyTypes.length === 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[480px] text-sm">
+                <thead>
                   <tr>
-                    <td colSpan={2} className="py-2 text-sm text-gray-500">
-                      {t('ruasNumeracoes.propertyTypesTable.empty')}
-                    </td>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.propertyTypesTable.name')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.propertyTypesTable.actions')}
+                    </th>
                   </tr>
-                ) : (
-                  propertyTypes.map((pt, index) => {
-                    const isEditing = editingPropertyTypeId === pt.id;
-                    return (
-                      <tr key={pt.id ?? `${pt.name}-${index}`}>
-                        <td>
-                          {isEditing ? (
-                            <input
-                              value={editingPropertyTypeName}
-                              onChange={event => setEditingPropertyTypeName(event.target.value)}
-                              onKeyDown={event => {
-                                if (event.key === 'Enter') {
-                                  event.preventDefault();
-                                  void handleUpdatePropertyType();
-                                }
-                              }}
-                              className="w-full border p-1"
-                            />
-                          ) : (
-                            pt.name
-                          )}
-                        </td>
-                        <td className="flex gap-2">
-                          {isEditing ? (
-                            <>
-                              <button
-                                type="button"
-                                className="border px-2"
-                                onClick={() => {
-                                  void handleUpdatePropertyType();
+                </thead>
+                <tbody>
+                  {propertyTypes.length === 0 ? (
+                    <tr>
+                      <td colSpan={2} className="px-2 py-2 text-sm text-gray-500">
+                        {t('ruasNumeracoes.propertyTypesTable.empty')}
+                      </td>
+                    </tr>
+                  ) : (
+                    propertyTypes.map((pt, index) => {
+                      const isEditing = editingPropertyTypeId === pt.id;
+                      return (
+                        <tr key={pt.id ?? `${pt.name}-${index}`}>
+                          <td className="px-2 py-1">
+                            {isEditing ? (
+                              <input
+                                value={editingPropertyTypeName}
+                                onChange={event => setEditingPropertyTypeName(event.target.value)}
+                                onKeyDown={event => {
+                                  if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    void handleUpdatePropertyType();
+                                  }
                                 }}
-                              >
-                                {t('common.save')}
-                              </button>
-                              <button
-                                type="button"
-                                className="border px-2"
-                                onClick={cancelEditPropertyType}
-                              >
-                                {t('common.cancel')}
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                type="button"
-                                className="border px-2"
-                                onClick={() => startEditPropertyType(pt)}
-                              >
-                                {t('common.edit')}
-                              </button>
-                              <button
-                                type="button"
-                                className="border px-2"
-                                onClick={() => {
-                                  void handleDeletePropertyType(pt.id);
-                                }}
-                              >
-                                {t('common.delete')}
-                              </button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                                className="w-full border p-1"
+                              />
+                            ) : (
+                              pt.name
+                            )}
+                          </td>
+                          <td className="min-w-[12rem] px-2 py-1">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                              {isEditing ? (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="border px-2 py-1 w-full sm:w-auto"
+                                    onClick={() => {
+                                      void handleUpdatePropertyType();
+                                    }}
+                                  >
+                                    {t('common.save')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="border px-2 py-1 w-full sm:w-auto"
+                                    onClick={cancelEditPropertyType}
+                                  >
+                                    {t('common.cancel')}
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    type="button"
+                                    className="border px-2 py-1 w-full sm:w-auto"
+                                    onClick={() => startEditPropertyType(pt)}
+                                  >
+                                    {t('common.edit')}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="border px-2 py-1 w-full sm:w-auto"
+                                    onClick={() => {
+                                      void handleDeletePropertyType(pt.id);
+                                    }}
+                                  >
+                                    {t('common.delete')}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
         {activeTab === 'resumo' && (
