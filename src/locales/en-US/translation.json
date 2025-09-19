@@ -453,6 +453,29 @@
     "signOut": "Sign out",
     "invalidCredentials": "Invalid credentials. Please check your details and try again."
   },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Fill in the information below to create a new account.",
+    "cta": "Create account",
+    "submit": "Create account",
+    "submitting": "Creating...",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInHint": "Use the sign-in form in the header.",
+    "redirectMessage": "Create an account or sign in to access {{from}}.",
+    "success": "Account created successfully! You are now signed in.",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password"
+    },
+    "errors": {
+      "nameRequired": "Enter your name",
+      "emailInvalid": "Enter a valid email address",
+      "emailTaken": "This email is already associated with an account",
+      "passwordLength": "Use at least {{min}} characters",
+      "generic": "We couldn't create your account. Please try again."
+    }
+  },
   "language": {
     "english": "English",
     "portuguese": "Portuguese",

@@ -6,6 +6,10 @@ export interface RouteDefinition {
   allowedRoles: ReadonlyArray<string>;
 }
 
+export const authRoutes = {
+  register: '/register',
+} as const;
+
 const managementRoles = [ADMIN_MASTER_ROLE, 'admin', 'manager'] as const;
 const adminMasterOnlyRoles = [ADMIN_MASTER_ROLE] as const;
 const publisherRoles = [...managementRoles, 'publisher'] as const;

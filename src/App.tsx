@@ -16,6 +16,7 @@ import CalendarPage from './pages/CalendarPage';
 import SuggestionsPage from './pages/SuggestionsPage';
 import NaoEmCasaPage from './pages/NaoEmCasaPage';
 import UsersPage from './pages/UsersPage';
+import RegisterPage from './pages/RegisterPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
 import { useAuth } from './hooks/useAuth';
@@ -33,11 +34,12 @@ import {
 } from './services/repositories';
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
-import { routeEntries } from './routes';
+import { authRoutes, routeEntries } from './routes';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 import { ADMIN_MASTER_ROLE } from './constants/roles';
 
 const UNAUTHORIZED_ROUTE = '/unauthorized';
+const REGISTER_ROUTE = authRoutes.register;
 const ADMIN_MASTER_ROLE_NORMALIZED = ADMIN_MASTER_ROLE.toLowerCase();
 
 const pagesByTab: Record<TabKey, ComponentType> = {
@@ -69,7 +71,7 @@ export const RouteGuard = ({ component: Component, allowedRoles, currentRole, pa
   if (normalizedRole === null) {
     return (
       <Navigate
-        to={UNAUTHORIZED_ROUTE}
+        to={REGISTER_ROUTE}
         replace
         state={{ from: path, reason: 'unauthenticated' }}
       />
@@ -204,6 +206,7 @@ export const AppContent = () => {
   return (
     <Shell>
       <Routes>
+        <Route path={REGISTER_ROUTE} element={<RegisterPage />} />
         {routeEntries.map(([key, config]) => {
           const PageComponent = pagesByTab[key];
           return (
