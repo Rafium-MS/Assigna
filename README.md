@@ -82,7 +82,7 @@ Quando essa variável não estiver definida, as notificações de devolução pe
 
 ## Banco de Dados (Offline)
 - Todos os dados são armazenados no **IndexedDB** via **Dexie.js** (`src/services/db.ts`).
-- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação. A versão atual é controlada pela constante `SCHEMA_VERSION`, definida em [`src/services/db.ts`](src/services/db.ts) (atualmente em 9).
+- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação. A versão atual é controlada pela constante `SCHEMA_VERSION`, definida em [`src/services/db.ts`](src/services/db.ts) (atualmente em 10).
 - Campos de visitas em endereços: `lastSuccessfulVisit` e `nextVisitAllowed`.
 
 ## Screenshots

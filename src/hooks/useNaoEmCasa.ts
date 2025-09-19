@@ -22,6 +22,7 @@ export const useNaoEmCasa = () => {
         const record: NaoEmCasaRegistro = {
           id: generateId(),
           completedAt: registro.completedAt ?? null,
+          conversationConfirmed: registro.conversationConfirmed ?? false,
           ...registro,
           publisherId: currentUserId,
         };
@@ -40,6 +41,8 @@ export const useNaoEmCasa = () => {
           ...current,
           ...updates,
           id,
+          conversationConfirmed:
+            updates.conversationConfirmed ?? current.conversationConfirmed ?? false,
         };
         await NaoEmCasaRepository.add(record);
         dispatch({ type: 'UPDATE_NAO_EM_CASA', payload: record });

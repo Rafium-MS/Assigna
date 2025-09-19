@@ -12,4 +12,5 @@ export interface NaoEmCasaRegistro {
   recordedAt: string;
   followUpAt: string;
   completedAt?: string | null;
+  conversationConfirmed?: boolean;
 }
