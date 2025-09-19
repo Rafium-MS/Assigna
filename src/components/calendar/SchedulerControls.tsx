@@ -2,6 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useMonthlyExportScheduler } from '../../hooks/useMonthlyExportScheduler';
 import { useAuth } from '../../hooks/useAuth';
+import { formatLocalDateTimeForInput } from '../../utils/calendar';
 
 /**
  * A component for controlling the monthly export scheduler.
@@ -12,7 +13,7 @@ export const SchedulerControls: React.FC = () => {
   const { currentUser } = useAuth();
   const { config, setConfig } = useMonthlyExportScheduler(currentUser?.id);
   const { t } = useTranslation();
-  const dateValue = new Date(config.nextRun).toISOString().slice(0, 16);
+  const dateValue = formatLocalDateTimeForInput(new Date(config.nextRun));
 
   return (
     <div className="border rounded-xl p-4 mt-4">
