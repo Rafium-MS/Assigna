@@ -46,6 +46,7 @@
     "letters": "Letters",
     "exits": "Exits",
     "assignments": "Assignments",
+    "todayAssignments": "Today's assignments",
     "calendar": "Calendar",
     "suggestions": "Suggestions",
     "notAtHome": "Not at Home",
@@ -87,6 +88,16 @@
     "unknownStreet": "Unknown street",
     "unknownType": "Unknown type",
     "addressLabel": "{{street}} • no. {{range}}"
+  },
+
+  "viewerAssignments": {
+    "title": "Today's assignments",
+    "currentDate": "Reference date: {{date}}",
+    "empty": "No territories assigned for today.",
+    "summary": "Active territories today: {{count}}",
+    "assignmentRange": "Period: {{start}} – {{end}}",
+    "exitLabel": "Group: {{name}}",
+    "returnBy": "Return by {{date}}"
   },
 
   "buildingsVillages": {

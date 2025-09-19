@@ -23,6 +23,7 @@ export const routes: Record<TabKey, RouteDefinition> = {
   exits: { path: '/exits', allowedRoles: managementRoles },
   assignments: { path: '/assignments', allowedRoles: managementRoles },
   users: { path: '/users', allowedRoles: adminMasterOnlyRoles },
+  todayAssignments: { path: '/today', allowedRoles: readOnlyRoles },
   calendar: { path: '/calendar', allowedRoles: readOnlyRoles },
   suggestions: { path: '/suggestions', allowedRoles: managementRoles },
   notAtHome: { path: '/nao-em-casa', allowedRoles: publisherRoles }

@@ -46,6 +46,7 @@
     "letters": "Correspondencia",
     "exits": "Salidas",
     "assignments": "Asignaciones",
+    "todayAssignments": "Asignaciones de hoy",
     "calendar": "Calendario",
     "suggestions": "Sugerencias",
     "notAtHome": "No en Casa",
@@ -87,6 +88,15 @@
     "unknownStreet": "Calle desconocida",
     "unknownType": "Tipo desconocido",
     "addressLabel": "{{street}} • n.º {{range}}"
+  },
+  "viewerAssignments": {
+    "title": "Asignaciones de hoy",
+    "currentDate": "Fecha de referencia: {{date}}",
+    "empty": "No hay territorios asignados para hoy.",
+    "summary": "Territorios activos hoy: {{count}}",
+    "assignmentRange": "Periodo: {{start}} – {{end}}",
+    "exitLabel": "Salida: {{name}}",
+    "returnBy": "Devolver antes del {{date}}"
   },
   "buildingsVillages": {
     "title": "Edificios y Villas",
