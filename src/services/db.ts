@@ -520,13 +520,15 @@ export async function migrate(): Promise<void> {
     // Schema version 3 introduces streets/addresses/derived territories for buildings, also wrapped in a Dexie transaction.
     await db.transaction(
       'rw',
-      db.buildingsVillages,
-      db.streets,
-      db.addresses,
-      db.propertyTypes,
-      db.derivedTerritories,
-      db.derivedTerritoryAddresses,
-      db.metadata,
+      [
+        db.buildingsVillages,
+        db.streets,
+        db.addresses,
+        db.propertyTypes,
+        db.derivedTerritories,
+        db.derivedTerritoryAddresses,
+        db.metadata
+      ],
       async () => {
         const propertyTypeName = 'Building/Village';
         const existingPropertyType = await db.propertyTypes.where('name').equals(propertyTypeName).first();
@@ -793,12 +795,14 @@ export async function migrate(): Promise<void> {
   if (current < 7) {
     await db.transaction(
       'rw',
-      db.territorios,
-      db.saidas,
-      db.designacoes,
-      db.sugestoes,
-      db.buildingsVillages,
-      db.naoEmCasa,
+      [
+        db.territorios,
+        db.saidas,
+        db.designacoes,
+        db.sugestoes,
+        db.buildingsVillages,
+        db.naoEmCasa
+      ],
       async () => {
         const fallbackPublisherId = '';
         const ensurePublisherId = async <T extends { publisherId?: unknown }>(

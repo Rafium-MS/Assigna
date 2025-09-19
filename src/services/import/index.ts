@@ -56,19 +56,21 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
 
   await db.transaction(
     'rw',
-    db.territorios,
-    db.saidas,
-    db.designacoes,
-    db.sugestoes,
-    db.buildingsVillages,
-    db.naoEmCasa,
-    db.users,
-    db.streets,
-    db.propertyTypes,
-    db.addresses,
-    db.derivedTerritories,
-    db.derivedTerritoryAddresses,
-    db.metadata,
+    [
+      db.territorios,
+      db.saidas,
+      db.designacoes,
+      db.sugestoes,
+      db.buildingsVillages,
+      db.naoEmCasa,
+      db.users,
+      db.streets,
+      db.propertyTypes,
+      db.addresses,
+      db.derivedTerritories,
+      db.derivedTerritoryAddresses,
+      db.metadata
+    ],
     async () => {
       await Promise.all([
         TerritorioRepository.clear(),

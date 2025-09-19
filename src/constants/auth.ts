@@ -10,8 +10,9 @@ const getEnvVar = (key: string): string | undefined => {
     }
   }
 
-  if (typeof process !== 'undefined' && typeof process.env === 'object') {
-    const value = process.env[key];
+  const processEnv = (globalThis as { process?: { env?: Record<string, unknown> } }).process?.env;
+  if (processEnv) {
+    const value = processEnv[key];
     if (typeof value === 'string') {
       return value;
     }
