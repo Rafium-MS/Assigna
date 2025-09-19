@@ -3,7 +3,6 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 
 import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
-import type { Address } from '../types/address';
 
 const {
   useAuthMock,
@@ -31,29 +30,7 @@ const {
     { id: 2, territoryId: 'territory-2', name: 'Rua Sul 1' },
   ];
 
-  const addressesSeed: Address[] = [
-    {
-      id: 100,
-      streetId: 1,
-      numberStart: 1,
-      numberEnd: 10,
-      propertyTypeId: 10,
-      lastSuccessfulVisit: null,
-      nextVisitAllowed: null,
-    },
-    {
-      id: 200,
-      streetId: 2,
-      numberStart: 20,
-      numberEnd: 30,
-      propertyTypeId: 10,
-      lastSuccessfulVisit: null,
-      nextVisitAllowed: null,
-    },
-  ];
-
   const requestedStreetTerritories: string[] = [];
-  const requestedAddressStreetIds: number[][] = [];
 
   const useAuthMock = vi.fn(() => ({
     currentUser,
@@ -93,22 +70,6 @@ const {
       })),
       put: vi.fn(),
     },
-    addresses: {
-      where: vi.fn((field: keyof Address) => ({
-        anyOf: (values: number[]) => {
-          requestedAddressStreetIds.push(values);
-          return {
-            async toArray() {
-              const allowed = new Set(values);
-              return addressesSeed
-                .filter((address) => allowed.has(address[field] as number))
-                .map((address) => ({ ...address }));
-            },
-          };
-        },
-      })),
-      put: vi.fn(),
-    },
   };
 
   const translationMock = {
@@ -122,7 +83,6 @@ const {
     dbMock,
     translationMock,
     requestedStreetTerritories,
-    requestedAddressStreetIds,
   };
 });
 
@@ -159,11 +119,10 @@ describe('RuasNumeracoesPage publisher scoping', () => {
   afterEach(() => {
     cleanup();
     requestedStreetTerritories.length = 0;
-    requestedAddressStreetIds.length = 0;
     vi.clearAllMocks();
   });
 
-  it('loads only the current publisher territories, streets and addresses', async () => {
+  it('loads only the current publisher territories and streets', async () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
@@ -182,6 +141,5 @@ describe('RuasNumeracoesPage publisher scoping', () => {
     expect(screen.queryByText('Rua Sul 1')).toBeNull();
 
     expect(requestedStreetTerritories).toEqual(['territory-1']);
-    expect(requestedAddressStreetIds).toEqual([[1]]);
   });
 });
