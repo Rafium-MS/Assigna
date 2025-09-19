@@ -36,11 +36,17 @@ const CalendarPage: React.FC = () => {
       <Card>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))} className="bg-neutral-100">
+            <Button
+              onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
+              className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+            >
               ◀
             </Button>
             <h2 className="font-semibold">{month.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
-            <Button onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))} className="bg-neutral-100">
+            <Button
+              onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
+              className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+            >
               ▶
             </Button>
           </div>
@@ -134,7 +140,10 @@ const CalendarPage: React.FC = () => {
               );
             })()}
             <div className="text-right">
-              <Button onClick={close} className="bg-neutral-100">
+              <Button
+                onClick={close}
+                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+              >
                 {t('app.close')}
               </Button>
             </div>

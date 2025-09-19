@@ -40,7 +40,7 @@ const UnauthorizedPage = () => {
       </div>
       <Link
         to="/"
-        className="rounded-xl px-3 py-2 border bg-neutral-100 hover:bg-neutral-200 transition"
+        className="rounded-xl px-3 py-2 border bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700 transition"
       >
         Voltar para o início
       </Link>

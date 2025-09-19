@@ -71,12 +71,16 @@ const {
       put: vi.fn(),
     },
     addresses: {
-      where: vi.fn((_field: keyof Address) => ({
-        anyOf: (..._values: Array<Address[keyof Address]>) => ({
-          async toArray() {
-            return [] as Address[];
-          },
-        }),
+      where: vi.fn((field: keyof Address) => ({
+        anyOf: (...values: Array<Address[keyof Address]>) => {
+          void field;
+          void values;
+          return {
+            async toArray() {
+              return [] as Address[];
+            },
+          };
+        },
       })),
     },
   };

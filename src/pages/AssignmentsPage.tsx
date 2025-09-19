@@ -174,7 +174,10 @@ const AssignmentsPage: React.FC = () => {
                         <StatusBadge status={status} />
                       </td>
                       <td className="text-right flex gap-2 justify-end">
-                        <Button onClick={() => toggleDesignacaoReturn(designacao)} className="bg-neutral-100">
+                        <Button
+                          onClick={() => toggleDesignacaoReturn(designacao)}
+                          className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+                        >
                           {designacao.devolvido ? t('assignments.reactivate') : t('assignments.markAsReturned')}
                         </Button>
                         <Button

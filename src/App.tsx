@@ -184,10 +184,16 @@ const DataManagementControls: React.FC = () => {
         className="hidden"
       />
       <div className="flex flex-wrap justify-end gap-2">
-        <Button onClick={handleExport} className="mt-4 bg-neutral-100">
+        <Button
+          onClick={handleExport}
+          className="mt-4 bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+        >
           Exportar
         </Button>
-        <Button onClick={handleImportClick} className="mt-4 bg-neutral-100">
+        <Button
+          onClick={handleImportClick}
+          className="mt-4 bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+        >
           Importar
         </Button>
         <Button onClick={handleClick} className="mt-4 bg-red-600 text-white">

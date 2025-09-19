@@ -84,7 +84,7 @@ const TerritoriesPage: React.FC = () => {
                   reset();
                   setEditingId(null);
                 }}
-                className="bg-neutral-100"
+                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
               >
                 {t('common.cancel')}
               </Button>
@@ -152,7 +152,10 @@ const TerritoriesPage: React.FC = () => {
                     </td>
                     <td className="py-2 text-right">
                       <div className="flex gap-2 justify-end">
-                        <Button onClick={() => startEdit(territorio)} className="bg-neutral-100">
+                        <Button
+                          onClick={() => startEdit(territorio)}
+                          className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+                        >
                           {t('common.edit')}
                         </Button>
                         <Button
