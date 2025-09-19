@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink } from 'react-router-dom';
 import type { TabKey } from '../../types/navigation';
@@ -98,36 +98,136 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
 
 const ADMIN_MASTER_ROLE_NORMALIZED = ADMIN_MASTER_ROLE.toLowerCase();
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  id?: string;
+  open: boolean;
+  onClose: () => void;
+}
+
+const useIsMdUp = () => {
+  const getMatches = () =>
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      ? window.matchMedia('(min-width: 768px)').matches
+      : false;
+
+  const [matches, setMatches] = useState<boolean>(getMatches);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const updateMatches = (event: MediaQueryListEvent) => {
+      setMatches(event.matches);
+    };
+
+    setMatches(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', updateMatches);
+      return () => mediaQuery.removeEventListener('change', updateMatches);
+    }
+
+    mediaQuery.addListener(updateMatches);
+    return () => mediaQuery.removeListener(updateMatches);
+  }, []);
+
+  return matches;
+};
+
+export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
   const { t } = useTranslation();
   const { currentUser } = useAuth();
   const normalizedRole = currentUser?.role?.toLowerCase() ?? null;
   const isAdminMaster = normalizedRole === ADMIN_MASTER_ROLE_NORMALIZED;
+  const isMdUp = useIsMdUp();
+  const isVisible = isMdUp || open;
+  const navId = id ?? 'app-sidebar';
 
   const visibleItems = normalizedRole
     ? items.filter((it) =>
-        isAdminMaster ||
-        routes[it.id].allowedRoles.some((role) => role.toLowerCase() === normalizedRole),
+        isAdminMaster || routes[it.id].allowedRoles.some((role) => role.toLowerCase() === normalizedRole),
       )
     : [];
 
+  useEffect(() => {
+    if (!open || isMdUp) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose, isMdUp]);
+
   return (
-    <nav className="bg-white dark:bg-neutral-900 border-r p-2 flex md:flex-col gap-2 md:w-48">
-      {visibleItems.map((it) => (
-        <NavLink
-          key={it.id}
-          to={routePaths[it.id]}
-          end={routePaths[it.id] === '/'}
-          aria-label={t(it.label)}
-          className={({ isActive }) =>
-            `flex items-center gap-2 px-3 py-2 rounded transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
-              isActive ? 'bg-neutral-200 dark:bg-neutral-800' : ''
-            }`}
-        >
-          {it.icon}
-          <span className="sr-only md:not-sr-only md:inline">{t(it.label)}</span>
-        </NavLink>
-      ))}
-    </nav>
+    <>
+      {!isMdUp && (
+        <div
+          className={`fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden ${
+            open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
+          aria-hidden="true"
+          onClick={onClose}
+        />
+      )}
+      <nav
+        id={navId}
+        aria-label={t('app.navigation', 'Navegação principal')}
+        aria-hidden={!isVisible}
+        className={`bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-4 md:p-2 flex flex-col gap-2 w-64 md:w-48 h-full md:h-auto fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 md:shadow-none ${
+          isVisible ? 'translate-x-0 shadow-lg md:shadow-none pointer-events-auto' : '-translate-x-full pointer-events-none'
+        }`}
+      >
+        <div className="flex justify-end md:hidden">
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex items-center gap-2 rounded-xl border px-3 py-2"
+          >
+            <span className="sr-only">{t('sidebar.closeMenu', 'Fechar menu de navegação')}</span>
+            <svg
+              className="h-5 w-5"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12" />
+              <path d="M18 6L6 18" />
+            </svg>
+          </button>
+        </div>
+        {visibleItems.map((it) => (
+          <NavLink
+            key={it.id}
+            to={routePaths[it.id]}
+            end={routePaths[it.id] === '/'}
+            aria-label={t(it.label)}
+            tabIndex={isVisible ? 0 : -1}
+            onClick={() => {
+              if (!isMdUp) {
+                onClose();
+              }
+            }}
+            className={({ isActive }) =>
+              `flex items-center gap-2 px-3 py-2 rounded transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 ${
+                isActive ? 'bg-neutral-200 dark:bg-neutral-800' : ''
+              }`
+            }
+          >
+            {it.icon}
+            <span className="sr-only md:not-sr-only md:inline">{t(it.label)}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </>
   );
 };
