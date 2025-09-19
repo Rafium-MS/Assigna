@@ -16,7 +16,7 @@ export const SchedulerControls: React.FC = () => {
   const dateValue = formatLocalDateTimeForInput(new Date(config.nextRun));
 
   return (
-    <div className="border rounded-xl p-4 mt-4">
+    <div className="border border-neutral-200 dark:border-neutral-700 rounded-xl p-4 mt-4 bg-white dark:bg-neutral-900">
       <h2 className="text-lg font-semibold mb-2">{t('scheduler.title')}</h2>
       <label className="flex items-center gap-2">
         <input
@@ -27,7 +27,9 @@ export const SchedulerControls: React.FC = () => {
         <span>{t('scheduler.enable')}</span>
       </label>
       <div className="mt-2">
-        <span className="text-sm text-neutral-600 mr-2">{t('scheduler.nextRun')}</span>
+        <span className="text-sm text-neutral-600 dark:text-neutral-300 mr-2">
+          {t('scheduler.nextRun')}
+        </span>
         <input
           type="datetime-local"
           value={dateValue}
