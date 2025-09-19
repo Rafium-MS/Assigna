@@ -344,14 +344,17 @@ const NaoEmCasaPage: React.FC = () => {
                       ) : (
                         <div className="grid gap-3">
                           {streets.map((street) => (
-                            <details key={street.key} className="rounded-xl border bg-white">
-                              <summary className="flex cursor-pointer select-none items-center justify-between gap-2 px-4 py-3 font-medium">
+                            <details
+                              key={street.key}
+                              className="rounded-xl border bg-white dark:bg-neutral-900 dark:border-neutral-700"
+                            >
+                              <summary className="flex cursor-pointer select-none items-center justify-between gap-2 px-4 py-3 font-medium text-neutral-800 dark:text-neutral-300">
                                 <span>{street.name}</span>
-                                <span className="text-sm text-neutral-500">
+                                <span className="text-sm text-neutral-500 dark:text-neutral-400">
                                   {t('naoEmCasa.streetAddresses', { count: street.addresses.length })}
                                 </span>
                               </summary>
-                              <div className="border-t">
+                              <div className="border-t border-neutral-200 dark:border-neutral-700">
                                 {street.addresses.map((detail) => {
                                   const { address } = detail;
                                   const key = buildAddressKey(territorio.id, address);
@@ -368,28 +371,28 @@ const NaoEmCasaPage: React.FC = () => {
                                   return (
                                     <div
                                       key={key}
-                                      className="flex flex-col gap-3 border-b border-neutral-200 px-4 py-3 last:border-b-0"
+                                      className="flex flex-col gap-3 border-b border-neutral-200 px-4 py-3 last:border-b-0 dark:border-neutral-700"
                                     >
                                       <div className="flex flex-col gap-1">
-                                        <p className="font-medium">
+                                        <p className="font-medium text-neutral-800 dark:text-neutral-200">
                                           {t('naoEmCasa.addressLabel', {
                                             street: detail.streetName ?? t('naoEmCasa.unknownStreet'),
                                             range: rangeLabel,
                                           })}
                                         </p>
-                                        <p className="text-sm text-neutral-500">
+                                        <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                           <span>{detail.propertyTypeName ?? t('naoEmCasa.unknownType')}</span>
-                                          <span className="ml-2 text-xs text-neutral-400">{categoryLabel}</span>
+                                          <span className="ml-2 text-xs text-neutral-400 dark:text-neutral-300">{categoryLabel}</span>
                                         </p>
                                         {pending && (
-                                          <p className="text-xs text-neutral-500">
+                                          <p className="text-xs text-neutral-500 dark:text-neutral-400">
                                             {t('naoEmCasa.scheduledFor', {
                                               date: formatIsoDate(pending.followUpAt),
                                             })}
                                           </p>
                                         )}
                                         {conversationConfirmed && (
-                                          <p className="text-xs font-medium text-green-600">
+                                          <p className="text-xs font-medium text-green-600 dark:text-green-400">
                                             {t('naoEmCasa.conversationConfirmedLabel')}
                                           </p>
                                         )}
@@ -397,7 +400,9 @@ const NaoEmCasaPage: React.FC = () => {
                                       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                                         <label
                                           className={`flex items-center gap-2 text-sm ${
-                                            pending ? 'text-neutral-700' : 'text-neutral-400'
+                                            pending
+                                              ? 'text-neutral-700 dark:text-neutral-300'
+                                              : 'text-neutral-400 dark:text-neutral-500'
                                           }`}
                                         >
                                           <input
