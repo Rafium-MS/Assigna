@@ -33,6 +33,16 @@ export const nextDateForWeekday = (baseIso: string, weekday: number): string => 
   return formatLocalDateForInput(date);
 };
 
+const adjustForTimezoneOffset = (date: Date): Date => {
+  const timezoneOffsetInMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - timezoneOffsetInMs);
+};
+
+export const formatLocalDateTimeForInput = (date: Date): string =>
+  adjustForTimezoneOffset(date).toISOString().slice(0, 16);
+
+export const formatLocalDateForInput = (date: Date): string =>
+  adjustForTimezoneOffset(date).toISOString().slice(0, 10);
 export const formatLocalDateTimeForInput = (date: Date): string => toLocalISOString(date).slice(0, 16);
 
 export const todayLocalIso = (): string => formatLocalDateForInput(new Date());
