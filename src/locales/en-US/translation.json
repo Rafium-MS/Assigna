@@ -368,7 +368,8 @@
     "actions": {
       "saveDefaults": "Save defaults",
       "generate": "Generate Suggestions",
-      "applyAll": "Apply All"
+      "applyAll": "Apply All",
+      "viewTour": "View tour"
     },
     "labels": {
       "startDate": "Start date",
@@ -399,6 +400,10 @@
     "toast": {
       "nothingToApply": "Nothing to apply",
       "applied": "Suggestions applied"
+    },
+    "tour": {
+      "progress": "Step {{current}} of {{total}}",
+      "finish": "Finish tour"
     },
     "reasons": {
       "exitLoad": "Exit load {{value}}%",

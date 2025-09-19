@@ -370,7 +370,8 @@
     "actions": {
       "saveDefaults": "Salvar padrões",
       "generate": "Gerar sugestões",
-      "applyAll": "Aplicar tudo"
+      "applyAll": "Aplicar tudo",
+      "viewTour": "Ver tour"
     },
     "labels": {
       "startDate": "Data inicial",
@@ -401,6 +402,10 @@
     "toast": {
       "nothingToApply": "Nada para aplicar",
       "applied": "Designações aplicadas"
+    },
+    "tour": {
+      "progress": "Passo {{current}} de {{total}}",
+      "finish": "Finalizar tour"
     },
     "reasons": {
       "exitLoad": "Carga saída {{value}}%",
