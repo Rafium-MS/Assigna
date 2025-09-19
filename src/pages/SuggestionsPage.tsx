@@ -202,7 +202,10 @@ const SuggestionsPage: React.FC = () => {
             <Button onClick={openTour} className="bg-blue-600 text-white">
               {t('suggestions.actions.viewTour')}
             </Button>
-            <Button onClick={saveRuleDefaults} className="bg-neutral-100">
+            <Button
+              onClick={saveRuleDefaults}
+              className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+            >
               {t('suggestions.actions.saveDefaults')}
             </Button>
           </>

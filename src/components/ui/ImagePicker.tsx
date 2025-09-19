@@ -43,7 +43,10 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ value, onChange, compr
       <div className="flex items-center gap-2">
         <input type="file" accept="image/*" onChange={(event) => handleFile(event.target.files?.[0])} />
         {value && (
-          <Button onClick={() => onChange(undefined)} className="bg-neutral-100 dark:bg-neutral-800">
+          <Button
+            onClick={() => onChange(undefined)}
+            className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+          >
             Remover
           </Button>
         )}

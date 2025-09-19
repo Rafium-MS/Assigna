@@ -185,7 +185,11 @@ const UsersPage: React.FC = () => {
           </div>
           <div className="flex items-end justify-end gap-2 md:col-span-6">
             {editingId && (
-              <Button type="button" className="bg-neutral-100" onClick={resetForm}>
+              <Button
+                type="button"
+                className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+                onClick={resetForm}
+              >
                 {t('users.form.cancel')}
               </Button>
             )}
@@ -218,7 +222,11 @@ const UsersPage: React.FC = () => {
                   <p className="text-sm text-neutral-500">{t(`users.roles.${user.role}`)}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button type="button" className="bg-neutral-100" onClick={() => handleEdit(user)}>
+                  <Button
+                    type="button"
+                    className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
+                    onClick={() => handleEdit(user)}
+                  >
                     {t('users.actions.edit')}
                   </Button>
                   <Button
