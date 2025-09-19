@@ -115,6 +115,10 @@ const NaoEmCasaPage: React.FC = () => {
   const { t } = useTranslation();
 
   const todayIso = useMemo(() => todayLocalIso(), []);
+  const confirmConversationLabel = useMemo(
+    () => t('naoEmCasa.confirmConversation', { date: formatIsoDate(todayIso) }),
+    [t, todayIso],
+  );
 
   const activeDesignacoes = useMemo(
     () =>
@@ -405,7 +409,7 @@ const NaoEmCasaPage: React.FC = () => {
                                               pending && handleToggleConversation(pending, event.target.checked)
                                             }
                                           />
-                                          {t('naoEmCasa.confirmConversation')}
+                                          {confirmConversationLabel}
                                         </label>
                                         <Button
                                           type="button"

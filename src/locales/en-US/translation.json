@@ -76,7 +76,7 @@
     "recordNotAtHome": "Record not at home",
     "streetAddresses": "{{count}} address",
     "streetAddresses_plural": "{{count}} addresses",
-    "confirmConversation": "Confirm conversation",
+    "confirmConversation": "Confirm conversation ({{date}})",
     "conversationConfirmedLabel": "Conversation confirmed",
     "scheduledFor": "Return scheduled for {{date}}",
     "followUpsTitle": "Scheduled returns ({{count}})",

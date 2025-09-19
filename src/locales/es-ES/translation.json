@@ -76,7 +76,7 @@
     "recordNotAtHome": "Registrar ausencia",
     "streetAddresses": "{{count}} dirección",
     "streetAddresses_plural": "{{count}} direcciones",
-    "confirmConversation": "Confirmar conversación",
+    "confirmConversation": "Confirmar conversación ({{date}})",
     "conversationConfirmedLabel": "Conversación confirmada",
     "scheduledFor": "Visita programada para {{date}}",
     "followUpsTitle": "Visitas programadas ({{count}})",
