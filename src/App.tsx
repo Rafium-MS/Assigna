@@ -16,6 +16,7 @@ import CalendarPage from './pages/CalendarPage';
 import SuggestionsPage from './pages/SuggestionsPage';
 import NaoEmCasaPage from './pages/NaoEmCasaPage';
 import UsersPage from './pages/UsersPage';
+import TodayAssignmentsPage from './pages/TodayAssignmentsPage';
 import RegisterPage from './pages/RegisterPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
@@ -50,6 +51,7 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   exits: ExitsPage,
   assignments: AssignmentsPage,
   users: UsersPage,
+  todayAssignments: TodayAssignmentsPage,
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
   notAtHome: NaoEmCasaPage,

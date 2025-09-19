@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { formatLocalDateForInput, formatLocalDateTimeForInput, todayLocalIso } from './calendar';
 import {
   addDaysToIso,
   formatLocalDateForInput,
@@ -9,7 +8,6 @@ import {
 
 describe('calendar utils', () => {
   afterEach(() => {
-    vi.useRealTimers();
     vi.restoreAllMocks();
     vi.useRealTimers();
   });
@@ -56,7 +54,6 @@ describe('calendar utils', () => {
     expect(formatLocalDateForInput(date)).toBe('2024-05-02');
   });
 
-  test('todayLocalIso returns the local ISO date for the current day', () => {
   test('addDaysToIso respects local timezone offsets', () => {
     vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(-180);
 

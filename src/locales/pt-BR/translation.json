@@ -46,6 +46,7 @@
     "letters": "Cartas",
     "exits": "Saídas",
     "assignments": "Designações",
+    "todayAssignments": "Designações do dia",
     "calendar": "Calendário",
     "suggestions": "Sugestões",
     "notAtHome": "Não em Casa",
@@ -87,6 +88,16 @@
     "unknownStreet": "Rua não informada",
     "unknownType": "Tipo não informado",
     "addressLabel": "{{street}} • nº {{range}}"
+  },
+
+  "viewerAssignments": {
+    "title": "Designações do dia",
+    "currentDate": "Data de referência: {{date}}",
+    "empty": "Nenhum território designado para hoje.",
+    "summary": "Total de territórios ativos hoje: {{count}}",
+    "assignmentRange": "Período: {{start}} – {{end}}",
+    "exitLabel": "Saída: {{name}}",
+    "returnBy": "Devolver até {{date}}"
   },
 
   "buildingsVillages": {
