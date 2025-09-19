@@ -19,7 +19,10 @@ export const BuildingVillageRepository = {
    * @returns A promise that resolves to an array of BuildingVillage objects.
    */
   async forPublisher(publisherId: string): Promise<BuildingVillage[]> {
-    return db.buildingsVillages.where('publisherId').equals(publisherId).toArray();
+    return db.buildingsVillages
+      .where('publisherId')
+      .equals(publisherId)
+      .toArray();
   },
 
   /**
@@ -55,5 +58,5 @@ export const BuildingVillageRepository = {
    */
   async remove(id: string): Promise<void> {
     await db.buildingsVillages.delete(id);
-  }
+  },
 };

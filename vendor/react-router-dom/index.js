@@ -4,7 +4,7 @@ const RouterContext = React.createContext({
   location: { pathname: '/', state: undefined },
   navigate: () => {
     throw new Error('navigate called outside of a router context');
-  }
+  },
 });
 
 const isBrowser = typeof window !== 'undefined';
@@ -13,20 +13,22 @@ const ROUTER_STATE_KEY = '__assigna_router_state__';
 const createHistoryState = (pathname, state) => ({
   [ROUTER_STATE_KEY]: true,
   pathname,
-  state
+  state,
 });
 
-const readLocation = stateOverride => {
+const readLocation = (stateOverride) => {
   if (!isBrowser) {
     const candidate =
-      stateOverride && typeof stateOverride === 'object' ? stateOverride : undefined;
+      stateOverride && typeof stateOverride === 'object'
+        ? stateOverride
+        : undefined;
     const rawPathname =
       typeof candidate?.pathname === 'string' && candidate.pathname.length > 0
         ? candidate.pathname
         : '/';
     return {
       pathname: normalizePath(rawPathname),
-      state: candidate?.state
+      state: candidate?.state,
     };
   }
 
@@ -39,13 +41,13 @@ const readLocation = stateOverride => {
         : pathname;
     return {
       pathname: normalizePath(storedPathname || '/'),
-      state: rawState.state
+      state: rawState.state,
     };
   }
 
   return {
     pathname: normalizePath(pathname || '/'),
-    state: undefined
+    state: undefined,
   };
 };
 
@@ -89,14 +91,14 @@ export function BrowserRouter({ children }) {
       window.history.replaceState(
         createHistoryState(normalizedPath, current.state),
         '',
-        normalizedPath
+        normalizedPath,
       );
     }
     return undefined;
   }, []);
 
   const navigate = React.useCallback((to, options = {}) => {
-    const target = typeof to === 'string' ? to : to?.pathname ?? '/';
+    const target = typeof to === 'string' ? to : (to?.pathname ?? '/');
     const normalizedTarget = normalizePath(target);
     const state = options.state;
     if (isBrowser) {
@@ -115,9 +117,9 @@ export function BrowserRouter({ children }) {
   const value = React.useMemo(
     () => ({
       location,
-      navigate
+      navigate,
     }),
-    [location, navigate]
+    [location, navigate],
   );
 
   return React.createElement(RouterContext.Provider, { value }, children);
@@ -142,7 +144,7 @@ export function useLocation() {
 export function Navigate({ to, replace = false, state }) {
   const navigate = useNavigate();
   React.useEffect(() => {
-    const target = typeof to === 'string' ? to : to?.pathname ?? '/';
+    const target = typeof to === 'string' ? to : (to?.pathname ?? '/');
     navigate(target, { replace, state });
   }, [navigate, replace, state, to]);
   return null;
@@ -169,7 +171,7 @@ export function Route() {
 }
 
 function useHref(to) {
-  return typeof to === 'string' ? to : to?.pathname ?? '/';
+  return typeof to === 'string' ? to : (to?.pathname ?? '/');
 }
 
 function isModifiedEvent(event) {
@@ -180,7 +182,7 @@ export function Link({ to, onClick, replace = false, state, ...rest }) {
   const { navigate } = React.useContext(RouterContext);
   const href = useHref(to);
 
-  const handleClick = event => {
+  const handleClick = (event) => {
     if (onClick) {
       onClick(event);
     }
@@ -212,11 +214,13 @@ export function NavLink({
 }) {
   const { location, navigate } = React.useContext(RouterContext);
   const href = useHref(to);
-  const isActive = end ? matchExact(href, location.pathname) : matchLoose(href, location.pathname);
+  const isActive = end
+    ? matchExact(href, location.pathname)
+    : matchLoose(href, location.pathname);
 
   const classValue =
     typeof className === 'function'
-      ? className({ isActive, isPending: false }) ?? undefined
+      ? (className({ isActive, isPending: false }) ?? undefined)
       : className;
 
   const childValue =
@@ -224,7 +228,7 @@ export function NavLink({
       ? children({ isActive, isPending: false })
       : children;
 
-  const handleClick = event => {
+  const handleClick = (event) => {
     if (onClick) {
       onClick(event);
     }
@@ -247,8 +251,8 @@ export function NavLink({
       href,
       className: classValue,
       'aria-current': isActive ? 'page' : undefined,
-      onClick: handleClick
+      onClick: handleClick,
     },
-    childValue
+    childValue,
   );
 }

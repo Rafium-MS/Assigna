@@ -7,4 +7,3 @@ export interface Address {
   lastSuccessfulVisit?: string | null;
   nextVisitAllowed?: string | null;
 }
-

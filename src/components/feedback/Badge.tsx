@@ -23,6 +23,8 @@ const colors: Record<Props['status'], string> = {
 export const StatusBadge: React.FC<Props> = ({ status }) => {
   const { t } = useTranslation();
   return (
-    <span className={`text-xs text-white px-2 py-1 rounded ${colors[status]}`}>{t(`status.${status}`)}</span>
+    <span className={`text-xs text-white px-2 py-1 rounded ${colors[status]}`}>
+      {t(`status.${status}`)}
+    </span>
   );
 };

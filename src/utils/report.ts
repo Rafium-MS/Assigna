@@ -18,7 +18,7 @@ export interface MonthlySummaryItem {
  * @returns An array of MonthlySummaryItem objects.
  */
 export const monthlySummaryBySaida = (
-  designacoes: Designacao[]
+  designacoes: Designacao[],
 ): MonthlySummaryItem[] => {
   const map = new Map<string, MonthlySummaryItem>();
   designacoes.forEach((d) => {
@@ -49,7 +49,7 @@ export interface HistoryEvent {
  * @returns A record of history events grouped by Territorio ID.
  */
 export const historyByTerritorio = (
-  designacoes: Designacao[]
+  designacoes: Designacao[],
 ): Record<string, HistoryEvent[]> => {
   const grouped: Record<string, HistoryEvent[]> = {};
   designacoes.forEach((d) => {
@@ -61,7 +61,7 @@ export const historyByTerritorio = (
     });
   });
   Object.values(grouped).forEach((events) =>
-    events.sort((a, b) => a.dataInicial.localeCompare(b.dataInicial))
+    events.sort((a, b) => a.dataInicial.localeCompare(b.dataInicial)),
   );
   return grouped;
 };

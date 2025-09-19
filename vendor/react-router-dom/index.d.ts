@@ -3,7 +3,9 @@ import * as React from 'react';
 export interface BrowserRouterProps {
   children?: React.ReactNode;
 }
-export declare function BrowserRouter(props: BrowserRouterProps): React.ReactElement;
+export declare function BrowserRouter(
+  props: BrowserRouterProps,
+): React.ReactElement;
 
 export interface RouteProps {
   path?: string;
@@ -21,7 +23,8 @@ export interface NavLinkRenderProps {
   isPending: boolean;
 }
 
-export interface NavLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface NavLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string | { pathname?: string };
   end?: boolean;
   state?: unknown;
@@ -34,7 +37,10 @@ export interface NavigateOptions {
   replace?: boolean;
   state?: unknown;
 }
-export declare function useNavigate(): (to: string | { pathname?: string }, options?: NavigateOptions) => void;
+export declare function useNavigate(): (
+  to: string | { pathname?: string },
+  options?: NavigateOptions,
+) => void;
 
 export interface Location {
   pathname: string;
@@ -49,7 +55,8 @@ export interface NavigateProps {
 }
 export declare function Navigate(props: NavigateProps): null;
 
-export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
+export interface LinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string | { pathname?: string };
   replace?: boolean;
   state?: unknown;

@@ -9,7 +9,13 @@ import { ADMIN_MASTER_ROLE } from '../../constants/roles';
 const iconCls = 'w-5 h-5';
 
 const MapIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z" />
     <path d="M9 3v16" />
     <path d="M15 5v16" />
@@ -17,21 +23,39 @@ const MapIcon = () => (
 );
 
 const ExitIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M3 12h13" />
     <path d="M12 5l7 7-7 7" />
   </svg>
 );
 
 const AssignIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <rect x="6" y="3" width="12" height="18" rx="2" />
     <path d="M9 3v4h6V3" />
   </svg>
 );
 
 const TodayIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <circle cx="12" cy="12" r="4" />
     <path d="M12 2v2" />
     <path d="M12 20v2" />
@@ -45,7 +69,13 @@ const TodayIcon = () => (
 );
 
 const CalendarIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <rect x="3" y="4" width="18" height="18" rx="2" />
     <path d="M16 2v4" />
     <path d="M8 2v4" />
@@ -54,7 +84,13 @@ const CalendarIcon = () => (
 );
 
 const SuggestIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M9 18h6" />
     <path d="M10 22h4" />
     <path d="M12 2a6 6 0 00-4 10c0 2-1 3-1 3h10s-1-1-1-3a6 6 0 00-4-10z" />
@@ -62,7 +98,13 @@ const SuggestIcon = () => (
 );
 
 const UsersIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M22 21v-2a4 4 0 00-3-3.87" />
@@ -71,7 +113,13 @@ const UsersIcon = () => (
 );
 
 const BuildingIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M3 21h18" />
     <path d="M6 21V9h6v12" />
     <path d="M12 21V5h6v16" />
@@ -82,14 +130,26 @@ const BuildingIcon = () => (
 );
 
 const LetterIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <rect x="3" y="5" width="18" height="14" rx="2" />
     <path d="M3 7l9 6 9-6" />
   </svg>
 );
 
 const HomeOffIcon = () => (
-  <svg viewBox="0 0 24 24" className={iconCls} fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <path d="M3 9l9-6 9 6" />
     <path d="M4 10v10a1 1 0 001 1h6" />
     <path d="M20 14l-6 6" />
@@ -100,12 +160,20 @@ const HomeOffIcon = () => (
 const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'territories', label: 'sidebar.territories', icon: <MapIcon /> },
   { id: 'streets', label: 'sidebar.streets', icon: <MapIcon /> },
-  { id: 'buildingsVillages', label: 'sidebar.buildingsVillages', icon: <BuildingIcon /> },
+  {
+    id: 'buildingsVillages',
+    label: 'sidebar.buildingsVillages',
+    icon: <BuildingIcon />,
+  },
   { id: 'letters', label: 'sidebar.letters', icon: <LetterIcon /> },
   { id: 'exits', label: 'sidebar.exits', icon: <ExitIcon /> },
   { id: 'assignments', label: 'sidebar.assignments', icon: <AssignIcon /> },
   { id: 'users', label: 'sidebar.users', icon: <UsersIcon /> },
-  { id: 'todayAssignments', label: 'sidebar.todayAssignments', icon: <TodayIcon /> },
+  {
+    id: 'todayAssignments',
+    label: 'sidebar.todayAssignments',
+    icon: <TodayIcon />,
+  },
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
   { id: 'notAtHome', label: 'sidebar.notAtHome', icon: <HomeOffIcon /> },
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
@@ -128,7 +196,10 @@ const useIsMdUp = () => {
   const [matches, setMatches] = useState<boolean>(getMatches);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    if (
+      typeof window === 'undefined' ||
+      typeof window.matchMedia !== 'function'
+    ) {
       return;
     }
 
@@ -161,8 +232,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
   const navId = id ?? 'app-sidebar';
 
   const visibleItems = normalizedRole
-    ? items.filter((it) =>
-        isAdminMaster || routes[it.id].allowedRoles.some((role) => role.toLowerCase() === normalizedRole),
+    ? items.filter(
+        (it) =>
+          isAdminMaster ||
+          routes[it.id].allowedRoles.some(
+            (role) => role.toLowerCase() === normalizedRole,
+          ),
       )
     : [];
 
@@ -186,7 +261,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
       {!isMdUp && (
         <div
           className={`fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden ${
-            open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+            open
+              ? 'opacity-100 pointer-events-auto'
+              : 'opacity-0 pointer-events-none'
           }`}
           aria-hidden="true"
           onClick={onClose}
@@ -197,7 +274,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
         aria-label={t('app.navigation', 'Navegação principal')}
         aria-hidden={!isVisible}
         className={`bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 p-4 md:p-2 flex flex-col gap-2 w-64 md:w-48 h-full md:h-auto fixed inset-y-0 left-0 z-50 transform transition-transform duration-200 ease-in-out md:static md:translate-x-0 md:shadow-none ${
-          isVisible ? 'translate-x-0 shadow-lg md:shadow-none pointer-events-auto' : '-translate-x-full pointer-events-none'
+          isVisible
+            ? 'translate-x-0 shadow-lg md:shadow-none pointer-events-auto'
+            : '-translate-x-full pointer-events-none'
         }`}
       >
         <div className="flex justify-end md:hidden">
@@ -206,7 +285,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
             onClick={onClose}
             className="inline-flex items-center gap-2 rounded-xl border px-3 py-2"
           >
-            <span className="sr-only">{t('sidebar.closeMenu', 'Fechar menu de navegação')}</span>
+            <span className="sr-only">
+              {t('sidebar.closeMenu', 'Fechar menu de navegação')}
+            </span>
             <svg
               className="h-5 w-5"
               viewBox="0 0 24 24"
@@ -239,7 +320,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ id, open, onClose }) => {
             }
           >
             {it.icon}
-            <span className="sr-only md:not-sr-only md:inline">{t(it.label)}</span>
+            <span className="sr-only md:not-sr-only md:inline">
+              {t(it.label)}
+            </span>
           </NavLink>
         ))}
       </nav>

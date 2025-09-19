@@ -55,5 +55,5 @@ export const TerritorioRepository = {
    */
   async remove(id: string): Promise<void> {
     await db.territorios.delete(id);
-  }
+  },
 };

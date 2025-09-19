@@ -41,7 +41,7 @@ describe('report utils', () => {
         { saidaId: 's1', month: '2024-07', total: 2 },
         { saidaId: 's1', month: '2024-06', total: 1 },
         { saidaId: 's2', month: '2024-06', total: 1 },
-      ])
+      ]),
     );
   });
 

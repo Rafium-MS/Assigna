@@ -39,7 +39,11 @@ const findFirstAccessibleRoute = (role: string | null): string | null => {
   }
 
   for (const [, config] of routeEntries) {
-    if (config.allowedRoles.some((allowed) => allowed.toLowerCase() === normalizedRole)) {
+    if (
+      config.allowedRoles.some(
+        (allowed) => allowed.toLowerCase() === normalizedRole,
+      )
+    ) {
       return config.path;
     }
   }
@@ -60,7 +64,8 @@ const RegisterPage = () => {
   const { currentUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const redirectState = (location.state as RegisterRedirectState | undefined) ?? undefined;
+  const redirectState =
+    (location.state as RegisterRedirectState | undefined) ?? undefined;
   const [form, setForm] = useState<RegisterFormState>(INITIAL_FORM_STATE);
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -183,12 +188,16 @@ const RegisterPage = () => {
             <Input
               id="register-name"
               value={form.name}
-              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, name: event.target.value }))
+              }
               autoComplete="name"
               required
               disabled={isSubmitting}
             />
-            {errors.name ? <p className="text-sm text-red-600">{errors.name}</p> : null}
+            {errors.name ? (
+              <p className="text-sm text-red-600">{errors.name}</p>
+            ) : null}
           </div>
           <div className="space-y-1">
             <Label htmlFor="register-email">{t('register.fields.email')}</Label>
@@ -196,29 +205,41 @@ const RegisterPage = () => {
               id="register-email"
               type="email"
               value={form.email}
-              onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, email: event.target.value }))
+              }
               autoComplete="email"
               inputMode="email"
               required
               disabled={isSubmitting}
             />
-            {errors.email ? <p className="text-sm text-red-600">{errors.email}</p> : null}
+            {errors.email ? (
+              <p className="text-sm text-red-600">{errors.email}</p>
+            ) : null}
           </div>
           <div className="space-y-1">
-            <Label htmlFor="register-password">{t('register.fields.password')}</Label>
+            <Label htmlFor="register-password">
+              {t('register.fields.password')}
+            </Label>
             <Input
               id="register-password"
               type="password"
               value={form.password}
-              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              onChange={(event) =>
+                setForm((prev) => ({ ...prev, password: event.target.value }))
+              }
               autoComplete="new-password"
               minLength={6}
               required
               disabled={isSubmitting}
             />
-            {errors.password ? <p className="text-sm text-red-600">{errors.password}</p> : null}
+            {errors.password ? (
+              <p className="text-sm text-red-600">{errors.password}</p>
+            ) : null}
           </div>
-          {errors.general ? <p className="text-sm text-red-600">{errors.general}</p> : null}
+          {errors.general ? (
+            <p className="text-sm text-red-600">{errors.general}</p>
+          ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             <Button
               type="submit"
@@ -228,8 +249,7 @@ const RegisterPage = () => {
               {isSubmitting ? t('register.submitting') : t('register.submit')}
             </Button>
             <span className="text-sm text-neutral-600 dark:text-neutral-300">
-              {t('register.alreadyHaveAccount')}{' '}
-              {t('register.signInHint')}
+              {t('register.alreadyHaveAccount')} {t('register.signInHint')}
             </span>
           </div>
         </form>
@@ -239,4 +259,3 @@ const RegisterPage = () => {
 };
 
 export default RegisterPage;
-

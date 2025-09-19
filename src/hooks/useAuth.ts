@@ -37,7 +37,10 @@ export const useAuth = (): UseAuthResult => {
           return null;
         }
 
-        const isValid = await verifyPassword(trimmedPassword, user.passwordHash);
+        const isValid = await verifyPassword(
+          trimmedPassword,
+          user.passwordHash,
+        );
         if (!isValid) {
           return null;
         }

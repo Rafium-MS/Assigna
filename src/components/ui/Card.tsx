@@ -7,9 +7,15 @@ export interface CardProps {
   children?: React.ReactNode;
 }
 
-export const Card: React.FC<CardProps> = ({ className = '', title, actions, children }) => {
+export const Card: React.FC<CardProps> = ({
+  className = '',
+  title,
+  actions,
+  children,
+}) => {
   const hasTitle = Boolean(title?.trim());
-  const hasActions = actions !== undefined && actions !== null && actions !== false;
+  const hasActions =
+    actions !== undefined && actions !== null && actions !== false;
   const showHeader = hasTitle || hasActions;
 
   return (
@@ -18,11 +24,13 @@ export const Card: React.FC<CardProps> = ({ className = '', title, actions, chil
     >
       {showHeader && (
         <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          {hasTitle && <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{title}</h2>}
+          {hasTitle && (
+            <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              {title}
+            </h2>
+          )}
           {hasActions && (
-            <div
-              className="flex w-full flex-wrap items-center gap-2 text-neutral-700 dark:text-neutral-200 sm:ml-auto sm:w-auto sm:justify-end"
-            >
+            <div className="flex w-full flex-wrap items-center gap-2 text-neutral-700 dark:text-neutral-200 sm:ml-auto sm:w-auto sm:justify-end">
               {actions}
             </div>
           )}

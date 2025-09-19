@@ -1,4 +1,9 @@
-export const LETTER_STATUS_VALUES = ['not_sent', 'in_progress', 'sent', 'responded'] as const;
+export const LETTER_STATUS_VALUES = [
+  'not_sent',
+  'in_progress',
+  'sent',
+  'responded',
+] as const;
 
 export type BuildingVillageLetterStatus = (typeof LETTER_STATUS_VALUES)[number];
 

@@ -10,7 +10,7 @@ import ImageAnnotator from './ImageAnnotator';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 const renderAnnotator = (
-  props: Partial<Omit<ComponentProps<typeof ImageAnnotator>, 'imageUrl'>> = {}
+  props: Partial<Omit<ComponentProps<typeof ImageAnnotator>, 'imageUrl'>> = {},
 ) => {
   const container = document.createElement('div');
   document.body.appendChild(container);
@@ -46,7 +46,12 @@ describe('ImageAnnotator', () => {
 
     act(() => {
       canvas.dispatchEvent(
-        new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 70, button: 0 })
+        new MouseEvent('click', {
+          bubbles: true,
+          clientX: 30,
+          clientY: 70,
+          button: 0,
+        }),
       );
     });
 
@@ -59,8 +64,8 @@ describe('ImageAnnotator', () => {
           bubbles: true,
           clientX: 60,
           clientY: 90,
-          button: 2
-        })
+          button: 2,
+        }),
       );
     });
 
@@ -82,7 +87,12 @@ describe('ImageAnnotator', () => {
 
     act(() => {
       canvas.dispatchEvent(
-        new MouseEvent('dblclick', { bubbles: true, clientX: 25, clientY: 45, detail: 2 })
+        new MouseEvent('dblclick', {
+          bubbles: true,
+          clientX: 25,
+          clientY: 45,
+          detail: 2,
+        }),
       );
     });
 
@@ -93,4 +103,3 @@ describe('ImageAnnotator', () => {
     cleanup();
   });
 });
-

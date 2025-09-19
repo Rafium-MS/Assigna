@@ -7,7 +7,11 @@ interface ImagePickerProps {
   compress?: boolean;
 }
 
-export const ImagePicker: React.FC<ImagePickerProps> = ({ value, onChange, compress }) => {
+export const ImagePicker: React.FC<ImagePickerProps> = ({
+  value,
+  onChange,
+  compress,
+}) => {
   const handleFile = async (file?: File) => {
     if (!file) {
       onChange(undefined);
@@ -36,12 +40,22 @@ export const ImagePicker: React.FC<ImagePickerProps> = ({ value, onChange, compr
   return (
     <div className="flex items-center gap-3">
       {value ? (
-        <img src={value} alt="preview" className="w-16 h-16 object-cover rounded-lg border" />
+        <img
+          src={value}
+          alt="preview"
+          className="w-16 h-16 object-cover rounded-lg border"
+        />
       ) : (
-        <div className="w-16 h-16 rounded-lg border grid place-items-center text-xs text-neutral-500">sem imagem</div>
+        <div className="w-16 h-16 rounded-lg border grid place-items-center text-xs text-neutral-500">
+          sem imagem
+        </div>
       )}
       <div className="flex items-center gap-2">
-        <input type="file" accept="image/*" onChange={(event) => handleFile(event.target.files?.[0])} />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(event) => handleFile(event.target.files?.[0])}
+        />
         {value && (
           <Button
             onClick={() => onChange(undefined)}

@@ -18,7 +18,9 @@ const {
   const translationMock = {
     t: vi.fn((key: string, options?: Record<string, unknown>) => {
       if (key === 'naoEmCasa.confirmConversation') {
-        return options?.date ? `confirm-conversation ${String(options.date)}` : 'confirm-conversation';
+        return options?.date
+          ? `confirm-conversation ${String(options.date)}`
+          : 'confirm-conversation';
       }
       if (options?.count !== undefined) {
         return `${key} (${String(options.count)})`;
@@ -67,7 +69,9 @@ const {
 
   const dbMock = {
     propertyTypes: {
-      toArray: vi.fn(async () => propertyTypesData.map((type) => ({ ...type }))),
+      toArray: vi.fn(async () =>
+        propertyTypesData.map((type) => ({ ...type })),
+      ),
     },
     streets: {
       where: vi.fn((field: keyof Street) => {
@@ -176,7 +180,10 @@ vi.mock('../services/db', () => ({
 }));
 
 vi.mock('../utils/calendar', async () => {
-  const actual = await vi.importActual<typeof import('../utils/calendar')>('../utils/calendar');
+  const actual =
+    await vi.importActual<typeof import('../utils/calendar')>(
+      '../utils/calendar',
+    );
   return {
     ...actual,
     todayLocalIso: () => '2024-02-10',
@@ -196,12 +203,16 @@ describe('NaoEmCasaPage', () => {
     render(<NaoEmCasaPage />);
 
     await waitFor(() => {
-      const checkbox = document.body.querySelector('label input[type="checkbox"]');
+      const checkbox = document.body.querySelector(
+        'label input[type="checkbox"]',
+      );
       if (!checkbox) {
         throw new Error('Checkbox not found');
       }
       const label = checkbox.closest('label');
-      expect(label?.textContent?.trim()).toBe('confirm-conversation formatted-2024-02-10');
+      expect(label?.textContent?.trim()).toBe(
+        'confirm-conversation formatted-2024-02-10',
+      );
     });
   });
 });

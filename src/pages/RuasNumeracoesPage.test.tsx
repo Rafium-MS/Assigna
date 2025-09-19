@@ -16,7 +16,7 @@ const {
   dbMock,
   toastMock,
   useAuthMock,
-  territorioRepositoryMock
+  territorioRepositoryMock,
 } = vi.hoisted(() => {
   const territoriesStore: Territorio[] = [];
   const streetsStore: Street[] = [];
@@ -37,19 +37,19 @@ const {
     equals: (value: Street[keyof Street]) => ({
       async toArray() {
         return streetsStore
-          .filter(street => street[field] === value)
-          .map(street => ({ ...street }));
-      }
-    })
+          .filter((street) => street[field] === value)
+          .map((street) => ({ ...street }));
+      },
+    }),
   });
 
   const defaultAddressesWhere = (field: keyof Address) => ({
     equals: (value: Address[keyof Address]) => ({
       async toArray() {
         return addressesStore
-          .filter(address => address[field] === value)
-          .map(address => ({ ...address }));
-      }
+          .filter((address) => address[field] === value)
+          .map((address) => ({ ...address }));
+      },
     }),
     anyOf: (...values: Array<Address[keyof Address]>) => ({
       async toArray() {
@@ -61,10 +61,10 @@ const {
         })();
         const valueSet = new Set(normalizedValues);
         return addressesStore
-          .filter(address => valueSet.has(address[field]))
-          .map(address => ({ ...address }));
-      }
-    })
+          .filter((address) => valueSet.has(address[field]))
+          .map((address) => ({ ...address }));
+      },
+    }),
   });
 
   const toastMock = { success: vi.fn(), error: vi.fn() };
@@ -73,36 +73,46 @@ const {
   const territorioRepositoryMock = {
     forPublisher: vi.fn(async (publisherId: string) =>
       territoriesStore
-        .filter(territory => territory.publisherId === publisherId)
-        .map(territory => ({ ...territory }))
-    )
+        .filter((territory) => territory.publisherId === publisherId)
+        .map((territory) => ({ ...territory })),
+    ),
   };
 
   const dbMock = {
     territorios: {
-      toArray: vi.fn(async () => territoriesStore.map(territory => ({ ...territory })))
+      toArray: vi.fn(async () =>
+        territoriesStore.map((territory) => ({ ...territory })),
+      ),
     },
     streets: {
-      toArray: vi.fn(async () => streetsStore.map(street => ({ ...street }))),
+      toArray: vi.fn(async () => streetsStore.map((street) => ({ ...street }))),
       where: vi.fn(defaultStreetsWhere),
       put: vi.fn(async (street: Street) => {
-        const id = typeof street.id === 'number' ? street.id : nextNumericId(streetsStore);
+        const id =
+          typeof street.id === 'number'
+            ? street.id
+            : nextNumericId(streetsStore);
         const record: Street = { id, ...street };
-        const index = streetsStore.findIndex(item => item.id === id);
+        const index = streetsStore.findIndex((item) => item.id === id);
         if (index >= 0) {
           streetsStore[index] = record;
         } else {
           streetsStore.push(record);
         }
         return id;
-      })
+      }),
     },
     propertyTypes: {
-      toArray: vi.fn(async () => propertyTypesStore.map(type => ({ ...type }))),
+      toArray: vi.fn(async () =>
+        propertyTypesStore.map((type) => ({ ...type })),
+      ),
       put: vi.fn(async (type: PropertyType) => {
-        const id = typeof type.id === 'number' ? type.id : nextNumericId(propertyTypesStore);
+        const id =
+          typeof type.id === 'number'
+            ? type.id
+            : nextNumericId(propertyTypesStore);
         const record: PropertyType = { id, ...type };
-        const index = propertyTypesStore.findIndex(item => item.id === id);
+        const index = propertyTypesStore.findIndex((item) => item.id === id);
         if (index >= 0) {
           propertyTypesStore[index] = record;
         } else {
@@ -111,19 +121,24 @@ const {
         return id;
       }),
       delete: vi.fn(async (id: number) => {
-        const index = propertyTypesStore.findIndex(item => item.id === id);
+        const index = propertyTypesStore.findIndex((item) => item.id === id);
         if (index >= 0) {
           propertyTypesStore.splice(index, 1);
         }
-      })
+      }),
     },
     addresses: {
-      toArray: vi.fn(async () => addressesStore.map(address => ({ ...address }))),
+      toArray: vi.fn(async () =>
+        addressesStore.map((address) => ({ ...address })),
+      ),
       where: vi.fn(defaultAddressesWhere),
       put: vi.fn(async (address: Address) => {
-        const id = typeof address.id === 'number' ? address.id : nextNumericId(addressesStore);
+        const id =
+          typeof address.id === 'number'
+            ? address.id
+            : nextNumericId(addressesStore);
         const record: Address = { id, ...address };
-        const index = addressesStore.findIndex(item => item.id === id);
+        const index = addressesStore.findIndex((item) => item.id === id);
         if (index >= 0) {
           addressesStore[index] = record;
         } else {
@@ -132,14 +147,14 @@ const {
         return id;
       }),
       update: vi.fn(async (id: number, changes: Partial<Address>) => {
-        const index = addressesStore.findIndex(item => item.id === id);
+        const index = addressesStore.findIndex((item) => item.id === id);
         if (index >= 0) {
           addressesStore[index] = { ...addressesStore[index], ...changes };
           return 1;
         }
         return 0;
-      })
-    }
+      }),
+    },
   };
 
   return {
@@ -152,31 +167,31 @@ const {
     dbMock,
     toastMock,
     useAuthMock,
-    territorioRepositoryMock
+    territorioRepositoryMock,
   };
 });
 
 vi.mock('../services/db', () => ({
-  db: dbMock
+  db: dbMock,
 }));
 
 vi.mock('../hooks/useAuth', () => ({
-  useAuth: () => useAuthMock()
+  useAuth: () => useAuthMock(),
 }));
 
 vi.mock('../services/repositories/territorios', () => ({
-  TerritorioRepository: territorioRepositoryMock
+  TerritorioRepository: territorioRepositoryMock,
 }));
 
 vi.mock('../components/feedback/Toast', () => ({
-  useToast: () => toastMock
+  useToast: () => toastMock,
 }));
 
 vi.mock('../components/ImageAnnotator', () => ({
   __esModule: true,
   default: ({ imageUrl }: { imageUrl: string }) => (
     <div data-testid="image-annotator">{imageUrl}</div>
-  )
+  ),
 }));
 
 const translationMock = vi.hoisted(() => ({
@@ -185,28 +200,38 @@ const translationMock = vi.hoisted(() => ({
       return `${key} (${options.count})`;
     }
     return key;
-  }
+  },
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => translationMock
+  useTranslation: () => translationMock,
 }));
 
 import RuasNumeracoesPage from './RuasNumeracoesPage';
 
 const baseTerritories: Territorio[] = [
-  { id: 'territorio-1', nome: 'Território 1', imageUrl: 'image-1.png', publisherId: 'publisher-1' },
-  { id: 'territorio-2', nome: 'Território 2', imageUrl: 'image-2.png', publisherId: 'publisher-1' }
+  {
+    id: 'territorio-1',
+    nome: 'Território 1',
+    imageUrl: 'image-1.png',
+    publisherId: 'publisher-1',
+  },
+  {
+    id: 'territorio-2',
+    nome: 'Território 2',
+    imageUrl: 'image-2.png',
+    publisherId: 'publisher-1',
+  },
 ];
 
 const baseStreets: Street[] = [
   { id: 1, territoryId: 'territorio-1', name: 'Rua Principal' },
-  { id: 2, territoryId: 'territorio-2', name: 'Avenida Secundária' }
+  { id: 2, territoryId: 'territorio-2', name: 'Avenida Secundária' },
 ];
 
 const basePropertyTypes: PropertyType[] = [
   { id: 10, name: 'Casa' },
-  { id: 20, name: 'Apartamento' }
+  { id: 20, name: 'Apartamento' },
 ];
 
 const baseAddresses: Address[] = [
@@ -217,7 +242,7 @@ const baseAddresses: Address[] = [
     numberEnd: 1,
     propertyTypeId: 10,
     lastSuccessfulVisit: null,
-    nextVisitAllowed: null
+    nextVisitAllowed: null,
   },
   {
     id: 200,
@@ -226,14 +251,16 @@ const baseAddresses: Address[] = [
     numberEnd: 100,
     propertyTypeId: 20,
     lastSuccessfulVisit: null,
-    nextVisitAllowed: null
-  }
+    nextVisitAllowed: null,
+  },
 ];
 
 const setInputValue = (input: HTMLInputElement, value: string): void => {
   const prototype = Object.getPrototypeOf(input) as HTMLInputElement;
   const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-  const setter = descriptor?.set ?? Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
+  const setter =
+    descriptor?.set ??
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
   if (setter) {
     setter.call(input, value);
   } else {
@@ -246,7 +273,9 @@ const setInputValue = (input: HTMLInputElement, value: string): void => {
 const setSelectValue = (select: HTMLSelectElement, value: string): void => {
   const prototype = Object.getPrototypeOf(select) as HTMLSelectElement;
   const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
-  const setter = descriptor?.set ?? Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+  const setter =
+    descriptor?.set ??
+    Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
   if (setter) {
     setter.call(select, value);
   } else {
@@ -288,17 +317,33 @@ beforeEach(() => {
       id: 'publisher-1',
       role: 'admin',
       createdAt: '2024-01-01T00:00:00.000Z',
-      updatedAt: '2024-01-01T00:00:00.000Z'
+      updatedAt: '2024-01-01T00:00:00.000Z',
     },
     isAuthenticated: true,
     signIn: vi.fn().mockResolvedValue(null),
-    signOut: vi.fn()
+    signOut: vi.fn(),
   });
 
-  territoriesStore.splice(0, territoriesStore.length, ...baseTerritories.map(territory => ({ ...territory })));
-  streetsStore.splice(0, streetsStore.length, ...baseStreets.map(street => ({ ...street })));
-  propertyTypesStore.splice(0, propertyTypesStore.length, ...basePropertyTypes.map(type => ({ ...type })));
-  addressesStore.splice(0, addressesStore.length, ...baseAddresses.map(address => ({ ...address })));
+  territoriesStore.splice(
+    0,
+    territoriesStore.length,
+    ...baseTerritories.map((territory) => ({ ...territory })),
+  );
+  streetsStore.splice(
+    0,
+    streetsStore.length,
+    ...baseStreets.map((street) => ({ ...street })),
+  );
+  propertyTypesStore.splice(
+    0,
+    propertyTypesStore.length,
+    ...basePropertyTypes.map((type) => ({ ...type })),
+  );
+  addressesStore.splice(
+    0,
+    addressesStore.length,
+    ...baseAddresses.map((address) => ({ ...address })),
+  );
 
   dbMock.territorios.toArray.mockClear();
   dbMock.streets.toArray.mockClear();
@@ -330,7 +375,9 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     await waitFor(() => {
@@ -338,7 +385,9 @@ describe('RuasNumeracoesPage', () => {
     });
 
     expect(screen.queryByText('Avenida Secundária')).toBeNull();
-    const streetsTab = screen.getByRole('button', { name: 'ruasNumeracoes.tabs.streets' });
+    const streetsTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.streets',
+    });
     expect(streetsTab.className).toContain('font-bold');
   });
 
@@ -346,7 +395,9 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     await waitFor(() => {
@@ -354,7 +405,7 @@ describe('RuasNumeracoesPage', () => {
     });
 
     const input = screen.getByPlaceholderText(
-      'ruasNumeracoes.streetsForm.streetNamePlaceholder'
+      'ruasNumeracoes.streetsForm.streetNamePlaceholder',
     ) as HTMLInputElement;
     input.value = 'Nova Rua';
 
@@ -362,7 +413,9 @@ describe('RuasNumeracoesPage', () => {
     expect(form).toBeTruthy();
 
     await act(async () => {
-      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     await waitFor(() => {
@@ -371,7 +424,7 @@ describe('RuasNumeracoesPage', () => {
 
     expect(dbMock.streets.put).toHaveBeenCalledWith({
       territoryId: 'territorio-1',
-      name: 'Nova Rua'
+      name: 'Nova Rua',
     });
   });
 
@@ -379,19 +432,23 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const propertyTypesTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.propertyTypes'
+      name: 'ruasNumeracoes.tabs.propertyTypes',
     });
 
     await act(async () => {
-      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      propertyTypesTab.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
     });
 
     const input = screen.getByPlaceholderText(
-      'ruasNumeracoes.propertyTypesForm.namePlaceholder'
+      'ruasNumeracoes.propertyTypesForm.namePlaceholder',
     ) as HTMLInputElement;
     input.value = 'Residencial Nova';
 
@@ -399,12 +456,16 @@ describe('RuasNumeracoesPage', () => {
     expect(form).toBeTruthy();
 
     await act(async () => {
-      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
       await Promise.resolve();
     });
 
     await waitFor(() => {
-      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({ name: 'Residencial Nova' });
+      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({
+        name: 'Residencial Nova',
+      });
     });
 
     await waitFor(() => {
@@ -412,7 +473,9 @@ describe('RuasNumeracoesPage', () => {
     });
 
     await waitFor(() => {
-      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.createSuccess');
+      expect(toastMock.success).toHaveBeenCalledWith(
+        'ruasNumeracoes.feedback.createSuccess',
+      );
     });
   });
 
@@ -420,15 +483,19 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const propertyTypesTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.propertyTypes'
+      name: 'ruasNumeracoes.tabs.propertyTypes',
     });
 
     await act(async () => {
-      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      propertyTypesTab.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
     });
 
     await waitFor(() => {
@@ -440,7 +507,7 @@ describe('RuasNumeracoesPage', () => {
 
     const editButton = screen
       .getAllByRole('button', { name: 'common.edit' })
-      .find(button => button.closest('tr') === targetRow);
+      .find((button) => button.closest('tr') === targetRow);
     expect(editButton).toBeDefined();
 
     await act(async () => {
@@ -456,7 +523,7 @@ describe('RuasNumeracoesPage', () => {
 
     const saveButton = screen
       .getAllByRole('button', { name: 'common.save' })
-      .find(button => button.closest('tr') === targetRow);
+      .find((button) => button.closest('tr') === targetRow);
     expect(saveButton).toBeDefined();
 
     await act(async () => {
@@ -465,7 +532,10 @@ describe('RuasNumeracoesPage', () => {
     });
 
     await waitFor(() => {
-      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({ id: 10, name: 'Casa Atualizada' });
+      expect(dbMock.propertyTypes.put).toHaveBeenCalledWith({
+        id: 10,
+        name: 'Casa Atualizada',
+      });
     });
 
     await waitFor(() => {
@@ -473,7 +543,9 @@ describe('RuasNumeracoesPage', () => {
     });
 
     await waitFor(() => {
-      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.updateSuccess');
+      expect(toastMock.success).toHaveBeenCalledWith(
+        'ruasNumeracoes.feedback.updateSuccess',
+      );
     });
   });
 
@@ -481,15 +553,19 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const propertyTypesTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.propertyTypes'
+      name: 'ruasNumeracoes.tabs.propertyTypes',
     });
 
     await act(async () => {
-      propertyTypesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      propertyTypesTab.dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      );
     });
 
     await waitFor(() => {
@@ -501,7 +577,7 @@ describe('RuasNumeracoesPage', () => {
 
     const deleteButton = screen
       .getAllByRole('button', { name: 'common.delete' })
-      .find(button => button.closest('tr') === targetRow);
+      .find((button) => button.closest('tr') === targetRow);
     expect(deleteButton).toBeDefined();
 
     await act(async () => {
@@ -518,7 +594,9 @@ describe('RuasNumeracoesPage', () => {
     });
 
     await waitFor(() => {
-      expect(toastMock.success).toHaveBeenCalledWith('ruasNumeracoes.feedback.deleteSuccess');
+      expect(toastMock.success).toHaveBeenCalledWith(
+        'ruasNumeracoes.feedback.deleteSuccess',
+      );
     });
   });
 
@@ -526,11 +604,13 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const summaryTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.summary'
+      name: 'ruasNumeracoes.tabs.summary',
     });
 
     await act(async () => {
@@ -538,9 +618,15 @@ describe('RuasNumeracoesPage', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText('ruasNumeracoes.summary.totalStreets (1)')).toBeTruthy();
-      expect(screen.getByText('ruasNumeracoes.summary.totalAddresses (1)')).toBeTruthy();
-      expect(screen.getByText('ruasNumeracoes.summary.totalPropertyTypes (2)')).toBeTruthy();
+      expect(
+        screen.getByText('ruasNumeracoes.summary.totalStreets (1)'),
+      ).toBeTruthy();
+      expect(
+        screen.getByText('ruasNumeracoes.summary.totalAddresses (1)'),
+      ).toBeTruthy();
+      expect(
+        screen.getByText('ruasNumeracoes.summary.totalPropertyTypes (2)'),
+      ).toBeTruthy();
     });
   });
 
@@ -548,11 +634,13 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const addressesTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.addresses'
+      name: 'ruasNumeracoes.tabs.addresses',
     });
 
     await act(async () => {
@@ -571,7 +659,9 @@ describe('RuasNumeracoesPage', () => {
     expect(rowText).toContain('1');
     expect(rowText).toContain('Casa');
     expect(rowText).toContain('ruasNumeracoes.addressesTable.neverVisited');
-    expect(rowText).toContain('ruasNumeracoes.addressesTable.cooldownNotScheduled');
+    expect(rowText).toContain(
+      'ruasNumeracoes.addressesTable.cooldownNotScheduled',
+    );
     expect(rowText).not.toContain('200');
   });
 
@@ -579,20 +669,28 @@ describe('RuasNumeracoesPage', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     const addressesTab = screen.getByRole('button', {
-      name: 'ruasNumeracoes.tabs.addresses'
+      name: 'ruasNumeracoes.tabs.addresses',
     });
 
     await act(async () => {
       addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    const streetSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectStreet');
-    const typeSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectType');
-    const numberInput = getInputWithinLabel('ruasNumeracoes.addressesForm.number');
+    const streetSelect = getSelectWithinLabel(
+      'ruasNumeracoes.addressesForm.selectStreet',
+    );
+    const typeSelect = getSelectWithinLabel(
+      'ruasNumeracoes.addressesForm.selectType',
+    );
+    const numberInput = getInputWithinLabel(
+      'ruasNumeracoes.addressesForm.number',
+    );
 
     setSelectValue(streetSelect, '1');
     setSelectValue(typeSelect, '20');
@@ -602,7 +700,9 @@ describe('RuasNumeracoesPage', () => {
     expect(form).toBeTruthy();
 
     await act(async () => {
-      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+      form?.dispatchEvent(
+        new Event('submit', { bubbles: true, cancelable: true }),
+      );
     });
 
     await waitFor(() => {
@@ -610,13 +710,13 @@ describe('RuasNumeracoesPage', () => {
         streetId: 1,
         numberStart: 50,
         numberEnd: 50,
-        propertyTypeId: 20
+        propertyTypeId: 20,
       });
     });
 
     await waitFor(() => {
       const rows = Array.from(document.querySelectorAll('table tbody tr'));
-      const hasNewRow = rows.some(row => row.textContent?.includes('50'));
+      const hasNewRow = rows.some((row) => row.textContent?.includes('50'));
       expect(hasNewRow).toBe(true);
     });
   });
@@ -630,11 +730,13 @@ describe('RuasNumeracoesPage', () => {
       render(<RuasNumeracoesPage />);
 
       await waitFor(() => {
-        expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+        expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+          'publisher-1',
+        );
       });
 
       const addressesTab = screen.getByRole('button', {
-        name: 'ruasNumeracoes.tabs.addresses'
+        name: 'ruasNumeracoes.tabs.addresses',
       });
 
       await act(async () => {
@@ -644,13 +746,13 @@ describe('RuasNumeracoesPage', () => {
       await waitFor(() => {
         expect(
           screen.getByRole('button', {
-            name: 'ruasNumeracoes.addressesTable.markVisit'
-          })
+            name: 'ruasNumeracoes.addressesTable.markVisit',
+          }),
         ).toBeTruthy();
       });
 
       const markButton = screen.getByRole('button', {
-        name: 'ruasNumeracoes.addressesTable.markVisit'
+        name: 'ruasNumeracoes.addressesTable.markVisit',
       });
 
       await act(async () => {
@@ -659,13 +761,13 @@ describe('RuasNumeracoesPage', () => {
 
       const expectedLast = now.toISOString();
       const expectedNext = new Date(
-        now.getTime() + ADDRESS_VISIT_COOLDOWN_MS
+        now.getTime() + ADDRESS_VISIT_COOLDOWN_MS,
       ).toISOString();
 
       await waitFor(() => {
         expect(dbMock.addresses.update).toHaveBeenCalledWith(100, {
           lastSuccessfulVisit: expectedLast,
-          nextVisitAllowed: expectedNext
+          nextVisitAllowed: expectedNext,
         });
       });
     } finally {

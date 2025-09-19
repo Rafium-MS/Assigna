@@ -36,7 +36,7 @@ export const useSugestoes = () => {
         toast.success('Sugestão salva');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     /**
      * Updates an existing suggestion.
@@ -53,7 +53,7 @@ export const useSugestoes = () => {
         toast.success('Sugestão atualizada');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     /**
      * Removes a stored suggestion.
@@ -63,10 +63,13 @@ export const useSugestoes = () => {
     removeSugestao: useCallback(
       async (territorioId: string, saidaId: string) => {
         await SugestaoRepository.remove(territorioId, saidaId);
-        dispatch({ type: 'REMOVE_SUGESTAO', payload: { territorioId, saidaId } });
+        dispatch({
+          type: 'REMOVE_SUGESTAO',
+          payload: { territorioId, saidaId },
+        });
         toast.success('Sugestão removida');
       },
-      [dispatch, toast]
+      [dispatch, toast],
     ),
   } as const;
 };

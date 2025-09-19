@@ -27,12 +27,23 @@ interface Position {
 
 const HIGHLIGHT_PADDING = 12;
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
-export const GuidedTour: React.FC<GuidedTourProps> = ({ steps, open, stepIndex, onNext, onPrevious, onClose }) => {
+export const GuidedTour: React.FC<GuidedTourProps> = ({
+  steps,
+  open,
+  stepIndex,
+  onNext,
+  onPrevious,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const [position, setPosition] = useState<Position | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
 
   const totalSteps = steps.length;
   const isLastStep = stepIndex >= totalSteps - 1;
@@ -96,7 +107,11 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ steps, open, stepIndex, 
     }
     const element = steps[stepIndex]?.ref.current;
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
+      });
     }
     updatePosition();
   }, [open, stepIndex, steps, updatePosition]);
@@ -145,10 +160,15 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ steps, open, stepIndex, 
               style={{ top: tooltipPosition.top, left: tooltipPosition.left }}
             >
               <div className="mb-2 text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
-                {t('suggestions.tour.progress', { current: stepIndex + 1, total: totalSteps })}
+                {t('suggestions.tour.progress', {
+                  current: stepIndex + 1,
+                  total: totalSteps,
+                })}
               </div>
               <h3 className="text-lg font-semibold">{activeStep.title}</h3>
-              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{activeStep.description}</p>
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+                {activeStep.description}
+              </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   type="button"
@@ -181,4 +201,3 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ steps, open, stepIndex, 
     document.body,
   );
 };
-

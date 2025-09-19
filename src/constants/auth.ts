@@ -2,7 +2,8 @@ import { ADMIN_MASTER_ROLE } from './roles';
 
 const getEnvVar = (key: string): string | undefined => {
   const metaEnv =
-    typeof import.meta !== 'undefined' && (import.meta as { env?: Record<string, unknown> }).env;
+    typeof import.meta !== 'undefined' &&
+    (import.meta as { env?: Record<string, unknown> }).env;
   if (metaEnv) {
     const value = metaEnv[key];
     if (typeof value === 'string') {
@@ -10,7 +11,9 @@ const getEnvVar = (key: string): string | undefined => {
     }
   }
 
-  const processEnv = (globalThis as { process?: { env?: Record<string, unknown> } }).process?.env;
+  const processEnv = (
+    globalThis as { process?: { env?: Record<string, unknown> } }
+  ).process?.env;
   if (processEnv) {
     const value = processEnv[key];
     if (typeof value === 'string') {

@@ -26,13 +26,17 @@ export const useSaidas = () => {
      */
     addSaida: useCallback(
       async (saida: Omit<Saida, 'id' | 'publisherId'>) => {
-        const record: Saida = { id: generateId(), publisherId: currentUserId, ...saida };
+        const record: Saida = {
+          id: generateId(),
+          publisherId: currentUserId,
+          ...saida,
+        };
         await SaidaRepository.add(record);
         dispatch({ type: 'ADD_SAIDA', payload: record });
         toast.success('Saída salva');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     /**
      * Updates an existing Saida.
@@ -49,7 +53,7 @@ export const useSaidas = () => {
         toast.success('Saída atualizada');
         return record;
       },
-      [currentUserId, dispatch, saidas, toast]
+      [currentUserId, dispatch, saidas, toast],
     ),
     /**
      * Removes a Saida from persistence.
@@ -61,7 +65,7 @@ export const useSaidas = () => {
         dispatch({ type: 'REMOVE_SAIDA', payload: id });
         toast.success('Saída removida');
       },
-      [dispatch, toast]
+      [dispatch, toast],
     ),
   } as const;
 };

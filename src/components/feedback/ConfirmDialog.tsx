@@ -15,7 +15,9 @@ interface ConfirmState {
 /**
  * The context for the confirmation dialog.
  */
-const ConfirmContext = createContext<(msg: string) => Promise<boolean>>(() => Promise.resolve(false));
+const ConfirmContext = createContext<(msg: string) => Promise<boolean>>(() =>
+  Promise.resolve(false),
+);
 
 /**
  * Custom hook for showing a confirmation dialog.
@@ -29,11 +31,14 @@ export const useConfirm = () => useContext(ConfirmContext);
  * @param props The props for the component.
  * @returns A JSX element representing the confirmation provider.
  */
-export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [state, setState] = useState<ConfirmState | null>(null);
   const { t } = useTranslation();
 
-  const confirm = (message: string) => new Promise<boolean>((resolve) => setState({ message, resolve }));
+  const confirm = (message: string) =>
+    new Promise<boolean>((resolve) => setState({ message, resolve }));
 
   const handle = (val: boolean) => {
     state?.resolve(val);
@@ -47,7 +52,10 @@ export const ConfirmProvider: React.FC<{ children: React.ReactNode }> = ({ child
         <Modal>
           <p className="mb-4">{state.message}</p>
           <div className="flex justify-end gap-2">
-            <button onClick={() => handle(false)} className="px-3 py-2 rounded-xl border">
+            <button
+              onClick={() => handle(false)}
+              className="px-3 py-2 rounded-xl border"
+            >
               {t('confirm.cancel')}
             </button>
             <button

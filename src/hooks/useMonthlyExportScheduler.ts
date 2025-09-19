@@ -62,18 +62,24 @@ export function useMonthlyExportScheduler(publisherId?: string) {
 
   useEffect(() => {
     if (!config.enabled || !publisherId) return;
-    const interval = setInterval(async () => {
-      if (Date.now() >= config.nextRun) {
-        const designacoes = await DesignacaoRepository.forPublisher(publisherId);
-        const summary = monthlySummaryBySaida(designacoes).map((item) => ({ ...item }));
-        const csv = exportToCsv(summary, ['saidaId', 'month', 'total']);
-        const date = new Date().toISOString().split('T')[0];
-        downloadFile(csv, `monthly-summary-${date}.csv`, 'text/csv');
-        const next = new Date(config.nextRun);
-        next.setMonth(next.getMonth() + 1);
-        setConfig({ ...config, nextRun: next.getTime() });
-      }
-    }, 60 * 60 * 1000); // check hourly
+    const interval = setInterval(
+      async () => {
+        if (Date.now() >= config.nextRun) {
+          const designacoes =
+            await DesignacaoRepository.forPublisher(publisherId);
+          const summary = monthlySummaryBySaida(designacoes).map((item) => ({
+            ...item,
+          }));
+          const csv = exportToCsv(summary, ['saidaId', 'month', 'total']);
+          const date = new Date().toISOString().split('T')[0];
+          downloadFile(csv, `monthly-summary-${date}.csv`, 'text/csv');
+          const next = new Date(config.nextRun);
+          next.setMonth(next.getMonth() + 1);
+          setConfig({ ...config, nextRun: next.getTime() });
+        }
+      },
+      60 * 60 * 1000,
+    ); // check hourly
     return () => clearInterval(interval);
   }, [config, publisherId]);
 

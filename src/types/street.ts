@@ -3,4 +3,3 @@ export interface Street {
   territoryId: string;
   name: string;
 }
-

@@ -50,7 +50,11 @@ const ExitsPage: React.FC = () => {
           </div>
           <div className="grid gap-1">
             <Label>{t('exits.time')}</Label>
-            <Input type="time" value={hora} onChange={(event) => setHora(event.target.value)} />
+            <Input
+              type="time"
+              value={hora}
+              onChange={(event) => setHora(event.target.value)}
+            />
           </div>
           <div className="flex items-end justify-end">
             <Button type="submit" className="bg-black text-white">
@@ -66,7 +70,10 @@ const ExitsPage: React.FC = () => {
         ) : (
           <div className="grid md:grid-cols-2 gap-3">
             {saidas.map((saida) => (
-              <div key={saida.id} className="rounded-xl border p-3 flex items-center justify-between bg-white dark:bg-neutral-950">
+              <div
+                key={saida.id}
+                className="rounded-xl border p-3 flex items-center justify-between bg-white dark:bg-neutral-950"
+              >
                 <div>
                   <p className="font-semibold">{saida.nome}</p>
                   <p className="text-sm text-neutral-600">

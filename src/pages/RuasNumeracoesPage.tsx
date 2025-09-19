@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
@@ -19,21 +25,26 @@ export default function RuasNumeracoesPage(): JSX.Element {
   const [streets, setStreets] = useState<Street[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [activeTab, setActiveTab] = useState<'ruas' | 'enderecos' | 'tipos' | 'resumo'>('ruas');
-  const [editingPropertyTypeId, setEditingPropertyTypeId] = useState<number | null>(null);
-  const [editingPropertyTypeName, setEditingPropertyTypeName] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<
+    'ruas' | 'enderecos' | 'tipos' | 'resumo'
+  >('ruas');
+  const [editingPropertyTypeId, setEditingPropertyTypeId] = useState<
+    number | null
+  >(null);
+  const [editingPropertyTypeName, setEditingPropertyTypeName] =
+    useState<string>('');
   const [territoryId, setTerritoryId] = useState<string>('');
   const territoryIdRef = useRef<string>(territoryId);
   const publisherId = currentUser?.id ?? null;
 
   const territory = useMemo(
-    () => territories.find(t => t.id === territoryId),
-    [territories, territoryId]
+    () => territories.find((t) => t.id === territoryId),
+    [territories, territoryId],
   );
 
   const territoryStreets = useMemo(
-    () => streets.filter(street => street.territoryId === territoryId),
-    [streets, territoryId]
+    () => streets.filter((street) => street.territoryId === territoryId),
+    [streets, territoryId],
   );
 
   const refreshPropertyTypes = useCallback(async (): Promise<void> => {
@@ -49,20 +60,25 @@ export default function RuasNumeracoesPage(): JSX.Element {
         return;
       }
 
-      const matchingTerritory = territories.find(territoryItem => territoryItem.id === id);
+      const matchingTerritory = territories.find(
+        (territoryItem) => territoryItem.id === id,
+      );
       if (!matchingTerritory || matchingTerritory.publisherId !== publisher) {
         setStreets([]);
         setAddresses([]);
         return;
       }
 
-      const territoryStreets = await db.streets.where('territoryId').equals(id).toArray();
+      const territoryStreets = await db.streets
+        .where('territoryId')
+        .equals(id)
+        .toArray();
       if (territoryIdRef.current !== id) {
         return;
       }
       setStreets(territoryStreets);
       const streetIds = territoryStreets
-        .map(street => street.id)
+        .map((street) => street.id)
         .filter((streetId): streetId is number => typeof streetId === 'number');
       const territoryAddresses =
         streetIds.length > 0
@@ -73,7 +89,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
       }
       setAddresses(territoryAddresses);
     },
-    [territories]
+    [territories],
   );
 
   useEffect(() => {
@@ -95,7 +111,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
         const [territoriesData, propertyTypesData] = await Promise.all([
           TerritorioRepository.forPublisher(publisherId),
-          db.propertyTypes.toArray()
+          db.propertyTypes.toArray(),
         ]);
 
         if (!active) {
@@ -104,12 +120,13 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
         setTerritories(territoriesData);
         setPropertyTypes(propertyTypesData);
-        setTerritoryId(currentId => {
+        setTerritoryId((currentId) => {
           if (
             currentId &&
             territoriesData.some(
-              territoryData =>
-                territoryData.id === currentId && territoryData.publisherId === publisherId
+              (territoryData) =>
+                territoryData.id === currentId &&
+                territoryData.publisherId === publisherId,
             )
           ) {
             return currentId;
@@ -146,14 +163,20 @@ export default function RuasNumeracoesPage(): JSX.Element {
     void refreshTerritoryData(territoryId, publisherId);
   }, [territoryId, refreshTerritoryData, publisherId]);
 
-  const saveStreet = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const saveStreet = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
     const name = String(formData.get('name'));
     if (!territoryId || !name) return;
     const currentPublisherId = publisherId;
-    if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+    if (
+      !currentPublisherId ||
+      !territory ||
+      territory.publisherId !== currentPublisherId
+    ) {
       return;
     }
     await db.streets.put({ territoryId, name });
@@ -194,37 +217,34 @@ export default function RuasNumeracoesPage(): JSX.Element {
         toast.error(t('ruasNumeracoes.feedback.saveError'));
       }
     },
-    [refreshPropertyTypes, t, toast]
+    [refreshPropertyTypes, t, toast],
   );
 
-  const handleUpdatePropertyType = useCallback(
-    async (): Promise<void> => {
-      if (editingPropertyTypeId === null) {
-        return;
-      }
-      const name = editingPropertyTypeName.trim();
-      if (!name) {
-        return;
-      }
-      try {
-        await db.propertyTypes.put({ id: editingPropertyTypeId, name });
-        await refreshPropertyTypes();
-        cancelEditPropertyType();
-        toast.success(t('ruasNumeracoes.feedback.updateSuccess'));
-      } catch (error) {
-        console.error(error);
-        toast.error(t('ruasNumeracoes.feedback.saveError'));
-      }
-    },
-    [
-      cancelEditPropertyType,
-      editingPropertyTypeId,
-      editingPropertyTypeName,
-      refreshPropertyTypes,
-      t,
-      toast
-    ]
-  );
+  const handleUpdatePropertyType = useCallback(async (): Promise<void> => {
+    if (editingPropertyTypeId === null) {
+      return;
+    }
+    const name = editingPropertyTypeName.trim();
+    if (!name) {
+      return;
+    }
+    try {
+      await db.propertyTypes.put({ id: editingPropertyTypeId, name });
+      await refreshPropertyTypes();
+      cancelEditPropertyType();
+      toast.success(t('ruasNumeracoes.feedback.updateSuccess'));
+    } catch (error) {
+      console.error(error);
+      toast.error(t('ruasNumeracoes.feedback.saveError'));
+    }
+  }, [
+    cancelEditPropertyType,
+    editingPropertyTypeId,
+    editingPropertyTypeName,
+    refreshPropertyTypes,
+    t,
+    toast,
+  ]);
 
   const handleDeletePropertyType = useCallback(
     async (id?: number): Promise<void> => {
@@ -243,7 +263,13 @@ export default function RuasNumeracoesPage(): JSX.Element {
         toast.error(t('ruasNumeracoes.feedback.deleteError'));
       }
     },
-    [cancelEditPropertyType, editingPropertyTypeId, refreshPropertyTypes, t, toast]
+    [
+      cancelEditPropertyType,
+      editingPropertyTypeId,
+      refreshPropertyTypes,
+      t,
+      toast,
+    ],
   );
 
   const handleCreateAddress = useCallback(
@@ -255,7 +281,9 @@ export default function RuasNumeracoesPage(): JSX.Element {
 
       const form = event.currentTarget;
       const formData = new FormData(form);
-      const parseInteger = (value: FormDataEntryValue | null): number | null => {
+      const parseInteger = (
+        value: FormDataEntryValue | null,
+      ): number | null => {
         if (typeof value !== 'string') {
           return null;
         }
@@ -279,14 +307,22 @@ export default function RuasNumeracoesPage(): JSX.Element {
         return;
       }
 
-      const streetExists = territoryStreets.some(street => street.id === streetId);
-      const propertyTypeExists = propertyTypes.some(type => type.id === propertyTypeId);
+      const streetExists = territoryStreets.some(
+        (street) => street.id === streetId,
+      );
+      const propertyTypeExists = propertyTypes.some(
+        (type) => type.id === propertyTypeId,
+      );
       if (!streetExists || !propertyTypeExists) {
         return;
       }
 
       const currentPublisherId = publisherId;
-      if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+      if (
+        !currentPublisherId ||
+        !territory ||
+        territory.publisherId !== currentPublisherId
+      ) {
         return;
       }
 
@@ -295,7 +331,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
           streetId,
           numberStart: numberValue,
           numberEnd: numberValue,
-          propertyTypeId
+          propertyTypeId,
         });
         await refreshTerritoryData(territoryId, currentPublisherId);
         form.reset();
@@ -309,8 +345,8 @@ export default function RuasNumeracoesPage(): JSX.Element {
       refreshTerritoryData,
       territory,
       territoryId,
-      territoryStreets
-    ]
+      territoryStreets,
+    ],
   );
 
   const handleMarkSuccessfulVisit = useCallback(
@@ -321,72 +357,86 @@ export default function RuasNumeracoesPage(): JSX.Element {
       }
 
       const currentPublisherId = publisherId;
-      if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+      if (
+        !currentPublisherId ||
+        !territory ||
+        territory.publisherId !== currentPublisherId
+      ) {
         return;
       }
 
       const now = new Date();
       const lastSuccessfulVisit = now.toISOString();
-      const nextVisitAllowed = new Date(now.getTime() + ADDRESS_VISIT_COOLDOWN_MS).toISOString();
+      const nextVisitAllowed = new Date(
+        now.getTime() + ADDRESS_VISIT_COOLDOWN_MS,
+      ).toISOString();
 
       try {
-        await db.addresses.update(addressId, { lastSuccessfulVisit, nextVisitAllowed });
-        setAddresses(previousAddresses =>
-          previousAddresses.map(item =>
+        await db.addresses.update(addressId, {
+          lastSuccessfulVisit,
+          nextVisitAllowed,
+        });
+        setAddresses((previousAddresses) =>
+          previousAddresses.map((item) =>
             item.id === addressId
               ? { ...item, lastSuccessfulVisit, nextVisitAllowed }
-              : item
-          )
+              : item,
+          ),
         );
       } catch (error) {
         console.error(error);
       }
     },
-    [publisherId, territory]
+    [publisherId, territory],
   );
 
   const addressRows = useMemo(() => {
     const streetMap = new Map<number, string>();
-    territoryStreets.forEach(street => {
+    territoryStreets.forEach((street) => {
       if (street.id !== undefined) {
         streetMap.set(street.id, street.name);
       }
     });
 
     const propertyTypeMap = new Map<number, string>();
-    propertyTypes.forEach(type => {
+    propertyTypes.forEach((type) => {
       if (type.id !== undefined) {
         propertyTypeMap.set(type.id, type.name);
       }
     });
 
-    return addresses.map(address => ({
+    return addresses.map((address) => ({
       ...address,
       streetName: streetMap.get(address.streetId) ?? '',
       propertyTypeName: propertyTypeMap.get(address.propertyTypeId) ?? '',
       numberLabel:
         address.numberStart === address.numberEnd
           ? `${address.numberStart}`
-          : `${address.numberStart}–${address.numberEnd}`
+          : `${address.numberStart}–${address.numberEnd}`,
     }));
   }, [addresses, propertyTypes, territoryStreets]);
 
-  const formatDateTime = useCallback((value: string | null | undefined): string | null => {
-    if (!value) {
-      return null;
-    }
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) {
-      return null;
-    }
-    return date.toLocaleString();
-  }, []);
+  const formatDateTime = useCallback(
+    (value: string | null | undefined): string | null => {
+      if (!value) {
+        return null;
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+      return date.toLocaleString();
+    },
+    [],
+  );
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="border rounded p-2">
         {territory && (
-          <ImageAnnotator imageUrl={territory.imageUrl ?? territory.imagem ?? ''} />
+          <ImageAnnotator
+            imageUrl={territory.imageUrl ?? territory.imagem ?? ''}
+          />
         )}
       </div>
       <div className="flex flex-col gap-4">
@@ -398,11 +448,13 @@ export default function RuasNumeracoesPage(): JSX.Element {
             id="territory-select"
             className="border p-1 w-full"
             value={territoryId}
-            onChange={event => setTerritoryId(event.target.value)}
+            onChange={(event) => setTerritoryId(event.target.value)}
             disabled={territories.length === 0}
           >
-            <option value="">{t('ruasNumeracoes.territorySelector.placeholder')}</option>
-            {territories.map(option => (
+            <option value="">
+              {t('ruasNumeracoes.territorySelector.placeholder')}
+            </option>
+            {territories.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.nome}
               </option>
@@ -447,10 +499,15 @@ export default function RuasNumeracoesPage(): JSX.Element {
             >
               <input
                 name="name"
-                placeholder={t('ruasNumeracoes.streetsForm.streetNamePlaceholder')}
+                placeholder={t(
+                  'ruasNumeracoes.streetsForm.streetNamePlaceholder',
+                )}
                 className="border p-1 w-full sm:flex-1"
               />
-              <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
+              <button
+                type="submit"
+                className="border px-2 py-1 w-full sm:w-auto"
+              >
                 {t('common.save')}
               </button>
             </form>
@@ -464,7 +521,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                   </tr>
                 </thead>
                 <tbody>
-                  {territoryStreets.map(s => (
+                  {territoryStreets.map((s) => (
                     <tr key={s.id}>
                       <td>{s.name}</td>
                     </tr>
@@ -488,7 +545,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                   <option value="">
                     {t('ruasNumeracoes.addressesForm.selectStreet')}
                   </option>
-                  {territoryStreets.map(street => (
+                  {territoryStreets.map((street) => (
                     <option key={street.id ?? street.name} value={street.id}>
                       {street.name}
                     </option>
@@ -503,7 +560,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
                   <option value="">
                     {t('ruasNumeracoes.addressesForm.selectType')}
                   </option>
-                  {propertyTypes.map(type => (
+                  {propertyTypes.map((type) => (
                     <option key={type.id ?? type.name} value={type.id}>
                       {type.name}
                     </option>
@@ -517,7 +574,10 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 <input name="number" type="number" className="border p-1" />
               </label>
               <div className="sm:col-span-2 lg:col-span-3">
-                <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
+                <button
+                  type="submit"
+                  className="border px-2 py-1 w-full sm:w-auto"
+                >
                   {t('common.create')}
                 </button>
               </div>
@@ -554,12 +614,16 @@ export default function RuasNumeracoesPage(): JSX.Element {
                     const nextVisit =
                       formatDateTime(address.nextVisitAllowed) ??
                       t('ruasNumeracoes.addressesTable.cooldownNotScheduled');
-                      return (
-                        <tr key={address.id ?? `${address.streetId}-${index}`}>
-                          <td className="px-2 py-1">{address.streetName || '—'}</td>
-                          <td className="px-2 py-1">{address.numberLabel}</td>
-                          <td className="px-2 py-1">{address.propertyTypeName || '—'}</td>
-                          <td className="px-2 py-1">{lastVisit}</td>
+                    return (
+                      <tr key={address.id ?? `${address.streetId}-${index}`}>
+                        <td className="px-2 py-1">
+                          {address.streetName || '—'}
+                        </td>
+                        <td className="px-2 py-1">{address.numberLabel}</td>
+                        <td className="px-2 py-1">
+                          {address.propertyTypeName || '—'}
+                        </td>
+                        <td className="px-2 py-1">{lastVisit}</td>
                         <td className="px-2 py-1">{nextVisit}</td>
                         <td className="px-2 py-1">
                           <button
@@ -588,10 +652,15 @@ export default function RuasNumeracoesPage(): JSX.Element {
             >
               <input
                 name="name"
-                placeholder={t('ruasNumeracoes.propertyTypesForm.namePlaceholder')}
+                placeholder={t(
+                  'ruasNumeracoes.propertyTypesForm.namePlaceholder',
+                )}
                 className="border p-1 w-full sm:flex-1"
               />
-              <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
+              <button
+                type="submit"
+                className="border px-2 py-1 w-full sm:w-auto"
+              >
                 {t('common.create')}
               </button>
             </form>
@@ -610,7 +679,10 @@ export default function RuasNumeracoesPage(): JSX.Element {
                 <tbody>
                   {propertyTypes.length === 0 ? (
                     <tr>
-                      <td colSpan={2} className="px-2 py-2 text-sm text-gray-500">
+                      <td
+                        colSpan={2}
+                        className="px-2 py-2 text-sm text-gray-500"
+                      >
                         {t('ruasNumeracoes.propertyTypesTable.empty')}
                       </td>
                     </tr>
@@ -623,8 +695,10 @@ export default function RuasNumeracoesPage(): JSX.Element {
                             {isEditing ? (
                               <input
                                 value={editingPropertyTypeName}
-                                onChange={event => setEditingPropertyTypeName(event.target.value)}
-                                onKeyDown={event => {
+                                onChange={(event) =>
+                                  setEditingPropertyTypeName(event.target.value)
+                                }
+                                onKeyDown={(event) => {
                                   if (event.key === 'Enter') {
                                     event.preventDefault();
                                     void handleUpdatePropertyType();
@@ -692,17 +766,17 @@ export default function RuasNumeracoesPage(): JSX.Element {
           <div>
             <p>
               {t('ruasNumeracoes.summary.totalStreets', {
-                count: territoryStreets.length
+                count: territoryStreets.length,
               })}
             </p>
             <p>
               {t('ruasNumeracoes.summary.totalAddresses', {
-                count: addresses.length
+                count: addresses.length,
               })}
             </p>
             <p>
               {t('ruasNumeracoes.summary.totalPropertyTypes', {
-                count: propertyTypes.length
+                count: propertyTypes.length,
               })}
             </p>
           </div>
@@ -711,4 +785,3 @@ export default function RuasNumeracoesPage(): JSX.Element {
     </div>
   );
 }
-

@@ -21,8 +21,18 @@ const {
   } as const;
 
   const territoriesSeed: Territorio[] = [
-    { id: 'territory-1', nome: 'Norte', publisherId: currentUser.id, imageUrl: 'norte.png' },
-    { id: 'territory-2', nome: 'Sul', publisherId: 'publisher-2', imageUrl: 'sul.png' },
+    {
+      id: 'territory-1',
+      nome: 'Norte',
+      publisherId: currentUser.id,
+      imageUrl: 'norte.png',
+    },
+    {
+      id: 'territory-2',
+      nome: 'Sul',
+      publisherId: 'publisher-2',
+      imageUrl: 'sul.png',
+    },
   ];
 
   const streetsSeed: Street[] = [
@@ -45,7 +55,7 @@ const {
     forPublisher: vi.fn(async (publisherId: string) =>
       territoriesSeed
         .filter((territory) => territory.publisherId === publisherId)
-        .map((territory) => ({ ...territory }))
+        .map((territory) => ({ ...territory })),
     ),
   };
 
@@ -139,12 +149,18 @@ describe('RuasNumeracoesPage publisher scoping', () => {
     render(<RuasNumeracoesPage />);
 
     await waitFor(() => {
-      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(publisherId);
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        publisherId,
+      );
     });
 
-    const territorySelect = document.getElementById('territory-select') as HTMLSelectElement | null;
+    const territorySelect = document.getElementById(
+      'territory-select',
+    ) as HTMLSelectElement | null;
     expect(territorySelect).not.toBeNull();
-    const optionLabels = Array.from(territorySelect!.options).map((option) => option.textContent);
+    const optionLabels = Array.from(territorySelect!.options).map(
+      (option) => option.textContent,
+    );
     expect(optionLabels).toContain('Norte');
     expect(optionLabels).not.toContain('Sul');
 

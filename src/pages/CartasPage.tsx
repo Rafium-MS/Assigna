@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   type BuildingVillage,
   type BuildingVillageLetterHistoryEntry,
-  type BuildingVillageLetterStatus
+  type BuildingVillageLetterStatus,
 } from '../types/building_village';
 import type { Territorio } from '../types/territorio';
 import { BuildingVillageRepository } from '../services/repositories/buildings_villages';
@@ -11,12 +11,13 @@ import { TerritorioRepository } from '../services/repositories/territorios';
 import { useToast } from '../components/feedback/Toast';
 import { useAuth } from '../hooks/useAuth';
 
-const letterStatusTranslationKeys: Record<BuildingVillageLetterStatus, string> = {
-  not_sent: 'buildingsVillages.letterStatus.notSent',
-  in_progress: 'buildingsVillages.letterStatus.inProgress',
-  sent: 'buildingsVillages.letterStatus.sent',
-  responded: 'buildingsVillages.letterStatus.responded'
-};
+const letterStatusTranslationKeys: Record<BuildingVillageLetterStatus, string> =
+  {
+    not_sent: 'buildingsVillages.letterStatus.notSent',
+    in_progress: 'buildingsVillages.letterStatus.inProgress',
+    sent: 'buildingsVillages.letterStatus.sent',
+    responded: 'buildingsVillages.letterStatus.responded',
+  };
 
 const formatDate = (value: string | null) => {
   if (!value) return null;
@@ -28,7 +29,7 @@ const formatDate = (value: string | null) => {
 };
 
 const sortLetterHistory = (
-  history: BuildingVillageLetterHistoryEntry[]
+  history: BuildingVillageLetterHistoryEntry[],
 ): BuildingVillageLetterHistoryEntry[] => {
   return [...history].sort((a, b) => {
     const aDate = a.sent_at ?? '';
@@ -55,7 +56,7 @@ type ResponsibleGroup = {
 
 const getLetterStatusLabel = (
   status: BuildingVillageLetterStatus | null | undefined,
-  t: ReturnType<typeof useTranslation>['t']
+  t: ReturnType<typeof useTranslation>['t'],
 ) => {
   if (!status) {
     return t('buildingsVillages.letterStatus.unknown');
@@ -91,7 +92,7 @@ const CartasPage: React.FC = () => {
         }
         const [villagesData, territoriesData] = await Promise.all([
           BuildingVillageRepository.forPublisher(publisherId),
-          TerritorioRepository.forPublisher(publisherId)
+          TerritorioRepository.forPublisher(publisherId),
         ]);
         if (!active) return;
         setVillages(villagesData);
@@ -129,7 +130,9 @@ const CartasPage: React.FC = () => {
         return;
       }
 
-      const history = Array.isArray(building.letter_history) ? building.letter_history : [];
+      const history = Array.isArray(building.letter_history)
+        ? building.letter_history
+        : [];
       const hasHistory = history.length > 0;
       const hasStatus = Boolean(building.letter_status);
 
@@ -141,7 +144,7 @@ const CartasPage: React.FC = () => {
         responsible: responsibleRaw,
         contactMethods: [],
         lettersCount: 0,
-        entries: []
+        entries: [],
       };
 
       group.entries.push({
@@ -150,7 +153,7 @@ const CartasPage: React.FC = () => {
         territoryId: building.territory_id,
         contactMethod: building.contact_method,
         letterStatus: building.letter_status ?? null,
-        letterHistory: history
+        letterHistory: history,
       });
 
       if (building.contact_method) {
@@ -173,26 +176,31 @@ const CartasPage: React.FC = () => {
           const nameA = a.buildingName ?? '';
           const nameB = b.buildingName ?? '';
           return nameA.localeCompare(nameB);
-        })
+        }),
       }))
       .sort((a, b) => a.responsible.localeCompare(b.responsible));
   }, [villages]);
 
   const totalLetters = useMemo(
     () => groups.reduce((sum, group) => sum + group.lettersCount, 0),
-    [groups]
+    [groups],
   );
 
   return (
     <div className="space-y-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">{t('letters.title')}</h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-400">{t('letters.subtitle')}</p>
+        <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          {t('letters.subtitle')}
+        </p>
       </header>
 
       <section className="rounded-2xl border border-black/5 bg-white/70 p-4 shadow backdrop-blur dark:border-white/10 dark:bg-neutral-900/60">
         <p className="text-sm text-neutral-600 dark:text-neutral-300">
-          {t('letters.summary', { responsibles: groups.length, letters: totalLetters })}
+          {t('letters.summary', {
+            responsibles: groups.length,
+            letters: totalLetters,
+          })}
         </p>
       </section>
 
@@ -219,14 +227,14 @@ const CartasPage: React.FC = () => {
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     {t('letters.groupSummary', {
                       letters: group.lettersCount,
-                      buildings: group.entries.length
+                      buildings: group.entries.length,
                     })}
                   </p>
                 </div>
                 {group.contactMethods.length > 0 && (
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     {t('letters.contactMethods', {
-                      methods: group.contactMethods.join(', ')
+                      methods: group.contactMethods.join(', '),
                     })}
                   </p>
                 )}
@@ -244,7 +252,8 @@ const CartasPage: React.FC = () => {
                           {entry.buildingName || t('letters.unnamedBuilding')}
                         </h3>
                         <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                          {territoryNameById[entry.territoryId] ?? t('letters.unknownTerritory')}
+                          {territoryNameById[entry.territoryId] ??
+                            t('letters.unknownTerritory')}
                         </p>
                       </div>
                       {entry.letterStatus && (
@@ -277,27 +286,31 @@ const CartasPage: React.FC = () => {
                           </dt>
                           <dd>
                             <ul className="space-y-1">
-                              {sortLetterHistory(entry.letterHistory).map((letter) => {
-                                const info = [
-                                  letter.sent_at ? formatDate(letter.sent_at) : null,
-                                  getLetterStatusLabel(letter.status, t)
-                                ]
-                                  .filter(Boolean)
-                                  .join(' • ');
-                                return (
-                                  <li
-                                    key={letter.id}
-                                    className="rounded-lg bg-neutral-50 px-2 py-1 text-[11px] font-medium text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200"
-                                  >
-                                    <span>{info}</span>
-                                    {letter.notes && (
-                                      <span className="block text-[11px] font-normal text-neutral-500 dark:text-neutral-400">
-                                        {letter.notes}
-                                      </span>
-                                    )}
-                                  </li>
-                                );
-                              })}
+                              {sortLetterHistory(entry.letterHistory).map(
+                                (letter) => {
+                                  const info = [
+                                    letter.sent_at
+                                      ? formatDate(letter.sent_at)
+                                      : null,
+                                    getLetterStatusLabel(letter.status, t),
+                                  ]
+                                    .filter(Boolean)
+                                    .join(' • ');
+                                  return (
+                                    <li
+                                      key={letter.id}
+                                      className="rounded-lg bg-neutral-50 px-2 py-1 text-[11px] font-medium text-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-200"
+                                    >
+                                      <span>{info}</span>
+                                      {letter.notes && (
+                                        <span className="block text-[11px] font-normal text-neutral-500 dark:text-neutral-400">
+                                          {letter.notes}
+                                        </span>
+                                      )}
+                                    </li>
+                                  );
+                                },
+                              )}
                             </ul>
                           </dd>
                         </div>

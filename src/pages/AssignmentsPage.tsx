@@ -9,14 +9,20 @@ import { useSaidas } from '../hooks/useSaidas';
 import { useDesignacoes } from '../hooks/useDesignacoes';
 import { useSuggestionRules } from '../hooks/useSuggestionRules';
 import type { Designacao } from '../types/designacao';
-import { addDaysToIso, formatIsoDate, nextDateForWeekday, todayLocalIso } from '../utils/calendar';
+import {
+  addDaysToIso,
+  formatIsoDate,
+  nextDateForWeekday,
+  todayLocalIso,
+} from '../utils/calendar';
 import { findName } from '../utils/lookups';
 import { getLastAssignmentDate } from '../utils/assignments';
 
 const AssignmentsPage: React.FC = () => {
   const { territorios } = useTerritorios();
   const { saidas } = useSaidas();
-  const { designacoes, addDesignacao, removeDesignacao, updateDesignacao } = useDesignacoes();
+  const { designacoes, addDesignacao, removeDesignacao, updateDesignacao } =
+    useDesignacoes();
   const [rules] = useSuggestionRules();
   const confirm = useConfirm();
   const toast = useToast();
@@ -25,7 +31,9 @@ const AssignmentsPage: React.FC = () => {
   const [territorioId, setTerritorioId] = useState('');
   const [saidaId, setSaidaId] = useState('');
   const [startDate, setStartDate] = useState(todayIso);
-  const [endDate, setEndDate] = useState(addDaysToIso(todayIso, rules.defaultDurationDays));
+  const [endDate, setEndDate] = useState(
+    addDaysToIso(todayIso, rules.defaultDurationDays),
+  );
 
   const generateSuggestion = () => {
     const saida = saidas.find((item) => item.id === saidaId);
@@ -46,17 +54,29 @@ const AssignmentsPage: React.FC = () => {
       .filter((territorio) => !recent.has(territorio.id))
       .flatMap((territorio) => {
         const lastForExit = designacoes
-          .filter((designacao) => designacao.territorioId === territorio.id && designacao.saidaId === saida.id)
+          .filter(
+            (designacao) =>
+              designacao.territorioId === territorio.id &&
+              designacao.saidaId === saida.id,
+          )
           .map((designacao) => new Date(`${designacao.dataInicial}T00:00:00`))
           .sort((a, b) => b.getTime() - a.getTime())[0];
 
         if (lastForExit) {
-          const months = (today.getTime() - lastForExit.getTime()) / 1000 / 60 / 60 / 24 / 30;
+          const months =
+            (today.getTime() - lastForExit.getTime()) /
+            1000 /
+            60 /
+            60 /
+            24 /
+            30;
           if (months < rules.avoidMonthsPerExit) return [];
         }
 
         const lastOverall = getLastAssignmentDate(territorio.id, designacoes);
-        const days = lastOverall ? Math.floor((today.getTime() - lastOverall.getTime()) / 86400000) : Number.POSITIVE_INFINITY;
+        const days = lastOverall
+          ? Math.floor((today.getTime() - lastOverall.getTime()) / 86400000)
+          : Number.POSITIVE_INFINITY;
         const recencyPenalty = lastOverall ? 1 / (days + 1) : 0;
         const score = -rules.recentWeight * recencyPenalty;
         return [{ territorioId: territorio.id, score }];
@@ -81,7 +101,13 @@ const AssignmentsPage: React.FC = () => {
       toast.error(t('assignments.selectTerritoryAndExit'));
       return;
     }
-    await addDesignacao({ territorioId, saidaId, dataInicial: startDate, dataFinal: endDate, devolvido: false });
+    await addDesignacao({
+      territorioId,
+      saidaId,
+      dataInicial: startDate,
+      dataFinal: endDate,
+      devolvido: false,
+    });
   };
 
   const toggleDesignacaoReturn = async (designacao: Designacao) => {
@@ -124,14 +150,26 @@ const AssignmentsPage: React.FC = () => {
           </div>
           <div className="grid gap-1">
             <Label>{t('assignments.assignmentDate')}</Label>
-            <Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+            />
           </div>
           <div className="grid gap-1">
             <Label>{t('assignments.returnDate')}</Label>
-            <Input type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value)}
+            />
           </div>
           <div className="flex items-end justify-end gap-2">
-            <Button type="button" onClick={generateSuggestion} className="bg-blue-600 text-white">
+            <Button
+              type="button"
+              onClick={generateSuggestion}
+              className="bg-blue-600 text-white"
+            >
               {t('assignments.generateSuggestion')}
             </Button>
             <Button type="submit" className="bg-black text-white">
@@ -141,7 +179,11 @@ const AssignmentsPage: React.FC = () => {
         </form>
       </Card>
 
-      <Card title={t('assignments.assignmentsWithCount', { count: designacoes.length })}>
+      <Card
+        title={t('assignments.assignmentsWithCount', {
+          count: designacoes.length,
+        })}
+      >
         {designacoes.length === 0 ? (
           <p className="text-neutral-500">{t('assignments.noAssignments')}</p>
         ) : (
@@ -159,14 +201,17 @@ const AssignmentsPage: React.FC = () => {
               </thead>
               <tbody>
                 {designacoes.map((designacao) => {
-                  const status: 'devolvido' | 'atrasado' | 'ativo' = designacao.devolvido
-                    ? 'devolvido'
-                    : new Date(designacao.dataFinal) < new Date()
-                      ? 'atrasado'
-                      : 'ativo';
+                  const status: 'devolvido' | 'atrasado' | 'ativo' =
+                    designacao.devolvido
+                      ? 'devolvido'
+                      : new Date(designacao.dataFinal) < new Date()
+                        ? 'atrasado'
+                        : 'ativo';
                   return (
                     <tr key={designacao.id} className="border-b last:border-0">
-                      <td className="py-2">{findName(designacao.territorioId, territorios)}</td>
+                      <td className="py-2">
+                        {findName(designacao.territorioId, territorios)}
+                      </td>
                       <td>{findName(designacao.saidaId, saidas)}</td>
                       <td>{formatIsoDate(designacao.dataInicial)}</td>
                       <td>{formatIsoDate(designacao.dataFinal)}</td>
@@ -178,7 +223,9 @@ const AssignmentsPage: React.FC = () => {
                           onClick={() => toggleDesignacaoReturn(designacao)}
                           className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
                         >
-                          {designacao.devolvido ? t('assignments.reactivate') : t('assignments.markAsReturned')}
+                          {designacao.devolvido
+                            ? t('assignments.reactivate')
+                            : t('assignments.markAsReturned')}
                         </Button>
                         <Button
                           onClick={async () => {

@@ -33,9 +33,15 @@ const StoreContext = createContext<StoreContextValue | null>(null);
 
 const useLocalStore = (): StoreContextValue => {
   const toast = useToast();
-  const [territories, setTerritories] = useLocalStorage<Territory[]>('tm.territories', []);
+  const [territories, setTerritories] = useLocalStorage<Territory[]>(
+    'tm.territories',
+    [],
+  );
   const [exits, setExits] = useLocalStorage<FieldExit[]>('tm.exits', []);
-  const [assignments, setAssignments] = useLocalStorage<Assignment[]>('tm.assignments', []);
+  const [assignments, setAssignments] = useLocalStorage<Assignment[]>(
+    'tm.assignments',
+    [],
+  );
   const [rules, setRules] = useLocalStorage<SuggestionRuleConfig>('tm.rules', {
     avoidLastAssignments: 5,
     defaultDurationDays: 30,
@@ -43,7 +49,10 @@ const useLocalStore = (): StoreContextValue => {
     recentWeight: 1,
     balanceWeight: 1,
   });
-  const [warningDays, setWarningDays] = useLocalStorage<number>('tm.warningDays', 2);
+  const [warningDays, setWarningDays] = useLocalStorage<number>(
+    'tm.warningDays',
+    2,
+  );
 
   const addTerritory = (territory: Omit<Territory, 'id'>) => {
     setTerritories((prev) => [{ id: generateId(), ...territory }, ...prev]);
@@ -52,12 +61,16 @@ const useLocalStore = (): StoreContextValue => {
 
   const delTerritory = (id: string) => {
     setTerritories((prev) => prev.filter((territory) => territory.id !== id));
-    setAssignments((prev) => prev.filter((assignment) => assignment.territoryId !== id));
+    setAssignments((prev) =>
+      prev.filter((assignment) => assignment.territoryId !== id),
+    );
     toast.success('Território removido');
   };
 
   const updateTerritory = (id: string, territory: Omit<Territory, 'id'>) => {
-    setTerritories((prev) => prev.map((item) => (item.id === id ? { ...item, ...territory } : item)));
+    setTerritories((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...territory } : item)),
+    );
     toast.success('Território atualizado');
   };
 
@@ -68,12 +81,16 @@ const useLocalStore = (): StoreContextValue => {
 
   const delExit = (id: string) => {
     setExits((prev) => prev.filter((exit) => exit.id !== id));
-    setAssignments((prev) => prev.filter((assignment) => assignment.fieldExitId !== id));
+    setAssignments((prev) =>
+      prev.filter((assignment) => assignment.fieldExitId !== id),
+    );
     toast.success('Saída removida');
   };
 
   const updateExit = (id: string, exit: Omit<FieldExit, 'id'>) => {
-    setExits((prev) => prev.map((item) => (item.id === id ? { ...item, ...exit } : item)));
+    setExits((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...exit } : item)),
+    );
     toast.success('Saída atualizada');
   };
 
@@ -87,7 +104,10 @@ const useLocalStore = (): StoreContextValue => {
   };
 
   const addAssignment = (assignment: Omit<Assignment, 'id'>) => {
-    setAssignments((prev) => [{ id: generateId(), returned: false, ...assignment }, ...prev]);
+    setAssignments((prev) => [
+      { id: generateId(), returned: false, ...assignment },
+      ...prev,
+    ]);
     toast.success('Designação salva');
   };
 
@@ -102,7 +122,9 @@ const useLocalStore = (): StoreContextValue => {
         if (item.id !== id) return item;
         const updated = { ...item, ...assignment };
         if (!item.returned && updated.returned) {
-          const territory = territories.find((territoryItem) => territoryItem.id === item.territoryId);
+          const territory = territories.find(
+            (territoryItem) => territoryItem.id === item.territoryId,
+          );
           sendReturnNotification(territory ? territory.name : 'Território');
         }
         return updated;
@@ -139,9 +161,13 @@ const useLocalStore = (): StoreContextValue => {
   };
 };
 
-export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const store = useLocalStore();
-  return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
+  return (
+    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
+  );
 };
 
 export const useStoreContext = (): StoreContextValue => {
@@ -167,13 +193,22 @@ export const loadPersistedAuthState = (): AuthState => {
       if (!currentUser || typeof currentUser !== 'object') {
         return { currentUser: null };
       }
-      if (typeof currentUser.id === 'string' && typeof currentUser.role === 'string') {
+      if (
+        typeof currentUser.id === 'string' &&
+        typeof currentUser.role === 'string'
+      ) {
         const fallbackTimestamp = new Date().toISOString();
         return {
           currentUser: {
             ...currentUser,
-            createdAt: typeof currentUser.createdAt === 'string' ? currentUser.createdAt : fallbackTimestamp,
-            updatedAt: typeof currentUser.updatedAt === 'string' ? currentUser.updatedAt : fallbackTimestamp,
+            createdAt:
+              typeof currentUser.createdAt === 'string'
+                ? currentUser.createdAt
+                : fallbackTimestamp,
+            updatedAt:
+              typeof currentUser.updatedAt === 'string'
+                ? currentUser.updatedAt
+                : fallbackTimestamp,
           },
         };
       }

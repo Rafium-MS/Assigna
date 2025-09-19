@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { appReducer, initialState, type AppState, type AuthUser } from './appReducer';
+import {
+  appReducer,
+  initialState,
+  type AppState,
+  type AuthUser,
+} from './appReducer';
 import {
   selectCurrentUser,
   selectDesignacoes,
@@ -129,12 +134,22 @@ describe('appReducer', () => {
   it('adds a território without mutating existing state', () => {
     const state = createState();
     const originalTerritorios = state.territorios;
-    const newTerritorio: Territorio = { id: 'territorio-2', nome: 'Novo Território', publisherId: 'publisher-2' };
+    const newTerritorio: Territorio = {
+      id: 'territorio-2',
+      nome: 'Novo Território',
+      publisherId: 'publisher-2',
+    };
 
-    const nextState = appReducer(state, { type: 'ADD_TERRITORIO', payload: newTerritorio });
+    const nextState = appReducer(state, {
+      type: 'ADD_TERRITORIO',
+      payload: newTerritorio,
+    });
 
     expect(nextState).not.toBe(state);
-    expect(nextState.territorios).toEqual([...originalTerritorios, newTerritorio]);
+    expect(nextState.territorios).toEqual([
+      ...originalTerritorios,
+      newTerritorio,
+    ]);
     expect(nextState.territorios).not.toBe(originalTerritorios);
     expect(state.territorios).toBe(originalTerritorios);
     expect(state.territorios).toHaveLength(1);
@@ -156,7 +171,10 @@ describe('appReducer', () => {
       publisherId: 'publisher-2',
     };
 
-    const nextState = appReducer(state, { type: 'ADD_SAIDA', payload: newSaida });
+    const nextState = appReducer(state, {
+      type: 'ADD_SAIDA',
+      payload: newSaida,
+    });
 
     expect(nextState).not.toBe(state);
     expect(nextState.saidas).toEqual([...originalSaidas, newSaida]);
@@ -182,10 +200,16 @@ describe('appReducer', () => {
       publisherId: 'publisher-2',
     };
 
-    const nextState = appReducer(state, { type: 'ADD_DESIGNACAO', payload: newDesignacao });
+    const nextState = appReducer(state, {
+      type: 'ADD_DESIGNACAO',
+      payload: newDesignacao,
+    });
 
     expect(nextState).not.toBe(state);
-    expect(nextState.designacoes).toEqual([...originalDesignacoes, newDesignacao]);
+    expect(nextState.designacoes).toEqual([
+      ...originalDesignacoes,
+      newDesignacao,
+    ]);
     expect(nextState.designacoes).not.toBe(originalDesignacoes);
     expect(state.designacoes).toBe(originalDesignacoes);
     expect(state.designacoes).toHaveLength(1);
@@ -207,7 +231,10 @@ describe('appReducer', () => {
       publisherId: 'publisher-2',
     };
 
-    const nextState = appReducer(state, { type: 'ADD_SUGESTAO', payload: newSugestao });
+    const nextState = appReducer(state, {
+      type: 'ADD_SUGESTAO',
+      payload: newSugestao,
+    });
 
     expect(nextState).not.toBe(state);
     expect(nextState.sugestoes).toEqual([...originalSugestoes, newSugestao]);
@@ -228,7 +255,10 @@ describe('appReducer', () => {
       { id: 'territorio-3', nome: 'Mais um', publisherId: 'publisher-3' },
     ];
 
-    const nextState = appReducer(state, { type: 'SET_TERRITORIOS', payload: territorios });
+    const nextState = appReducer(state, {
+      type: 'SET_TERRITORIOS',
+      payload: territorios,
+    });
 
     expect(nextState.territorios).toEqual(territorios);
     expect(nextState.saidas).toBe(state.saidas);
@@ -244,7 +274,10 @@ describe('appReducer', () => {
       devolvido: true,
     };
 
-    const nextState = appReducer(state, { type: 'UPDATE_DESIGNACAO', payload: updated });
+    const nextState = appReducer(state, {
+      type: 'UPDATE_DESIGNACAO',
+      payload: updated,
+    });
 
     expect(nextState.designacoes[0]).toEqual(updated);
     expect(nextState.designacoes).toHaveLength(state.designacoes.length);
@@ -263,7 +296,10 @@ describe('appReducer', () => {
       completedAt: null,
     };
 
-    const nextState = appReducer(state, { type: 'ADD_NAO_EM_CASA', payload: newRecord });
+    const nextState = appReducer(state, {
+      type: 'ADD_NAO_EM_CASA',
+      payload: newRecord,
+    });
 
     expect(nextState.naoEmCasa).toEqual([...originalRegistros, newRecord]);
     expect(state.naoEmCasa).toBe(originalRegistros);
@@ -284,7 +320,10 @@ describe('appReducer', () => {
       },
     ];
 
-    const nextState = appReducer(state, { type: 'SET_USERS', payload: newUsers });
+    const nextState = appReducer(state, {
+      type: 'SET_USERS',
+      payload: newUsers,
+    });
 
     expect(nextState.users).toEqual(newUsers);
     expect(nextState.territorios).toBe(state.territorios);
@@ -319,7 +358,10 @@ describe('appReducer', () => {
       updatedAt: '2024-05-01T00:00:00.000Z',
     };
 
-    const nextState = appReducer(state, { type: 'UPDATE_USER', payload: updatedUser });
+    const nextState = appReducer(state, {
+      type: 'UPDATE_USER',
+      payload: updatedUser,
+    });
 
     expect(nextState.users[0]).toEqual(updatedUser);
     expect(nextState.users).toHaveLength(state.users.length);
@@ -340,14 +382,20 @@ describe('appReducer', () => {
   it('removes a saida with REMOVE_SAIDA', () => {
     const state = createState();
 
-    const nextState = appReducer(state, { type: 'REMOVE_SAIDA', payload: 'saida-1' });
+    const nextState = appReducer(state, {
+      type: 'REMOVE_SAIDA',
+      payload: 'saida-1',
+    });
 
     expect(nextState.saidas).toHaveLength(0);
     expect(nextState.users).toBe(state.users);
   });
 
   it('updates the auth slice when signing in', () => {
-    const nextState = appReducer(initialState, { type: 'SIGN_IN', payload: baseAuthUser });
+    const nextState = appReducer(initialState, {
+      type: 'SIGN_IN',
+      payload: baseAuthUser,
+    });
 
     expect(nextState.auth.currentUser).toEqual(baseAuthUser);
     expect(initialState.auth.currentUser).toBeNull();
@@ -388,13 +436,31 @@ describe('appReducer', () => {
       users: [otherManagedUser],
     };
 
-    let state = appReducer(preexisting, { type: 'SIGN_IN', payload: baseAuthUser });
-    state = appReducer(state, { type: 'SET_TERRITORIOS', payload: [baseTerritorio] });
+    let state = appReducer(preexisting, {
+      type: 'SIGN_IN',
+      payload: baseAuthUser,
+    });
+    state = appReducer(state, {
+      type: 'SET_TERRITORIOS',
+      payload: [baseTerritorio],
+    });
     state = appReducer(state, { type: 'SET_SAIDAS', payload: [baseSaida] });
-    state = appReducer(state, { type: 'SET_DESIGNACOES', payload: [baseDesignacao] });
-    state = appReducer(state, { type: 'SET_SUGESTOES', payload: [baseSugestao] });
-    state = appReducer(state, { type: 'SET_NAO_EM_CASA', payload: [baseNaoEmCasa] });
-    state = appReducer(state, { type: 'SET_USERS', payload: [baseManagedUser] });
+    state = appReducer(state, {
+      type: 'SET_DESIGNACOES',
+      payload: [baseDesignacao],
+    });
+    state = appReducer(state, {
+      type: 'SET_SUGESTOES',
+      payload: [baseSugestao],
+    });
+    state = appReducer(state, {
+      type: 'SET_NAO_EM_CASA',
+      payload: [baseNaoEmCasa],
+    });
+    state = appReducer(state, {
+      type: 'SET_USERS',
+      payload: [baseManagedUser],
+    });
 
     expect(state.territorios).toEqual([baseTerritorio]);
     expect(state.saidas).toEqual([baseSaida]);

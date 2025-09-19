@@ -28,7 +28,11 @@ const TodayAssignmentsPage: React.FC = () => {
         territoryName: findName(designacao.territorioId, territorios),
         exitName: findName(designacao.saidaId, saidas),
       }))
-      .sort((a, b) => a.territoryName.localeCompare(b.territoryName, undefined, { sensitivity: 'base' }));
+      .sort((a, b) =>
+        a.territoryName.localeCompare(b.territoryName, undefined, {
+          sensitivity: 'base',
+        }),
+      );
   }, [designacoes, saidas, territorios, todayIso]);
 
   return (
@@ -36,7 +40,9 @@ const TodayAssignmentsPage: React.FC = () => {
       <Card title={t('viewerAssignments.title')}>
         <div className="grid gap-4">
           <p className="text-sm text-neutral-600 dark:text-neutral-300">
-            {t('viewerAssignments.currentDate', { date: formatIsoDate(todayIso) })}
+            {t('viewerAssignments.currentDate', {
+              date: formatIsoDate(todayIso),
+            })}
           </p>
 
           {todaysAssignments.length === 0 ? (
@@ -46,33 +52,47 @@ const TodayAssignmentsPage: React.FC = () => {
           ) : (
             <div className="grid gap-3">
               <p className="text-sm text-neutral-600 dark:text-neutral-300">
-                {t('viewerAssignments.summary', { count: todaysAssignments.length })}
+                {t('viewerAssignments.summary', {
+                  count: todaysAssignments.length,
+                })}
               </p>
               <ul className="grid gap-3">
-                {todaysAssignments.map(({ designacao, territoryName, exitName }) => (
-                  <li
-                    key={designacao.id}
-                    className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-3 shadow-sm"
-                  >
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="grid gap-1">
-                        <span className="font-medium text-neutral-900 dark:text-neutral-100">{territoryName}</span>
-                        <span className="text-sm text-neutral-600 dark:text-neutral-300">
-                          {t('viewerAssignments.assignmentRange', {
-                            start: formatIsoDate(designacao.dataInicial),
-                            end: formatIsoDate(designacao.dataFinal),
-                          })}
-                        </span>
+                {todaysAssignments.map(
+                  ({ designacao, territoryName, exitName }) => (
+                    <li
+                      key={designacao.id}
+                      className="rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-4 py-3 shadow-sm"
+                    >
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="grid gap-1">
+                          <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                            {territoryName}
+                          </span>
+                          <span className="text-sm text-neutral-600 dark:text-neutral-300">
+                            {t('viewerAssignments.assignmentRange', {
+                              start: formatIsoDate(designacao.dataInicial),
+                              end: formatIsoDate(designacao.dataFinal),
+                            })}
+                          </span>
+                        </div>
+                        <div className="grid gap-1 text-sm text-neutral-600 dark:text-neutral-300 text-left sm:text-right">
+                          {exitName !== '—' && (
+                            <span>
+                              {t('viewerAssignments.exitLabel', {
+                                name: exitName,
+                              })}
+                            </span>
+                          )}
+                          <span>
+                            {t('viewerAssignments.returnBy', {
+                              date: formatIsoDate(designacao.dataFinal),
+                            })}
+                          </span>
+                        </div>
                       </div>
-                      <div className="grid gap-1 text-sm text-neutral-600 dark:text-neutral-300 text-left sm:text-right">
-                        {exitName !== '—' && (
-                          <span>{t('viewerAssignments.exitLabel', { name: exitName })}</span>
-                        )}
-                        <span>{t('viewerAssignments.returnBy', { date: formatIsoDate(designacao.dataFinal) })}</span>
-                      </div>
-                    </div>
-                  </li>
-                ))}
+                    </li>
+                  ),
+                )}
               </ul>
             </div>
           )}

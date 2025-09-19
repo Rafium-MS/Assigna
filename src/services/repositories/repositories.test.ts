@@ -9,7 +9,7 @@ import {
   SugestaoRepository,
   TerritorioRepository,
   NaoEmCasaRepository,
-  UserRepository
+  UserRepository,
 } from '.';
 import type { BuildingVillage } from '../../types/building_village';
 import type { Designacao } from '../../types/designacao';
@@ -30,19 +30,22 @@ describe('TerritorioRepository', () => {
     const territorios: Territorio[] = [
       { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
       { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
-      { id: 'territorio-3', nome: 'Territory 3', publisherId: 'publisher-1' }
+      { id: 'territorio-3', nome: 'Territory 3', publisherId: 'publisher-1' },
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
 
-    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([
-      territorios[0],
-      territorios[2]
-    ]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([territorios[0], territorios[2]]);
   });
 
   it('adds a territorio and retrieves it with forPublisher', async () => {
-    const territorio: Territorio = { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' };
+    const territorio: Territorio = {
+      id: 'territorio-1',
+      nome: 'Territory 1',
+      publisherId: 'publisher-1',
+    };
 
     await TerritorioRepository.add(territorio);
     const stored = await TerritorioRepository.forPublisher('publisher-1');
@@ -54,61 +57,85 @@ describe('TerritorioRepository', () => {
     const territorios: Territorio[] = [
       { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
       { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
-      { id: 'territorio-3', nome: 'Territory 3', publisherId: 'publisher-3' }
+      { id: 'territorio-3', nome: 'Territory 3', publisherId: 'publisher-3' },
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
-    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([
-      territorios[0]
-    ]);
-    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([
-      territorios[1]
-    ]);
-    await expect(TerritorioRepository.forPublisher('publisher-3')).resolves.toEqual([
-      territorios[2]
-    ]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([territorios[0]]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([territorios[1]]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-3'),
+    ).resolves.toEqual([territorios[2]]);
   });
 
   it('removes a territorio by id', async () => {
     const territorios: Territorio[] = [
       { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
-      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' }
+      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
     await TerritorioRepository.remove('territorio-1');
-    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([
-      territorios[1]
-    ]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([territorios[1]]);
   });
 
   it('clears all territorios', async () => {
     const territorios: Territorio[] = [
       { id: 'territorio-1', nome: 'Territory 1', publisherId: 'publisher-1' },
-      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' }
+      { id: 'territorio-2', nome: 'Territory 2', publisherId: 'publisher-2' },
     ];
 
     await TerritorioRepository.bulkAdd(territorios);
     await TerritorioRepository.clear();
-    await expect(TerritorioRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(TerritorioRepository.forPublisher('publisher-2')).resolves.toEqual([]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      TerritorioRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([]);
   });
 });
 
 describe('SaidaRepository', () => {
   it('returns only saidas for the requested publisher', async () => {
     const saidas: Saida[] = [
-      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
-      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' },
-      { id: 'saida-3', nome: 'Saida 3', diaDaSemana: 3, hora: '10:15', publisherId: 'publisher-1' }
+      {
+        id: 'saida-1',
+        nome: 'Saida 1',
+        diaDaSemana: 1,
+        hora: '08:00',
+        publisherId: 'publisher-1',
+      },
+      {
+        id: 'saida-2',
+        nome: 'Saida 2',
+        diaDaSemana: 2,
+        hora: '09:30',
+        publisherId: 'publisher-2',
+      },
+      {
+        id: 'saida-3',
+        nome: 'Saida 3',
+        diaDaSemana: 3,
+        hora: '10:15',
+        publisherId: 'publisher-1',
+      },
     ];
 
     await SaidaRepository.bulkAdd(saidas);
 
     await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([
       saidas[0],
-      saidas[2]
+      saidas[2],
     ]);
   });
 
@@ -118,7 +145,7 @@ describe('SaidaRepository', () => {
       nome: 'Saida 1',
       diaDaSemana: 1,
       hora: '08:00',
-      publisherId: 'publisher-1'
+      publisherId: 'publisher-1',
     };
 
     await SaidaRepository.add(saida);
@@ -129,25 +156,57 @@ describe('SaidaRepository', () => {
 
   it('bulk adds multiple saidas and retrieves them per publisher', async () => {
     const saidas: Saida[] = [
-      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
-      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' }
+      {
+        id: 'saida-1',
+        nome: 'Saida 1',
+        diaDaSemana: 1,
+        hora: '08:00',
+        publisherId: 'publisher-1',
+      },
+      {
+        id: 'saida-2',
+        nome: 'Saida 2',
+        diaDaSemana: 2,
+        hora: '09:30',
+        publisherId: 'publisher-2',
+      },
     ];
 
     await SaidaRepository.bulkAdd(saidas);
-    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([saidas[0]]);
-    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([saidas[1]]);
+    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([
+      saidas[0],
+    ]);
+    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([
+      saidas[1],
+    ]);
   });
 
   it('removes a saida by id', async () => {
     const saidas: Saida[] = [
-      { id: 'saida-1', nome: 'Saida 1', diaDaSemana: 1, hora: '08:00', publisherId: 'publisher-1' },
-      { id: 'saida-2', nome: 'Saida 2', diaDaSemana: 2, hora: '09:30', publisherId: 'publisher-2' }
+      {
+        id: 'saida-1',
+        nome: 'Saida 1',
+        diaDaSemana: 1,
+        hora: '08:00',
+        publisherId: 'publisher-1',
+      },
+      {
+        id: 'saida-2',
+        nome: 'Saida 2',
+        diaDaSemana: 2,
+        hora: '09:30',
+        publisherId: 'publisher-2',
+      },
     ];
 
     await SaidaRepository.bulkAdd(saidas);
     await SaidaRepository.remove('saida-1');
-    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([saidas[1]]);
+    await expect(SaidaRepository.forPublisher('publisher-1')).resolves.toEqual(
+      [],
+    );
+    await expect(SaidaRepository.forPublisher('publisher-2')).resolves.toEqual([
+      saidas[1],
+    ]);
   });
 });
 
@@ -160,7 +219,7 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-01-01',
         dataFinal: '2024-01-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         id: 'designacao-2',
@@ -168,7 +227,7 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-2',
         dataInicial: '2024-02-01',
         dataFinal: '2024-02-29',
-        publisherId: 'publisher-2'
+        publisherId: 'publisher-2',
       },
       {
         id: 'designacao-3',
@@ -176,16 +235,15 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-3',
         dataInicial: '2024-03-01',
         dataFinal: '2024-03-31',
-        publisherId: 'publisher-1'
-      }
+        publisherId: 'publisher-1',
+      },
     ];
 
     await DesignacaoRepository.bulkAdd(designacoes);
 
-    await expect(DesignacaoRepository.forPublisher('publisher-1')).resolves.toEqual([
-      designacoes[0],
-      designacoes[2]
-    ]);
+    await expect(
+      DesignacaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([designacoes[0], designacoes[2]]);
   });
 
   it('adds a designacao and retrieves it with forPublisher', async () => {
@@ -195,7 +253,7 @@ describe('DesignacaoRepository', () => {
       saidaId: 'saida-1',
       dataInicial: '2024-01-01',
       dataFinal: '2024-01-31',
-      publisherId: 'publisher-1'
+      publisherId: 'publisher-1',
     };
 
     await DesignacaoRepository.add(designacao);
@@ -212,7 +270,7 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-01-01',
         dataFinal: '2024-01-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         id: 'designacao-2',
@@ -220,17 +278,17 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-2',
         dataInicial: '2024-02-01',
         dataFinal: '2024-02-29',
-        publisherId: 'publisher-2'
-      }
+        publisherId: 'publisher-2',
+      },
     ];
 
     await DesignacaoRepository.bulkAdd(designacoes);
-    await expect(DesignacaoRepository.forPublisher('publisher-1')).resolves.toEqual([
-      designacoes[0]
-    ]);
-    await expect(DesignacaoRepository.forPublisher('publisher-2')).resolves.toEqual([
-      designacoes[1]
-    ]);
+    await expect(
+      DesignacaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([designacoes[0]]);
+    await expect(
+      DesignacaoRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([designacoes[1]]);
   });
 
   it('removes a designacao by id', async () => {
@@ -241,7 +299,7 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-01-01',
         dataFinal: '2024-01-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         id: 'designacao-2',
@@ -249,16 +307,18 @@ describe('DesignacaoRepository', () => {
         saidaId: 'saida-2',
         dataInicial: '2024-02-01',
         dataFinal: '2024-02-29',
-        publisherId: 'publisher-2'
-      }
+        publisherId: 'publisher-2',
+      },
     ];
 
     await DesignacaoRepository.bulkAdd(designacoes);
     await DesignacaoRepository.remove('designacao-1');
-    await expect(DesignacaoRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(DesignacaoRepository.forPublisher('publisher-2')).resolves.toEqual([
-      designacoes[1]
-    ]);
+    await expect(
+      DesignacaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      DesignacaoRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([designacoes[1]]);
   });
 });
 
@@ -270,30 +330,29 @@ describe('SugestaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
         dataFinal: '2024-03-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-04-01',
         dataFinal: '2024-04-30',
-        publisherId: 'publisher-2'
+        publisherId: 'publisher-2',
       },
       {
         territorioId: 'territorio-3',
         saidaId: 'saida-3',
         dataInicial: '2024-05-01',
         dataFinal: '2024-05-31',
-        publisherId: 'publisher-1'
-      }
+        publisherId: 'publisher-1',
+      },
     ];
 
     await SugestaoRepository.bulkAdd(sugestoes);
 
-    await expect(SugestaoRepository.forPublisher('publisher-1')).resolves.toEqual([
-      sugestoes[0],
-      sugestoes[2]
-    ]);
+    await expect(
+      SugestaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([sugestoes[0], sugestoes[2]]);
   });
 
   it('adds a sugestao and retrieves it with forPublisher', async () => {
@@ -302,7 +361,7 @@ describe('SugestaoRepository', () => {
       saidaId: 'saida-1',
       dataInicial: '2024-03-01',
       dataFinal: '2024-03-31',
-      publisherId: 'publisher-1'
+      publisherId: 'publisher-1',
     };
 
     await SugestaoRepository.add(sugestao);
@@ -318,24 +377,24 @@ describe('SugestaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
         dataFinal: '2024-03-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-04-01',
         dataFinal: '2024-04-30',
-        publisherId: 'publisher-2'
-      }
+        publisherId: 'publisher-2',
+      },
     ];
 
     await SugestaoRepository.bulkAdd(sugestoes);
-    await expect(SugestaoRepository.forPublisher('publisher-1')).resolves.toEqual([
-      sugestoes[0]
-    ]);
-    await expect(SugestaoRepository.forPublisher('publisher-2')).resolves.toEqual([
-      sugestoes[1]
-    ]);
+    await expect(
+      SugestaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([sugestoes[0]]);
+    await expect(
+      SugestaoRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([sugestoes[1]]);
   });
 
   it('removes a sugestao by composite key', async () => {
@@ -345,23 +404,25 @@ describe('SugestaoRepository', () => {
         saidaId: 'saida-1',
         dataInicial: '2024-03-01',
         dataFinal: '2024-03-31',
-        publisherId: 'publisher-1'
+        publisherId: 'publisher-1',
       },
       {
         territorioId: 'territorio-2',
         saidaId: 'saida-2',
         dataInicial: '2024-04-01',
         dataFinal: '2024-04-30',
-        publisherId: 'publisher-2'
-      }
+        publisherId: 'publisher-2',
+      },
     ];
 
     await SugestaoRepository.bulkAdd(sugestoes);
     await SugestaoRepository.remove('territorio-1', 'saida-1');
-    await expect(SugestaoRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(SugestaoRepository.forPublisher('publisher-2')).resolves.toEqual([
-      sugestoes[1]
-    ]);
+    await expect(
+      SugestaoRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      SugestaoRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([sugestoes[1]]);
   });
 });
 
@@ -375,7 +436,7 @@ describe('NaoEmCasaRepository', () => {
         addressId: 1,
         recordedAt: '2024-01-01',
         followUpAt: '2024-05-01',
-        completedAt: null
+        completedAt: null,
       },
       {
         id: 'record-2',
@@ -384,7 +445,7 @@ describe('NaoEmCasaRepository', () => {
         addressId: 2,
         recordedAt: '2024-02-01',
         followUpAt: '2024-06-01',
-        completedAt: null
+        completedAt: null,
       },
       {
         id: 'record-3',
@@ -393,16 +454,15 @@ describe('NaoEmCasaRepository', () => {
         addressId: 3,
         recordedAt: '2024-03-01',
         followUpAt: '2024-07-01',
-        completedAt: null
-      }
+        completedAt: null,
+      },
     ];
 
     await NaoEmCasaRepository.bulkAdd(records);
 
-    await expect(NaoEmCasaRepository.forPublisher('publisher-1')).resolves.toEqual([
-      records[0],
-      records[2]
-    ]);
+    await expect(
+      NaoEmCasaRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([records[0], records[2]]);
   });
 
   it('adds a record and retrieves it with forPublisher', async () => {
@@ -419,7 +479,7 @@ describe('NaoEmCasaRepository', () => {
       propertyTypeName: 'Residencial',
       recordedAt: '2024-01-01',
       followUpAt: '2024-05-01',
-      completedAt: null
+      completedAt: null,
     };
 
     await NaoEmCasaRepository.add(record);
@@ -437,7 +497,7 @@ describe('NaoEmCasaRepository', () => {
         addressId: 1,
         recordedAt: '2024-01-01',
         followUpAt: '2024-05-01',
-        completedAt: null
+        completedAt: null,
       },
       {
         id: 'record-2',
@@ -446,14 +506,18 @@ describe('NaoEmCasaRepository', () => {
         addressId: 2,
         recordedAt: '2024-02-01',
         followUpAt: '2024-06-01',
-        completedAt: null
-      }
+        completedAt: null,
+      },
     ];
 
     await NaoEmCasaRepository.bulkAdd(records);
     await NaoEmCasaRepository.remove('record-1');
-    await expect(NaoEmCasaRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(NaoEmCasaRepository.forPublisher('publisher-2')).resolves.toEqual([records[1]]);
+    await expect(
+      NaoEmCasaRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      NaoEmCasaRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([records[1]]);
   });
 });
 
@@ -479,7 +543,7 @@ describe('BuildingVillageRepository', () => {
         returned_at: null,
         block: 'A',
         notes: 'Primary entry',
-        created_at: '2024-05-01'
+        created_at: '2024-05-01',
       },
       {
         id: 'bv-2',
@@ -500,7 +564,7 @@ describe('BuildingVillageRepository', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: null
+        created_at: null,
       },
       {
         id: 'bv-3',
@@ -521,16 +585,15 @@ describe('BuildingVillageRepository', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: '2024-05-02'
-      }
+        created_at: '2024-05-02',
+      },
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingsVillages);
 
-    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([
-      buildingsVillages[0],
-      buildingsVillages[2]
-    ]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([buildingsVillages[0], buildingsVillages[2]]);
   });
 
   it('adds a building or village and retrieves it with forPublisher', async () => {
@@ -553,14 +616,14 @@ describe('BuildingVillageRepository', () => {
           id: 'history-1',
           status: 'sent',
           sent_at: '2024-05-02T00:00:00.000Z',
-          notes: 'Initial contact'
-        }
+          notes: 'Initial contact',
+        },
       ],
       assigned_at: '2024-05-01',
       returned_at: null,
       block: 'A',
       notes: 'First building',
-      created_at: '2024-05-01'
+      created_at: '2024-05-01',
     };
 
     await BuildingVillageRepository.add(buildingVillage);
@@ -590,14 +653,14 @@ describe('BuildingVillageRepository', () => {
             id: 'history-1',
             status: 'sent',
             sent_at: '2024-05-02T00:00:00.000Z',
-            notes: 'Initial contact'
-          }
+            notes: 'Initial contact',
+          },
         ],
         assigned_at: '2024-05-01',
         returned_at: null,
         block: 'A',
         notes: 'First building',
-        created_at: '2024-05-01'
+        created_at: '2024-05-01',
       },
       {
         id: 'bv-2',
@@ -618,17 +681,17 @@ describe('BuildingVillageRepository', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: null
-      }
+        created_at: null,
+      },
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingsVillages);
-    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([
-      buildingsVillages[0]
-    ]);
-    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
-      buildingsVillages[1]
-    ]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([buildingsVillages[0]]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([buildingsVillages[1]]);
   });
 
   it('removes a building or village by id', async () => {
@@ -652,14 +715,14 @@ describe('BuildingVillageRepository', () => {
             id: 'history-1',
             status: 'sent',
             sent_at: '2024-05-02T00:00:00.000Z',
-            notes: 'Initial contact'
-          }
+            notes: 'Initial contact',
+          },
         ],
         assigned_at: '2024-05-01',
         returned_at: null,
         block: 'A',
         notes: 'First building',
-        created_at: '2024-05-01'
+        created_at: '2024-05-01',
       },
       {
         id: 'bv-2',
@@ -680,16 +743,18 @@ describe('BuildingVillageRepository', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: null
-      }
+        created_at: null,
+      },
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingsVillages);
     await BuildingVillageRepository.remove('bv-1');
-    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([]);
-    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
-      buildingsVillages[1]
-    ]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([buildingsVillages[1]]);
   });
 });
 
@@ -703,7 +768,7 @@ describe('UserRepository', () => {
         role: 'admin',
         passwordHash: 'hash-1',
         createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z'
+        updatedAt: '2024-01-01T00:00:00.000Z',
       },
       {
         id: 'user-2',
@@ -712,8 +777,8 @@ describe('UserRepository', () => {
         role: 'publisher',
         passwordHash: 'hash-2',
         createdAt: '2024-01-02T00:00:00.000Z',
-        updatedAt: '2024-01-02T00:00:00.000Z'
-      }
+        updatedAt: '2024-01-02T00:00:00.000Z',
+      },
     ];
 
     await UserRepository.bulkAdd(users);
@@ -731,7 +796,7 @@ describe('UserRepository', () => {
       role: 'viewer',
       passwordHash: 'hash-3',
       createdAt: '2024-03-01T00:00:00.000Z',
-      updatedAt: '2024-03-01T00:00:00.000Z'
+      updatedAt: '2024-03-01T00:00:00.000Z',
     };
 
     await UserRepository.add(user);
@@ -740,7 +805,7 @@ describe('UserRepository', () => {
       ...user,
       name: 'Caroline',
       passwordHash: 'hash-3-updated',
-      updatedAt: '2024-03-05T00:00:00.000Z'
+      updatedAt: '2024-03-05T00:00:00.000Z',
     };
 
     await UserRepository.update(updated);
@@ -757,7 +822,7 @@ describe('UserRepository', () => {
       role: 'manager',
       passwordHash: 'hash-4',
       createdAt: '2024-04-01T00:00:00.000Z',
-      updatedAt: '2024-04-01T00:00:00.000Z'
+      updatedAt: '2024-04-01T00:00:00.000Z',
     };
 
     await UserRepository.add(user);
@@ -776,7 +841,7 @@ describe('UserRepository', () => {
       role: 'viewer',
       passwordHash: 'hash-lookup',
       createdAt: '2024-05-01T00:00:00.000Z',
-      updatedAt: '2024-05-01T00:00:00.000Z'
+      updatedAt: '2024-05-01T00:00:00.000Z',
     };
 
     await UserRepository.add(user);
@@ -793,12 +858,14 @@ describe('UserRepository', () => {
       role: 'manager',
       passwordHash: 'hash-email',
       createdAt: '2024-05-02T00:00:00.000Z',
-      updatedAt: '2024-05-02T00:00:00.000Z'
+      updatedAt: '2024-05-02T00:00:00.000Z',
     };
 
     await UserRepository.add(user);
 
-    await expect(UserRepository.findByEmail('CASE@EXAMPLE.COM')).resolves.toEqual(user);
+    await expect(
+      UserRepository.findByEmail('CASE@EXAMPLE.COM'),
+    ).resolves.toEqual(user);
     await expect(UserRepository.findByEmail('')).resolves.toBeUndefined();
   });
 });

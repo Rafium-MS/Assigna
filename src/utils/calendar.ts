@@ -2,7 +2,7 @@
 
 /** Cria Date local a partir de 'YYYY-MM-DD' sem ambiguidades de timezone */
 const toDate = (iso: string): Date => {
-  const [y, m, d] = iso.split("-").map(Number);
+  const [y, m, d] = iso.split('-').map(Number);
   return new Date(y, (m ?? 1) - 1, d ?? 1);
 };
 
@@ -13,13 +13,13 @@ const toLocalISOString = (date: Date): string => {
 };
 
 export const weekdays = [
-  "Domingo",
-  "Segunda",
-  "Terça",
-  "Quarta",
-  "Quinta",
-  "Sexta",
-  "Sábado",
+  'Domingo',
+  'Segunda',
+  'Terça',
+  'Quarta',
+  'Quinta',
+  'Sexta',
+  'Sábado',
 ];
 
 export const formatIsoDate = (iso: string): string =>
@@ -43,7 +43,10 @@ export const addDaysToIso = (iso: string, days: number): string => {
  * Próxima data (inclusive) para o dia da semana desejado.
  * weekday: 0=Dom, 1=Seg, ... 6=Sáb
  */
-export const nextDateForWeekday = (baseIso: string, weekday: number): string => {
+export const nextDateForWeekday = (
+  baseIso: string,
+  weekday: number,
+): string => {
   const date = toDate(baseIso);
   const delta = (weekday - date.getDay() + 7) % 7; // 0 mantém o mesmo dia
   if (delta) date.setDate(date.getDate() + delta);

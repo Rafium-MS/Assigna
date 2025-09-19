@@ -49,7 +49,9 @@ export const useToast = () => {
  * @param props The props for the component.
  * @returns A JSX element representing the toast provider.
  */
-export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const add = (type: Toast['type'], message: string) => {

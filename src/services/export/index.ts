@@ -4,7 +4,7 @@ import {
   SugestaoRepository,
   TerritorioRepository,
   NaoEmCasaRepository,
-  UserRepository
+  UserRepository,
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
 import { db, SCHEMA_VERSION } from '../db';
@@ -18,31 +18,46 @@ const formatTimestamp = (date: Date): string => {
     pad(date.getDate()),
     pad(date.getHours()),
     pad(date.getMinutes()),
-    pad(date.getSeconds())
+    pad(date.getSeconds()),
   ].join('');
 };
 
-const buildExportPayload = async (publisherId: string): Promise<ExportedData> => {
-  const [territorios, saidas, designacoes, sugestoes, naoEmCasa, buildingsVillages, users] =
-    await Promise.all([
-      TerritorioRepository.forPublisher(publisherId),
-      SaidaRepository.forPublisher(publisherId),
-      DesignacaoRepository.forPublisher(publisherId),
-      SugestaoRepository.forPublisher(publisherId),
-      NaoEmCasaRepository.forPublisher(publisherId),
-      BuildingVillageRepository.forPublisher(publisherId),
-      UserRepository.all()
-    ]);
+const buildExportPayload = async (
+  publisherId: string,
+): Promise<ExportedData> => {
+  const [
+    territorios,
+    saidas,
+    designacoes,
+    sugestoes,
+    naoEmCasa,
+    buildingsVillages,
+    users,
+  ] = await Promise.all([
+    TerritorioRepository.forPublisher(publisherId),
+    SaidaRepository.forPublisher(publisherId),
+    DesignacaoRepository.forPublisher(publisherId),
+    SugestaoRepository.forPublisher(publisherId),
+    NaoEmCasaRepository.forPublisher(publisherId),
+    BuildingVillageRepository.forPublisher(publisherId),
+    UserRepository.all(),
+  ]);
 
-  const [streets, propertyTypes, addresses, derivedTerritories, derivedTerritoryAddresses, metadata] =
-    await Promise.all([
-      db.streets.toArray(),
-      db.propertyTypes.toArray(),
-      db.addresses.toArray(),
-      db.derivedTerritories.toArray(),
-      db.derivedTerritoryAddresses.toArray(),
-      db.metadata.toArray()
-    ]);
+  const [
+    streets,
+    propertyTypes,
+    addresses,
+    derivedTerritories,
+    derivedTerritoryAddresses,
+    metadata,
+  ] = await Promise.all([
+    db.streets.toArray(),
+    db.propertyTypes.toArray(),
+    db.addresses.toArray(),
+    db.derivedTerritories.toArray(),
+    db.derivedTerritoryAddresses.toArray(),
+    db.metadata.toArray(),
+  ]);
 
   return {
     version: SCHEMA_VERSION,
@@ -59,7 +74,7 @@ const buildExportPayload = async (publisherId: string): Promise<ExportedData> =>
     addresses,
     derivedTerritories,
     derivedTerritoryAddresses,
-    metadata
+    metadata,
   };
 };
 

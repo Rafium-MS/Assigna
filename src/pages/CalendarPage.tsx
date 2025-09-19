@@ -37,14 +37,23 @@ const CalendarPage: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
+              onClick={() =>
+                setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))
+              }
               className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
             >
               ◀
             </Button>
-            <h2 className="font-semibold">{month.toLocaleString('default', { month: 'long', year: 'numeric' })}</h2>
+            <h2 className="font-semibold">
+              {month.toLocaleString('default', {
+                month: 'long',
+                year: 'numeric',
+              })}
+            </h2>
             <Button
-              onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
+              onClick={() =>
+                setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))
+              }
               className="bg-neutral-100 text-neutral-900 hover:bg-neutral-200 border-neutral-200 dark:bg-neutral-800 dark:text-neutral-100 dark:hover:bg-neutral-700 dark:border-neutral-700"
             >
               ▶
@@ -56,7 +65,9 @@ const CalendarPage: React.FC = () => {
               type="number"
               min={0}
               value={warningDays}
-              onChange={(event) => setWarningDays(Number(event.target.value) || 0)}
+              onChange={(event) =>
+                setWarningDays(Number(event.target.value) || 0)
+              }
               className="w-16"
             />
           </div>
@@ -71,14 +82,26 @@ const CalendarPage: React.FC = () => {
           {days.map((date) => {
             const iso = toIso(date);
             const inMonth = date.getMonth() === month.getMonth();
-            const startItems = designacoes.filter((designacao) => designacao.dataInicial === iso);
-            const dueToday = designacoes.filter((designacao) => designacao.dataFinal === iso && !designacao.devolvido);
-            let cellCls = inMonth ? 'bg-white' : 'bg-neutral-50 text-neutral-400';
-            const dueDiffs = dueToday.map((designacao) =>
-              Math.ceil((new Date(designacao.dataFinal).getTime() - today.getTime()) / 86400000),
+            const startItems = designacoes.filter(
+              (designacao) => designacao.dataInicial === iso,
             );
-            if (dueDiffs.some((difference) => difference < 0)) cellCls += ' bg-red-100';
-            else if (dueDiffs.some((difference) => difference <= warningDays)) cellCls += ' bg-yellow-100';
+            const dueToday = designacoes.filter(
+              (designacao) =>
+                designacao.dataFinal === iso && !designacao.devolvido,
+            );
+            let cellCls = inMonth
+              ? 'bg-white'
+              : 'bg-neutral-50 text-neutral-400';
+            const dueDiffs = dueToday.map((designacao) =>
+              Math.ceil(
+                (new Date(designacao.dataFinal).getTime() - today.getTime()) /
+                  86400000,
+              ),
+            );
+            if (dueDiffs.some((difference) => difference < 0))
+              cellCls += ' bg-red-100';
+            else if (dueDiffs.some((difference) => difference <= warningDays))
+              cellCls += ' bg-yellow-100';
             return (
               <div
                 key={iso}
@@ -89,7 +112,11 @@ const CalendarPage: React.FC = () => {
               >
                 <div className="text-xs text-right">{date.getDate()}</div>
                 {startItems.map((designacao) => {
-                  const diff = Math.ceil((new Date(designacao.dataFinal).getTime() - today.getTime()) / 86400000);
+                  const diff = Math.ceil(
+                    (new Date(designacao.dataFinal).getTime() -
+                      today.getTime()) /
+                      86400000,
+                  );
                   let badge: React.ReactNode = null;
                   if (!designacao.devolvido) {
                     if (diff < 0)
@@ -121,18 +148,25 @@ const CalendarPage: React.FC = () => {
       {selectedDay && (
         <Modal>
           <div className="grid gap-2">
-            <h3 className="text-lg font-semibold">{formatIsoDate(selectedDay)}</h3>
+            <h3 className="text-lg font-semibold">
+              {formatIsoDate(selectedDay)}
+            </h3>
             {(() => {
               const items = designacoes.filter(
-                (designacao) => designacao.dataInicial === selectedDay || designacao.dataFinal === selectedDay,
+                (designacao) =>
+                  designacao.dataInicial === selectedDay ||
+                  designacao.dataFinal === selectedDay,
               );
               return items.length === 0 ? (
-                <p className="text-sm text-neutral-500">{t('calendar.noAssignments')}</p>
+                <p className="text-sm text-neutral-500">
+                  {t('calendar.noAssignments')}
+                </p>
               ) : (
                 <ul className="text-sm grid gap-1">
                   {items.map((assignment) => (
                     <li key={assignment.id}>
-                      {findName(assignment.territorioId, territorios)} — {formatIsoDate(assignment.dataInicial)} →
+                      {findName(assignment.territorioId, territorios)} —{' '}
+                      {formatIsoDate(assignment.dataInicial)} →
                       {formatIsoDate(assignment.dataFinal)}
                     </li>
                   ))}

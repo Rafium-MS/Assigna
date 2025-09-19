@@ -5,7 +5,7 @@ export const AVAILABLE_ROLES = [
   'admin',
   'manager',
   'publisher',
-  'viewer'
+  'viewer',
 ] as const;
 
 export type UserRole = (typeof AVAILABLE_ROLES)[number];

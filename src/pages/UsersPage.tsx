@@ -24,7 +24,7 @@ const UsersPage: React.FC = () => {
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) =>
-      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
     );
   }, [users]);
 
@@ -109,7 +109,9 @@ const UsersPage: React.FC = () => {
   };
 
   const handleDelete = async (user: User) => {
-    const shouldDelete = await confirm(t('users.confirmDelete', { name: user.name }));
+    const shouldDelete = await confirm(
+      t('users.confirmDelete', { name: user.name }),
+    );
     if (!shouldDelete) {
       return;
     }
@@ -122,7 +124,11 @@ const UsersPage: React.FC = () => {
 
   return (
     <div className="grid gap-4">
-      <Card title={editingId ? t('users.form.editTitle') : t('users.form.createTitle')}>
+      <Card
+        title={
+          editingId ? t('users.form.editTitle') : t('users.form.createTitle')
+        }
+      >
         <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-6">
           <div className="grid gap-1 md:col-span-2">
             <Label htmlFor="user-name">{t('users.form.name')}</Label>
@@ -181,7 +187,9 @@ const UsersPage: React.FC = () => {
               placeholder={t('users.form.passwordConfirmationPlaceholder')}
               autoComplete={editingId ? 'new-password' : 'new-password'}
             />
-            <p className="text-xs text-neutral-500">{t('users.form.passwordHint')}</p>
+            <p className="text-xs text-neutral-500">
+              {t('users.form.passwordHint')}
+            </p>
           </div>
           <div className="flex items-end justify-end gap-2 md:col-span-6">
             {editingId && (
@@ -219,7 +227,9 @@ const UsersPage: React.FC = () => {
                   <p className="text-sm text-neutral-600">
                     {user.email ? user.email : t('users.noEmail')}
                   </p>
-                  <p className="text-sm text-neutral-500">{t(`users.roles.${user.role}`)}</p>
+                  <p className="text-sm text-neutral-500">
+                    {t(`users.roles.${user.role}`)}
+                  </p>
                 </div>
                 <div className="flex gap-2">
                   <Button

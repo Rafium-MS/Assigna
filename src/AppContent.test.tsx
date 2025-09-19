@@ -47,7 +47,9 @@ vi.mock('./components/layout/Shell', () => ({
 }));
 
 vi.mock('./components/calendar/SchedulerControls', () => ({
-  SchedulerControls: () => <div data-testid="scheduler-controls">Scheduler Controls</div>,
+  SchedulerControls: () => (
+    <div data-testid="scheduler-controls">Scheduler Controls</div>
+  ),
 }));
 
 import { AppContent } from './App';

@@ -18,14 +18,16 @@ type TerritoryForm = z.infer<typeof territorySchema>;
 const pageSize = 5;
 
 const TerritoriesPage: React.FC = () => {
-  const { territorios, addTerritorio, removeTerritorio, updateTerritorio } = useTerritorios();
+  const { territorios, addTerritorio, removeTerritorio, updateTerritorio } =
+    useTerritorios();
   const confirm = useConfirm();
   const { t } = useTranslation();
 
-  const { register, handleSubmit, reset, setValue, watch, formState } = useForm<TerritoryForm>({
-    resolver: zodResolver(territorySchema),
-    defaultValues: { nome: '', imagem: undefined },
-  });
+  const { register, handleSubmit, reset, setValue, watch, formState } =
+    useForm<TerritoryForm>({
+      resolver: zodResolver(territorySchema),
+      defaultValues: { nome: '', imagem: undefined },
+    });
   const { errors } = formState;
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -60,21 +62,42 @@ const TerritoriesPage: React.FC = () => {
 
   const startEdit = (territorio: Territorio) => {
     setEditingId(territorio.id);
-    reset({ nome: territorio.nome, imagem: territorio.imagem ?? territorio.imageUrl });
+    reset({
+      nome: territorio.nome,
+      imagem: territorio.imagem ?? territorio.imageUrl,
+    });
   };
 
   return (
     <div className="grid gap-4">
-      <Card title={t(editingId ? 'territories.editTerritory' : 'territories.createTerritory')}>
-        <form onSubmit={handleSubmit(onSubmit)} className="grid md:grid-cols-3 gap-3">
+      <Card
+        title={t(
+          editingId
+            ? 'territories.editTerritory'
+            : 'territories.createTerritory',
+        )}
+      >
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid md:grid-cols-3 gap-3"
+        >
           <div className="grid gap-1">
             <Label>{t('territories.name')}</Label>
-            <Input {...register('nome')} placeholder={t('territories.namePlaceholder')} />
-            {errors.nome?.message && <p className="text-sm text-red-600">{t(errors.nome.message)}</p>}
+            <Input
+              {...register('nome')}
+              placeholder={t('territories.namePlaceholder')}
+            />
+            {errors.nome?.message && (
+              <p className="text-sm text-red-600">{t(errors.nome.message)}</p>
+            )}
           </div>
           <div className="grid gap-1 md:col-span-2">
             <Label>{t('territories.optionalImage')}</Label>
-            <ImagePicker value={watch('imagem')} onChange={(value) => setValue('imagem', value)} compress />
+            <ImagePicker
+              value={watch('imagem')}
+              onChange={(value) => setValue('imagem', value)}
+              compress
+            />
           </div>
           <div className="md:col-span-3 flex justify-end gap-2">
             {editingId && (
@@ -97,7 +120,9 @@ const TerritoriesPage: React.FC = () => {
       </Card>
 
       <Card
-        title={t('territories.territoriesWithCount', { count: filtered.length })}
+        title={t('territories.territoriesWithCount', {
+          count: filtered.length,
+        })}
         actions={
           <div className="flex gap-2 items-center">
             <Input
@@ -175,9 +200,15 @@ const TerritoriesPage: React.FC = () => {
               </tbody>
             </table>
             <div className="flex justify-between items-center mt-3">
-              <span className="text-sm text-neutral-500">{t('territories.pageInfo', { page, pageCount })}</span>
+              <span className="text-sm text-neutral-500">
+                {t('territories.pageInfo', { page, pageCount })}
+              </span>
               <div className="flex gap-2">
-                <Button type="button" disabled={page === 1} onClick={() => setPage((value) => value - 1)}>
+                <Button
+                  type="button"
+                  disabled={page === 1}
+                  onClick={() => setPage((value) => value - 1)}
+                >
                   {t('common.previous')}
                 </Button>
                 <Button

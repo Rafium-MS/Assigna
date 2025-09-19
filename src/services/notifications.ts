@@ -18,7 +18,9 @@ export interface NotifyTerritoryReturnPayload {
   territoryName: string;
 }
 
-const buildNotificationBody = (payload: NotifyTerritoryReturnPayload): Record<string, string> => ({
+const buildNotificationBody = (
+  payload: NotifyTerritoryReturnPayload,
+): Record<string, string> => ({
   endpoint: payload.endpoint,
   title: 'Território devolvido',
   body: `${payload.territoryName} foi devolvido`,
@@ -39,7 +41,9 @@ export const notifyTerritoryReturn = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to notify territory return: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Failed to notify territory return: ${response.status} ${response.statusText}`,
+    );
   }
 
   return true;

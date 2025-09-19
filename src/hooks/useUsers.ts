@@ -8,11 +8,17 @@ import { useToast } from '../components/feedback/Toast';
 import { generateId } from '../utils/id';
 import { hashPassword } from '../utils/password';
 
-type NewUserInput = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'passwordHash'> & {
+type NewUserInput = Omit<
+  User,
+  'id' | 'createdAt' | 'updatedAt' | 'passwordHash'
+> & {
   password: string;
 };
 
-type UpdateUserInput = Omit<User, 'id' | 'createdAt' | 'updatedAt' | 'passwordHash'> & {
+type UpdateUserInput = Omit<
+  User,
+  'id' | 'createdAt' | 'updatedAt' | 'passwordHash'
+> & {
   password?: string | null;
 };
 
@@ -46,16 +52,17 @@ export const useUsers = () => {
         toast.success(t('users.toast.createSuccess'));
         return record;
       },
-      [dispatch, t, toast]
+      [dispatch, t, toast],
     ),
     updateUser: useCallback(
       async (id: string, user: UpdateUserInput) => {
         const existing = users.find((item) => item.id === id);
         const createdAt = existing?.createdAt ?? new Date().toISOString();
         const password = user.password?.trim();
-        const passwordHash = password && password.length > 0
-          ? await hashPassword(password)
-          : existing?.passwordHash ?? '';
+        const passwordHash =
+          password && password.length > 0
+            ? await hashPassword(password)
+            : (existing?.passwordHash ?? '');
         const { password: _password, ...userWithoutPassword } = user;
         void _password;
         const record: User = {
@@ -70,7 +77,7 @@ export const useUsers = () => {
         toast.success(t('users.toast.updateSuccess'));
         return record;
       },
-      [dispatch, t, toast, users]
+      [dispatch, t, toast, users],
     ),
     removeUser: useCallback(
       async (id: string) => {
@@ -78,7 +85,7 @@ export const useUsers = () => {
         dispatch({ type: 'REMOVE_USER', payload: id });
         toast.success(t('users.toast.deleteSuccess'));
       },
-      [dispatch, t, toast]
+      [dispatch, t, toast],
     ),
   } as const;
 };

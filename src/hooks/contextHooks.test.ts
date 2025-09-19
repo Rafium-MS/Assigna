@@ -5,7 +5,8 @@ vi.mock('react', async () => {
   return {
     ...actual,
     useContext: vi.fn(),
-    useCallback: <T extends (...args: never[]) => unknown>(callback: T) => callback,
+    useCallback: <T extends (...args: never[]) => unknown>(callback: T) =>
+      callback,
   };
 });
 
@@ -156,7 +157,11 @@ describe('App context hooks', () => {
     it('selects territorios from the current state', () => {
       const { state } = setupContext();
       const selected: Territorio[] = [
-        { id: 'territorio-2', nome: 'Outro Território', publisherId: 'publisher-2' },
+        {
+          id: 'territorio-2',
+          nome: 'Outro Território',
+          publisherId: 'publisher-2',
+        },
       ];
       const selectSpy = vi
         .spyOn(selectors, 'selectTerritorios')
@@ -201,9 +206,17 @@ describe('App context hooks', () => {
     it('selects saidas from the current state', () => {
       const { state } = setupContext();
       const selected: Saida[] = [
-        { id: 'saida-2', nome: 'Outra Saída', diaDaSemana: 2, hora: '09:00', publisherId: 'publisher-2' },
+        {
+          id: 'saida-2',
+          nome: 'Outra Saída',
+          diaDaSemana: 2,
+          hora: '09:00',
+          publisherId: 'publisher-2',
+        },
       ];
-      const selectSpy = vi.spyOn(selectors, 'selectSaidas').mockReturnValue(selected);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectSaidas')
+        .mockReturnValue(selected);
 
       const { saidas } = useSaidas();
 
@@ -223,10 +236,16 @@ describe('App context hooks', () => {
         hora: '09:00',
         publisherId: 'publisher-2',
       };
-      const selectSpy = vi.spyOn(selectors, 'selectSaidas').mockReturnValue(state.saidas);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectSaidas')
+        .mockReturnValue(state.saidas);
 
       const { addSaida } = useSaidas();
-      await addSaida({ nome: newSaida.nome, diaDaSemana: newSaida.diaDaSemana, hora: newSaida.hora });
+      await addSaida({
+        nome: newSaida.nome,
+        diaDaSemana: newSaida.diaDaSemana,
+        hora: newSaida.hora,
+      });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
       expect(dispatch).toHaveBeenCalledWith(
@@ -292,7 +311,9 @@ describe('App context hooks', () => {
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'ADD_DESIGNACAO',
-          payload: expect.objectContaining({ territorioId: newDesignacao.territorioId }),
+          payload: expect.objectContaining({
+            territorioId: newDesignacao.territorioId,
+          }),
         }),
       );
 
@@ -345,7 +366,9 @@ describe('App context hooks', () => {
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'ADD_SUGESTAO',
-          payload: expect.objectContaining({ territorioId: newSugestao.territorioId }),
+          payload: expect.objectContaining({
+            territorioId: newSugestao.territorioId,
+          }),
         }),
       );
 
@@ -366,7 +389,9 @@ describe('App context hooks', () => {
           updatedAt: '2024-02-01T00:00:00.000Z',
         },
       ];
-      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(selected);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectUsers')
+        .mockReturnValue(selected);
 
       const { users } = useUsers();
 
@@ -379,7 +404,9 @@ describe('App context hooks', () => {
 
     it('dispatches an action to add a user', async () => {
       const { dispatch, state } = setupContext();
-      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectUsers')
+        .mockReturnValue(state.users);
 
       const { addUser } = useUsers();
       await addUser({
@@ -393,7 +420,10 @@ describe('App context hooks', () => {
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'ADD_USER',
-          payload: expect.objectContaining({ name: 'Charlie', role: 'manager' }),
+          payload: expect.objectContaining({
+            name: 'Charlie',
+            role: 'manager',
+          }),
         }),
       );
 
@@ -402,16 +432,25 @@ describe('App context hooks', () => {
 
     it('dispatches an action to update a user', async () => {
       const { dispatch, state } = setupContext();
-      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectUsers')
+        .mockReturnValue(state.users);
 
       const { updateUser } = useUsers();
-      await updateUser('user-1', { name: 'Alice Updated', email: 'alice@new.example.com', role: 'admin' });
+      await updateUser('user-1', {
+        name: 'Alice Updated',
+        email: 'alice@new.example.com',
+        role: 'admin',
+      });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
       expect(dispatch).toHaveBeenCalledWith(
         expect.objectContaining({
           type: 'UPDATE_USER',
-          payload: expect.objectContaining({ id: 'user-1', name: 'Alice Updated' }),
+          payload: expect.objectContaining({
+            id: 'user-1',
+            name: 'Alice Updated',
+          }),
         }),
       );
 
@@ -420,7 +459,9 @@ describe('App context hooks', () => {
 
     it('dispatches an action to remove a user', async () => {
       const { dispatch, state } = setupContext();
-      const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
+      const selectSpy = vi
+        .spyOn(selectors, 'selectUsers')
+        .mockReturnValue(state.users);
 
       const { removeUser } = useUsers();
       await removeUser('user-1');

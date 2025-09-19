@@ -207,7 +207,7 @@
     "unnamedBuilding": "Prédio/Vila sem nome",
     "unknownTerritory": "Território não identificado"
   },
-    
+
   "ruasNumeracoes": {
     "tabs": {
       "streets": "Ruas",
@@ -266,8 +266,7 @@
       "totalAddresses": "Total de endereços: {{count}}",
       "totalPropertyTypes": "Total de tipos de propriedade: {{count}}"
     }
-
-},
+  },
   "status": {
     "ativo": "Ativo",
     "devolvido": "Devolvido",

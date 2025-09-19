@@ -95,7 +95,11 @@ afterEach(() => {
 describe('useTerritorios', () => {
   it('exposes the territorios selected from the state', () => {
     const selected: Territorio[] = [
-      { id: 'territorio-2', nome: 'Outro Território', publisherId: 'publisher-2' },
+      {
+        id: 'territorio-2',
+        nome: 'Outro Território',
+        publisherId: 'publisher-2',
+      },
     ];
     mockedSelectTerritorios.mockReturnValueOnce(selected);
 
@@ -125,7 +129,11 @@ describe('useTerritorios', () => {
       payload: { id: 'generated-id', publisherId: 'user-1', ...payload },
     });
     expect(toastSuccessMock).toHaveBeenCalledWith('Território salvo');
-    expect(created).toEqual({ id: 'generated-id', publisherId: 'user-1', ...payload });
+    expect(created).toEqual({
+      id: 'generated-id',
+      publisherId: 'user-1',
+      ...payload,
+    });
   });
 
   it('updates an existing território using updateTerritorio', async () => {
@@ -136,7 +144,10 @@ describe('useTerritorios', () => {
 
     let updated: Territorio | undefined;
     await act(async () => {
-      updated = await result.current.updateTerritorio('territorio-inicial', updatePayload);
+      updated = await result.current.updateTerritorio(
+        'territorio-inicial',
+        updatePayload,
+      );
     });
 
     expect(repositoryAddMock).toHaveBeenCalledWith({
@@ -146,10 +157,18 @@ describe('useTerritorios', () => {
     });
     expect(dispatchSpy).toHaveBeenCalledWith({
       type: 'UPDATE_TERRITORIO',
-      payload: { id: 'territorio-inicial', publisherId: 'publisher-inicial', ...updatePayload },
+      payload: {
+        id: 'territorio-inicial',
+        publisherId: 'publisher-inicial',
+        ...updatePayload,
+      },
     });
     expect(toastSuccessMock).toHaveBeenCalledWith('Território atualizado');
-    expect(updated).toEqual({ id: 'territorio-inicial', publisherId: 'publisher-inicial', ...updatePayload });
+    expect(updated).toEqual({
+      id: 'territorio-inicial',
+      publisherId: 'publisher-inicial',
+      ...updatePayload,
+    });
   });
 
   it('removes a território when removeTerritorio is invoked', async () => {

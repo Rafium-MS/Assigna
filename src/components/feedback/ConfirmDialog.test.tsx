@@ -13,10 +13,10 @@ import { ConfirmProvider, useConfirm } from './ConfirmDialog';
 
 type ResolveHandler = (value: boolean) => void;
 
-const TestComponent: React.FC<{ message: string; onResolved: ResolveHandler }> = ({
-  message,
-  onResolved,
-}) => {
+const TestComponent: React.FC<{
+  message: string;
+  onResolved: ResolveHandler;
+}> = ({ message, onResolved }) => {
   const confirm = useConfirm();
 
   return (
@@ -40,11 +40,13 @@ const renderConfirm = (message: string, onResolved: ResolveHandler) => {
     root.render(
       <ConfirmProvider>
         <TestComponent message={message} onResolved={onResolved} />
-      </ConfirmProvider>
+      </ConfirmProvider>,
     );
   });
 
-  const trigger = container.querySelector<HTMLButtonElement>('button[data-testid="trigger"]');
+  const trigger = container.querySelector<HTMLButtonElement>(
+    'button[data-testid="trigger"]',
+  );
   if (!trigger) throw new Error('Trigger button not found');
 
   const cleanup = () => {
@@ -77,9 +79,9 @@ describe('ConfirmDialog', () => {
 
       expect(container.textContent).toContain(message);
 
-      const confirmButton = Array.from(container.querySelectorAll('button')).find((btn) =>
-        btn.textContent?.includes('confirm.confirm')
-      );
+      const confirmButton = Array.from(
+        container.querySelectorAll('button'),
+      ).find((btn) => btn.textContent?.includes('confirm.confirm'));
       if (!confirmButton) throw new Error('Confirm button not found');
 
       await act(async () => {
@@ -115,9 +117,9 @@ describe('ConfirmDialog', () => {
 
       expect(container.textContent).toContain(message);
 
-      const cancelButton = Array.from(container.querySelectorAll('button')).find((btn) =>
-        btn.textContent?.includes('confirm.cancel')
-      );
+      const cancelButton = Array.from(
+        container.querySelectorAll('button'),
+      ).find((btn) => btn.textContent?.includes('confirm.cancel'));
       if (!cancelButton) throw new Error('Cancel button not found');
 
       await act(async () => {

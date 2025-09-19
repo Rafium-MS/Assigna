@@ -3,4 +3,3 @@ export interface DerivedTerritory {
   baseTerritoryId: string;
   name: string;
 }
-

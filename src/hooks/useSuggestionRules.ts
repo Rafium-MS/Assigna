@@ -13,4 +13,5 @@ const DEFAULT_RULES: SuggestionRuleConfig = {
  * Persists and retrieves the suggestion rule configuration from local storage.
  * @returns A tuple containing the current rules and an updater function.
  */
-export const useSuggestionRules = () => useLocalStorage<SuggestionRuleConfig>('tm.rules', DEFAULT_RULES);
+export const useSuggestionRules = () =>
+  useLocalStorage<SuggestionRuleConfig>('tm.rules', DEFAULT_RULES);

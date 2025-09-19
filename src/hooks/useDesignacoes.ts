@@ -37,7 +37,7 @@ export const useDesignacoes = () => {
         toast.success('Designação salva');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     /**
      * Updates an existing designation.
@@ -54,7 +54,7 @@ export const useDesignacoes = () => {
         toast.success('Designação atualizada');
         return record;
       },
-      [designacoes, dispatch, toast]
+      [designacoes, dispatch, toast],
     ),
     /**
      * Removes a designation.
@@ -66,7 +66,7 @@ export const useDesignacoes = () => {
         dispatch({ type: 'REMOVE_DESIGNACAO', payload: id });
         toast.success('Designação removida');
       },
-      [dispatch, toast]
+      [dispatch, toast],
     ),
   } as const;
 };

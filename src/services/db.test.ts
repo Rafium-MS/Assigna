@@ -7,17 +7,21 @@ import {
   getSchemaVersion,
   SCHEMA_VERSION,
   DEFAULT_PROPERTY_TYPE_NAMES,
-  ensureDefaultPropertyTypesSeeded
+  ensureDefaultPropertyTypesSeeded,
 } from './db';
 import {
   ADMIN_MASTER_DEFAULT_PASSWORD,
   ADMIN_MASTER_DEFAULT_ROLE,
   ADMIN_MASTER_DEFAULT_NAME,
   ADMIN_MASTER_DEFAULT_EMAIL,
-  ADMIN_MASTER_USERNAME
+  ADMIN_MASTER_USERNAME,
 } from '../constants/auth';
 import { hashPassword } from '../utils/password';
-import { TerritorioRepository, BuildingVillageRepository, NaoEmCasaRepository } from './repositories';
+import {
+  TerritorioRepository,
+  BuildingVillageRepository,
+  NaoEmCasaRepository,
+} from './repositories';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 
@@ -31,7 +35,7 @@ describe('IndexedDB persistence', () => {
     const territorios = Array.from({ length: 1000 }, (_, i) => ({
       id: `${i}`,
       nome: `Territorio ${i}`,
-      publisherId: `publisher-${i}`
+      publisherId: `publisher-${i}`,
     }));
     await TerritorioRepository.bulkAdd(territorios);
     const total = await db.territorios.count();
@@ -40,7 +44,9 @@ describe('IndexedDB persistence', () => {
     const sampleIndexes = [0, 500, territorios.length - 1];
     for (const index of sampleIndexes) {
       const record = territorios[index];
-      const stored = await TerritorioRepository.forPublisher(record.publisherId);
+      const stored = await TerritorioRepository.forPublisher(
+        record.publisherId,
+      );
       expect(stored).toEqual([record]);
     }
   });
@@ -67,14 +73,14 @@ describe('IndexedDB persistence', () => {
             id: 'history-1',
             status: 'sent',
             sent_at: '2024-01-02T00:00:00.000Z',
-            notes: 'Initial letter sent'
-          }
+            notes: 'Initial letter sent',
+          },
         ],
         assigned_at: '2024-01-01T00:00:00.000Z',
         returned_at: null,
         block: 'A',
         notes: 'Primary building',
-        created_at: '2024-01-01T00:00:00.000Z'
+        created_at: '2024-01-01T00:00:00.000Z',
       },
       {
         id: 'bv-2',
@@ -95,20 +101,20 @@ describe('IndexedDB persistence', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: null
-      }
+        created_at: null,
+      },
     ];
 
     await BuildingVillageRepository.bulkAdd(buildingVillages);
     const total = await db.buildingsVillages.count();
     expect(total).toBe(buildingVillages.length);
 
-    await expect(BuildingVillageRepository.forPublisher('publisher-1')).resolves.toEqual([
-      buildingVillages[0]
-    ]);
-    await expect(BuildingVillageRepository.forPublisher('publisher-2')).resolves.toEqual([
-      buildingVillages[1]
-    ]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-1'),
+    ).resolves.toEqual([buildingVillages[0]]);
+    await expect(
+      BuildingVillageRepository.forPublisher('publisher-2'),
+    ).resolves.toEqual([buildingVillages[1]]);
   });
 
   it('stores and retrieves not-at-home records', async () => {
@@ -126,7 +132,7 @@ describe('IndexedDB persistence', () => {
       propertyTypeName: 'Residencial',
       recordedAt: '2024-01-15',
       followUpAt: '2024-05-14',
-      completedAt: null
+      completedAt: null,
     };
 
     await NaoEmCasaRepository.add(record);
@@ -168,13 +174,14 @@ describe('IndexedDB persistence', () => {
           id: 'history-migrate-1',
           status: 'in_progress',
           sent_at: '2024-01-02T00:00:00.000Z',
-          notes: 'Awaiting confirmation'
-        }
-      ]
+          notes: 'Awaiting confirmation',
+        },
+      ],
     };
 
     await BuildingVillageRepository.add(buildingVillage);
-    const stored = await BuildingVillageRepository.forPublisher('publisher-migrate');
+    const stored =
+      await BuildingVillageRepository.forPublisher('publisher-migrate');
     expect(stored).toContainEqual(buildingVillage);
 
     const adminUser = await db.users.get(ADMIN_MASTER_USERNAME);
@@ -212,7 +219,9 @@ describe('IndexedDB persistence', () => {
 
     let propertyTypes = await db.propertyTypes.toArray();
     expect(propertyTypes).toHaveLength(DEFAULT_PROPERTY_TYPE_NAMES.length);
-    expect(propertyTypes.map((type) => type.name).sort()).toEqual(expectedNames);
+    expect(propertyTypes.map((type) => type.name).sort()).toEqual(
+      expectedNames,
+    );
 
     await db.propertyTypes
       .where('name')
@@ -226,7 +235,9 @@ describe('IndexedDB persistence', () => {
 
     propertyTypes = await db.propertyTypes.toArray();
     expect(propertyTypes).toHaveLength(DEFAULT_PROPERTY_TYPE_NAMES.length);
-    expect(propertyTypes.map((type) => type.name).sort()).toEqual(expectedNames);
+    expect(propertyTypes.map((type) => type.name).sort()).toEqual(
+      expectedNames,
+    );
   });
 
   it('migrates legacy territorios buildings into the dedicated store', async () => {
@@ -236,7 +247,7 @@ describe('IndexedDB persistence', () => {
       saidas: 'id, nome, diaDaSemana',
       designacoes: 'id, territorioId, saidaId',
       sugestoes: '[territorioId+saidaId]',
-      metadata: 'key'
+      metadata: 'key',
     });
 
     await legacyDb.open();
@@ -261,7 +272,7 @@ describe('IndexedDB persistence', () => {
             returnedAt: null,
             block: 'A',
             notes: 'Migrated from territorios',
-            createdAt: '2023-01-05T00:00:00.000Z'
+            createdAt: '2023-01-05T00:00:00.000Z',
           },
           {
             name: 'Village Beta',
@@ -273,14 +284,14 @@ describe('IndexedDB persistence', () => {
             assignedAt: '2023-02-01T00:00:00.000Z',
             returnedAt: null,
             block: null,
-            notes: null
-          }
-        ]
+            notes: null,
+          },
+        ],
       },
       {
         id: 'regular-territory',
-        nome: 'Regular Territory'
-      }
+        nome: 'Regular Territory',
+      },
     ];
 
     await legacyDb.table('territorios').bulkPut(legacyTerritories);
@@ -296,15 +307,15 @@ describe('IndexedDB persistence', () => {
           id: 'legacy-building-1',
           territory_id: 'legacy-territory',
           created_at: '2023-01-05T00:00:00.000Z',
-          publisherId: ''
+          publisherId: '',
         }),
         expect.objectContaining({
           id: 'legacy-territory-2',
           territory_id: 'legacy-territory',
           created_at: '2023-02-01T00:00:00.000Z',
-          publisherId: ''
-        })
-      ])
+          publisherId: '',
+        }),
+      ]),
     );
 
     const updatedTerritory = await db.territorios.get('legacy-territory');
@@ -313,7 +324,9 @@ describe('IndexedDB persistence', () => {
       nome: 'Legacy Territory',
       publisherId: '',
     });
-    expect((updatedTerritory as Record<string, unknown>).legacyBuildings).toBeUndefined();
+    expect(
+      (updatedTerritory as Record<string, unknown>).legacyBuildings,
+    ).toBeUndefined();
 
     const migratedMetadata = await db.metadata.get('buildingsVillagesMigrated');
     expect(migratedMetadata?.value).toBe(2);
@@ -327,7 +340,7 @@ describe('IndexedDB persistence', () => {
       designacoes: 'id, territorioId, saidaId',
       sugestoes: '[territorioId+saidaId]',
       metadata: 'key',
-      buildingsVillages: 'id, territory_id'
+      buildingsVillages: 'id, territory_id',
     });
 
     await legacyDb.open();
@@ -347,7 +360,7 @@ describe('IndexedDB persistence', () => {
         returned_at: null,
         block: 'A',
         notes: 'Migrated building',
-        created_at: '2023-03-05T00:00:00.000Z'
+        created_at: '2023-03-05T00:00:00.000Z',
       },
       {
         id: 'legacy-bv-2',
@@ -363,8 +376,8 @@ describe('IndexedDB persistence', () => {
         returned_at: null,
         block: null,
         notes: null,
-        created_at: null
-      }
+        created_at: null,
+      },
     ]);
     await legacyDb.table('metadata').put({ key: 'schemaVersion', value: 2 });
     await legacyDb.close();
@@ -374,13 +387,19 @@ describe('IndexedDB persistence', () => {
     const version = await getSchemaVersion();
     expect(version).toBe(SCHEMA_VERSION);
 
-    const propertyType = await db.propertyTypes.where('name').equals('Building/Village').first();
+    const propertyType = await db.propertyTypes
+      .where('name')
+      .equals('Building/Village')
+      .first();
     expect(propertyType).toMatchObject({ name: 'Building/Village' });
     expect(typeof propertyType?.id).toBe('number');
 
     const streets = await db.streets.toArray();
     expect(streets).toEqual([
-      expect.objectContaining({ territoryId: 'legacy-territory', name: 'Legacy Street' })
+      expect.objectContaining({
+        territoryId: 'legacy-territory',
+        name: 'Legacy Street',
+      }),
     ]);
 
     const addresses = await db.addresses.toArray();
@@ -390,23 +409,28 @@ describe('IndexedDB persistence', () => {
       streetId: streets[0]?.id,
       numberStart: 10,
       numberEnd: 10,
-      propertyTypeId: propertyType?.id
+      propertyTypeId: propertyType?.id,
     });
 
     const derivedTerritories = await db.derivedTerritories.toArray();
     expect(derivedTerritories).toEqual([
-      expect.objectContaining({ baseTerritoryId: 'legacy-territory', name: 'Legacy Building' })
+      expect.objectContaining({
+        baseTerritoryId: 'legacy-territory',
+        name: 'Legacy Building',
+      }),
     ]);
 
     const mappings = await db.derivedTerritoryAddresses.toArray();
     expect(mappings).toEqual([
       {
         derivedTerritoryId: derivedTerritories[0]?.id,
-        addressId: address?.id
-      }
+        addressId: address?.id,
+      },
     ]);
 
-    const migrationMetadata = await db.metadata.get('derivedTerritoriesMigrated');
+    const migrationMetadata = await db.metadata.get(
+      'derivedTerritoriesMigrated',
+    );
     expect(migrationMetadata?.value).toBe(1);
   });
 
@@ -423,7 +447,7 @@ describe('IndexedDB persistence', () => {
       addresses: '++id, streetId, numberStart, numberEnd',
       buildingsVillages: 'id, territory_id',
       derived_territories: '++id, baseTerritoryId, name',
-      derived_territory_addresses: '[derivedTerritoryId+addressId]'
+      derived_territory_addresses: '[derivedTerritoryId+addressId]',
     });
 
     await legacyDb.open();
@@ -434,7 +458,7 @@ describe('IndexedDB persistence', () => {
         streetId: 1,
         numberStart: 10,
         numberEnd: 20,
-        propertyTypeId: 100
+        propertyTypeId: 100,
       },
       {
         id: 2,
@@ -442,7 +466,7 @@ describe('IndexedDB persistence', () => {
         numberStart: 30,
         numberEnd: 40,
         propertyTypeId: 100,
-        lastSuccessfulVisit: '2024-01-01T00:00:00.000Z'
+        lastSuccessfulVisit: '2024-01-01T00:00:00.000Z',
       },
       {
         id: 3,
@@ -451,8 +475,8 @@ describe('IndexedDB persistence', () => {
         numberEnd: 60,
         propertyTypeId: 100,
         lastSuccessfulVisit: 'not-a-date',
-        nextVisitAllowed: '2024-07-01T00:00:00.000Z'
-      }
+        nextVisitAllowed: '2024-07-01T00:00:00.000Z',
+      },
     ]);
     await legacyDb.table('metadata').put({ key: 'schemaVersion', value: 3 });
     await legacyDb.close();
@@ -466,23 +490,24 @@ describe('IndexedDB persistence', () => {
     expect(first).toMatchObject({
       id: 1,
       lastSuccessfulVisit: null,
-      nextVisitAllowed: null
+      nextVisitAllowed: null,
     });
 
     const expectedSecondNext = new Date(
-      new Date('2024-01-01T00:00:00.000Z').getTime() + ADDRESS_VISIT_COOLDOWN_MS
+      new Date('2024-01-01T00:00:00.000Z').getTime() +
+        ADDRESS_VISIT_COOLDOWN_MS,
     ).toISOString();
 
     expect(second).toMatchObject({
       id: 2,
       lastSuccessfulVisit: '2024-01-01T00:00:00.000Z',
-      nextVisitAllowed: expectedSecondNext
+      nextVisitAllowed: expectedSecondNext,
     });
 
     expect(third).toMatchObject({
       id: 3,
       lastSuccessfulVisit: null,
-      nextVisitAllowed: '2024-07-01T00:00:00.000Z'
+      nextVisitAllowed: '2024-07-01T00:00:00.000Z',
     });
 
     const visitMetadata = await db.metadata.get('addressVisitsMigrated');

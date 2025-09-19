@@ -3,7 +3,10 @@ import type { Territorio } from '../types/territorio';
 import type { Saida } from '../types/saida';
 import type { Designacao } from '../types/designacao';
 import type { Sugestao } from '../types/sugestao';
-import { LETTER_STATUS_VALUES, type BuildingVillage } from '../types/building_village';
+import {
+  LETTER_STATUS_VALUES,
+  type BuildingVillage,
+} from '../types/building_village';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
 import type { Address } from '../types/address';
@@ -18,7 +21,7 @@ const territorioSchema = z.object({
   nome: z.string(),
   publisherId: z.string().optional().default(''),
   imagem: z.string().optional(),
-  imageUrl: z.string().optional()
+  imageUrl: z.string().optional(),
 });
 
 const saidaSchema = z.object({
@@ -26,7 +29,7 @@ const saidaSchema = z.object({
   nome: z.string(),
   diaDaSemana: z.number(),
   hora: z.string(),
-  publisherId: z.string().optional().default('')
+  publisherId: z.string().optional().default(''),
 });
 
 const designacaoSchema = z.object({
@@ -36,7 +39,7 @@ const designacaoSchema = z.object({
   dataInicial: z.string(),
   dataFinal: z.string(),
   publisherId: z.string().optional().default(''),
-  devolvido: z.boolean().optional()
+  devolvido: z.boolean().optional(),
 });
 
 const sugestaoSchema = z.object({
@@ -44,7 +47,7 @@ const sugestaoSchema = z.object({
   saidaId: z.string(),
   dataInicial: z.string(),
   dataFinal: z.string(),
-  publisherId: z.string().optional().default('')
+  publisherId: z.string().optional().default(''),
 });
 
 const letterStatusSchema = z.enum(LETTER_STATUS_VALUES);
@@ -53,7 +56,7 @@ const buildingVillageLetterHistorySchema = z.object({
   id: z.string(),
   status: letterStatusSchema,
   sent_at: z.string().nullable().optional().default(null),
-  notes: z.string().nullable().optional().default(null)
+  notes: z.string().nullable().optional().default(null),
 });
 
 const buildingVillageSchema = z.object({
@@ -78,18 +81,18 @@ const buildingVillageSchema = z.object({
   returned_at: z.string().nullable(),
   block: z.string().nullable(),
   notes: z.string().nullable(),
-  created_at: z.string().nullable()
+  created_at: z.string().nullable(),
 });
 
 const streetSchema = z.object({
   id: z.number(),
   territoryId: z.string(),
-  name: z.string()
+  name: z.string(),
 });
 
 const propertyTypeSchema = z.object({
   id: z.number(),
-  name: z.string()
+  name: z.string(),
 });
 
 const addressSchema = z.object({
@@ -97,7 +100,7 @@ const addressSchema = z.object({
   streetId: z.number(),
   numberStart: z.number(),
   numberEnd: z.number(),
-  propertyTypeId: z.number()
+  propertyTypeId: z.number(),
 });
 
 const naoEmCasaSchema = z.object({
@@ -114,18 +117,18 @@ const naoEmCasaSchema = z.object({
   recordedAt: z.string(),
   followUpAt: z.string(),
   completedAt: z.string().nullable().optional(),
-  conversationConfirmed: z.boolean().optional().default(false)
+  conversationConfirmed: z.boolean().optional().default(false),
 });
 
 const derivedTerritorySchema = z.object({
   id: z.number(),
   baseTerritoryId: z.string(),
-  name: z.string()
+  name: z.string(),
 });
 
 const derivedTerritoryAddressSchema = z.object({
   derivedTerritoryId: z.number(),
-  addressId: z.number()
+  addressId: z.number(),
 });
 
 const userSchema = z.object({
@@ -135,12 +138,12 @@ const userSchema = z.object({
   role: z.enum(AVAILABLE_ROLES),
   passwordHash: z.string().optional().default(''),
   createdAt: z.string(),
-  updatedAt: z.string()
+  updatedAt: z.string(),
 });
 
 const metadataSchema = z.object({
   key: z.string(),
-  value: z.number()
+  value: z.number(),
 });
 
 export const exportedDataSchema = z
@@ -157,9 +160,12 @@ export const exportedDataSchema = z
     addresses: z.array(addressSchema).optional().default([]),
     naoEmCasa: z.array(naoEmCasaSchema).optional().default([]),
     derivedTerritories: z.array(derivedTerritorySchema).optional().default([]),
-    derivedTerritoryAddresses: z.array(derivedTerritoryAddressSchema).optional().default([]),
+    derivedTerritoryAddresses: z
+      .array(derivedTerritoryAddressSchema)
+      .optional()
+      .default([]),
     metadata: z.array(metadataSchema).optional().default([]),
-    users: z.array(userSchema).optional().default([])
+    users: z.array(userSchema).optional().default([]),
   })
   .transform((data) => ({
     ...data,
@@ -176,7 +182,7 @@ export const exportedDataSchema = z
     derivedTerritories: data.derivedTerritories ?? [],
     derivedTerritoryAddresses: data.derivedTerritoryAddresses ?? [],
     metadata: data.metadata ?? [],
-    users: data.users ?? []
+    users: data.users ?? [],
   }));
 
 export type ExportedData = {
@@ -192,7 +198,10 @@ export type ExportedData = {
   addresses: Address[];
   naoEmCasa: NaoEmCasaRegistro[];
   derivedTerritories: DerivedTerritory[];
-  derivedTerritoryAddresses: Array<{ derivedTerritoryId: number; addressId: number }>;
+  derivedTerritoryAddresses: Array<{
+    derivedTerritoryId: number;
+    addressId: number;
+  }>;
   metadata: Metadata[];
   users: User[];
 };

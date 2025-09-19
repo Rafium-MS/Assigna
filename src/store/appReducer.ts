@@ -56,7 +56,10 @@ export type Action =
   | { type: 'SET_SUGESTOES'; payload: Sugestao[] }
   | { type: 'ADD_SUGESTAO'; payload: Sugestao }
   | { type: 'UPDATE_SUGESTAO'; payload: Sugestao }
-  | { type: 'REMOVE_SUGESTAO'; payload: { territorioId: string; saidaId: string } }
+  | {
+      type: 'REMOVE_SUGESTAO';
+      payload: { territorioId: string; saidaId: string };
+    }
   | { type: 'SET_NAO_EM_CASA'; payload: NaoEmCasaRegistro[] }
   | { type: 'ADD_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
   | { type: 'UPDATE_NAO_EM_CASA'; payload: NaoEmCasaRegistro }
@@ -88,7 +91,12 @@ export function appReducer(state: AppState, action: Action): AppState {
         ),
       };
     case 'REMOVE_TERRITORIO':
-      return { ...state, territorios: state.territorios.filter((territorio) => territorio.id !== action.payload) };
+      return {
+        ...state,
+        territorios: state.territorios.filter(
+          (territorio) => territorio.id !== action.payload,
+        ),
+      };
     case 'SET_SAIDAS':
       return { ...state, saidas: [...action.payload] };
     case 'ADD_SAIDA':
@@ -96,10 +104,15 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_SAIDA':
       return {
         ...state,
-        saidas: state.saidas.map((saida) => (saida.id === action.payload.id ? action.payload : saida)),
+        saidas: state.saidas.map((saida) =>
+          saida.id === action.payload.id ? action.payload : saida,
+        ),
       };
     case 'REMOVE_SAIDA':
-      return { ...state, saidas: state.saidas.filter((saida) => saida.id !== action.payload) };
+      return {
+        ...state,
+        saidas: state.saidas.filter((saida) => saida.id !== action.payload),
+      };
     case 'SET_DESIGNACOES':
       return { ...state, designacoes: [...action.payload] };
     case 'ADD_DESIGNACAO':
@@ -112,7 +125,12 @@ export function appReducer(state: AppState, action: Action): AppState {
         ),
       };
     case 'REMOVE_DESIGNACAO':
-      return { ...state, designacoes: state.designacoes.filter((designacao) => designacao.id !== action.payload) };
+      return {
+        ...state,
+        designacoes: state.designacoes.filter(
+          (designacao) => designacao.id !== action.payload,
+        ),
+      };
     case 'SET_SUGESTOES':
       return { ...state, sugestoes: [...action.payload] };
     case 'ADD_SUGESTAO':
@@ -121,7 +139,8 @@ export function appReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         sugestoes: state.sugestoes.map((sugestao) =>
-          sugestao.territorioId === action.payload.territorioId && sugestao.saidaId === action.payload.saidaId
+          sugestao.territorioId === action.payload.territorioId &&
+          sugestao.saidaId === action.payload.saidaId
             ? action.payload
             : sugestao,
         ),
@@ -131,7 +150,8 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         sugestoes: state.sugestoes.filter(
           (sugestao) =>
-            sugestao.territorioId !== action.payload.territorioId || sugestao.saidaId !== action.payload.saidaId,
+            sugestao.territorioId !== action.payload.territorioId ||
+            sugestao.saidaId !== action.payload.saidaId,
         ),
       };
     case 'SET_NAO_EM_CASA':
@@ -141,10 +161,17 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_NAO_EM_CASA':
       return {
         ...state,
-        naoEmCasa: state.naoEmCasa.map((registro) => (registro.id === action.payload.id ? action.payload : registro)),
+        naoEmCasa: state.naoEmCasa.map((registro) =>
+          registro.id === action.payload.id ? action.payload : registro,
+        ),
       };
     case 'REMOVE_NAO_EM_CASA':
-      return { ...state, naoEmCasa: state.naoEmCasa.filter((registro) => registro.id !== action.payload) };
+      return {
+        ...state,
+        naoEmCasa: state.naoEmCasa.filter(
+          (registro) => registro.id !== action.payload,
+        ),
+      };
     case 'SET_USERS':
       return { ...state, users: [...action.payload] };
     case 'ADD_USER':
@@ -152,10 +179,15 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_USER':
       return {
         ...state,
-        users: state.users.map((user) => (user.id === action.payload.id ? action.payload : user)),
+        users: state.users.map((user) =>
+          user.id === action.payload.id ? action.payload : user,
+        ),
       };
     case 'REMOVE_USER':
-      return { ...state, users: state.users.filter((user) => user.id !== action.payload) };
+      return {
+        ...state,
+        users: state.users.filter((user) => user.id !== action.payload),
+      };
     case 'RESET_STATE':
       return initialState;
     default:

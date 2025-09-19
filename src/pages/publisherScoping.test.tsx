@@ -37,7 +37,12 @@ const {
       contact_method: 'Email',
       letter_status: 'sent',
       letter_history: [
-        { id: 'letter-1', status: 'sent', sent_at: '2024-05-05', notes: 'Delivered' }
+        {
+          id: 'letter-1',
+          status: 'sent',
+          sent_at: '2024-05-05',
+          notes: 'Delivered',
+        },
       ],
       assigned_at: '2024-05-01',
       returned_at: null,
@@ -60,7 +65,12 @@ const {
       contact_method: 'Phone',
       letter_status: 'responded',
       letter_history: [
-        { id: 'letter-2', status: 'responded', sent_at: '2024-04-10', notes: 'Confirmed' }
+        {
+          id: 'letter-2',
+          status: 'responded',
+          sent_at: '2024-04-10',
+          notes: 'Confirmed',
+        },
       ],
       assigned_at: '2024-04-01',
       returned_at: null,
@@ -115,7 +125,7 @@ const {
     forPublisher: vi.fn(async (publisherId: string) =>
       villagesSeed
         .filter((village) => village.publisherId === publisherId)
-        .map((village) => cloneVillage(village))
+        .map((village) => cloneVillage(village)),
     ),
     add: vi.fn(),
     bulkAdd: vi.fn(),
@@ -127,7 +137,7 @@ const {
     forPublisher: vi.fn(async (publisherId: string) =>
       territoriesSeed
         .filter((territory) => territory.publisherId === publisherId)
-        .map((territory) => ({ ...territory }))
+        .map((territory) => ({ ...territory })),
     ),
   };
 
@@ -194,7 +204,9 @@ describe('Publisher scoping in pages', () => {
     render(<PrediosVilas />);
 
     await waitFor(() => {
-      expect(buildingVillageRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(buildingVillageRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     await waitFor(() => {
@@ -204,14 +216,18 @@ describe('Publisher scoping in pages', () => {
     });
 
     expect(document.body.textContent ?? '').not.toMatch(/Beta Plaza/);
-    expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+    expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+      'publisher-1',
+    );
   });
 
   it('groups only the current publisher records in CartasPage', async () => {
     render(<CartasPage />);
 
     await waitFor(() => {
-      expect(buildingVillageRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      expect(buildingVillageRepositoryMock.forPublisher).toHaveBeenCalledWith(
+        'publisher-1',
+      );
     });
 
     await waitFor(() => {
@@ -219,6 +235,8 @@ describe('Publisher scoping in pages', () => {
     });
 
     expect(document.body.textContent ?? '').not.toMatch(/Bob/);
-    expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+    expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith(
+      'publisher-1',
+    );
   });
 });

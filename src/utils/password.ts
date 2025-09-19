@@ -41,13 +41,17 @@ const timingSafeEqual = (a: Uint8Array, b: Uint8Array): boolean => {
 };
 
 const getSubtleCrypto = async (): Promise<SubtleCrypto> => {
-  const globalCrypto = (globalThis as { crypto?: Crypto & { webcrypto?: Crypto } }).crypto;
+  const globalCrypto = (
+    globalThis as { crypto?: Crypto & { webcrypto?: Crypto } }
+  ).crypto;
   const subtle = globalCrypto?.subtle ?? globalCrypto?.webcrypto?.subtle;
   if (subtle) {
     return subtle;
   }
 
-  const processInfo = (globalThis as { process?: { versions?: { node?: string } } }).process;
+  const processInfo = (
+    globalThis as { process?: { versions?: { node?: string } } }
+  ).process;
   if (typeof processInfo?.versions?.node === 'string') {
     const { webcrypto } = await import('node:crypto');
     if (webcrypto?.subtle) {
@@ -74,7 +78,7 @@ export const hashPassword = async (password: string): Promise<string> => {
  */
 export const verifyPassword = async (
   password: string,
-  expectedHash: string | null | undefined
+  expectedHash: string | null | undefined,
 ): Promise<boolean> => {
   if (typeof expectedHash !== 'string' || expectedHash.trim().length === 0) {
     return false;

@@ -6,7 +6,7 @@
  */
 export const exportToCsv = (
   data: Record<string, unknown>[],
-  headers: string[]
+  headers: string[],
 ): string => {
   const date = new Date().toISOString().split('T')[0];
   const lines: string[] = [`generated_at,${date}`, headers.join(',')];
@@ -31,7 +31,7 @@ export const exportToCsv = (
  */
 export const exportToExcel = (
   data: Record<string, unknown>[],
-  headers: string[]
+  headers: string[],
 ): string => exportToCsv(data, headers).replace(/,/g, '\t');
 
 /**
@@ -42,7 +42,7 @@ export const exportToExcel = (
  */
 export const exportToPdf = (
   data: Record<string, unknown>[],
-  headers: string[]
+  headers: string[],
 ): string => exportToCsv(data, headers).replace(/,/g, ' | ');
 
 /**
@@ -65,7 +65,7 @@ export interface ImportOptions<T> {
  */
 export const importCsv = <T>(
   csv: string,
-  { columnMap, validate }: ImportOptions<T>
+  { columnMap, validate }: ImportOptions<T>,
 ): T[] => {
   const lines = csv.trim().split(/\r?\n/);
   if (lines.length < 2) return [];
@@ -102,12 +102,12 @@ export const importCsv = <T>(
 export const downloadFile = (
   content: string,
   filename: string,
-  mime: string
+  mime: string,
 ): void => {
   const blob = new Blob([content], { type: mime });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-a.href = url;
+  a.href = url;
   a.download = filename;
   a.click();
   URL.revokeObjectURL(url);

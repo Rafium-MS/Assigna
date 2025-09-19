@@ -14,7 +14,8 @@ describe('csv utils', () => {
     const csv = `generated_at,2024-07-01\ncol1,col2\n1,Ana\n2,`;
     const rows = importCsv<{ id: string; name: string }>(csv, {
       columnMap: { col1: 'id', col2: 'name' },
-      validate: (r): r is { id: string; name: string } => Boolean(r.id && r.name),
+      validate: (r): r is { id: string; name: string } =>
+        Boolean(r.id && r.name),
     });
     expect(rows).toEqual([{ id: '1', name: 'Ana' }]);
   });

@@ -56,5 +56,5 @@ export const SugestaoRepository = {
    */
   async remove(territorioId: string, saidaId: string): Promise<void> {
     await db.sugestoes.delete([territorioId, saidaId]);
-  }
+  },
 };

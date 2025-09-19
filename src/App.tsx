@@ -24,14 +24,18 @@ import { useAuth } from './hooks/useAuth';
 import { useToast } from './components/feedback/Toast';
 import { exportData } from './services/export';
 import { importData } from './services/import';
-import { db, SCHEMA_VERSION, ensureDefaultPropertyTypesSeeded } from './services/db';
+import {
+  db,
+  SCHEMA_VERSION,
+  ensureDefaultPropertyTypesSeeded,
+} from './services/db';
 import {
   TerritorioRepository,
   SaidaRepository,
   DesignacaoRepository,
   SugestaoRepository,
   NaoEmCasaRepository,
-  UserRepository
+  UserRepository,
 } from './services/repositories';
 import { BuildingVillageRepository } from './services/repositories/buildings_villages';
 import type { TabKey } from './types/navigation';
@@ -64,7 +68,12 @@ interface GuardedRouteProps {
   path: string;
 }
 
-export const RouteGuard = ({ component: Component, allowedRoles, currentRole, path }: GuardedRouteProps): JSX.Element => {
+export const RouteGuard = ({
+  component: Component,
+  allowedRoles,
+  currentRole,
+  path,
+}: GuardedRouteProps): JSX.Element => {
   const normalizedRole = currentRole?.toLowerCase() ?? null;
   const canAccess =
     normalizedRole !== null &&
@@ -121,7 +130,9 @@ const DataManagementControls: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
+  const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = async (
+    event,
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -162,7 +173,7 @@ const DataManagementControls: React.FC = () => {
         db.derivedTerritories.clear(),
         db.derivedTerritoryAddresses.clear(),
         db.naoEmCasa.clear(),
-        db.metadata.clear()
+        db.metadata.clear(),
       ]);
       await ensureDefaultPropertyTypesSeeded();
       await db.metadata.put({ key: 'schemaVersion', value: SCHEMA_VERSION });

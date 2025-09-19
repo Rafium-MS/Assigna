@@ -14,14 +14,19 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
   const { t } = useTranslation();
   const { currentUser, signIn, signOut } = useAuth();
   const toast = useToast();
-  const [credentials, setCredentials] = useState({ identifier: '', password: '' });
+  const [credentials, setCredentials] = useState({
+    identifier: '',
+    password: '',
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (currentUser) {
     return (
       <div className={`flex items-center gap-3 ${className}`}>
         <div className="text-right leading-tight text-xs text-neutral-500 dark:text-neutral-300">
-          <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{currentUser.id}</p>
+          <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            {currentUser.id}
+          </p>
           <p className="uppercase tracking-wide">{currentUser.role}</p>
         </div>
         <Button
@@ -44,7 +49,10 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
     }
 
     setIsSubmitting(true);
-    const result = await signIn({ identifier: trimmedIdentifier, password: trimmedPassword });
+    const result = await signIn({
+      identifier: trimmedIdentifier,
+      password: trimmedPassword,
+    });
     setIsSubmitting(false);
     if (!result) {
       toast.error(t('auth.invalidCredentials'));
@@ -55,7 +63,9 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
   };
 
   const canSubmit =
-    credentials.identifier.trim().length > 0 && credentials.password.trim().length > 0 && !isSubmitting;
+    credentials.identifier.trim().length > 0 &&
+    credentials.password.trim().length > 0 &&
+    !isSubmitting;
 
   return (
     <form
@@ -70,7 +80,12 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
         <Input
           id="auth-id"
           value={credentials.identifier}
-          onChange={(event) => setCredentials((prev) => ({ ...prev, identifier: event.target.value }))}
+          onChange={(event) =>
+            setCredentials((prev) => ({
+              ...prev,
+              identifier: event.target.value,
+            }))
+          }
           placeholder={t('auth.identifierPlaceholder')}
           autoComplete="username"
           className="w-32"
@@ -84,7 +99,12 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
           id="auth-password"
           type="password"
           value={credentials.password}
-          onChange={(event) => setCredentials((prev) => ({ ...prev, password: event.target.value }))}
+          onChange={(event) =>
+            setCredentials((prev) => ({
+              ...prev,
+              password: event.target.value,
+            }))
+          }
           placeholder={t('auth.passwordPlaceholder')}
           autoComplete="current-password"
           className="w-28"

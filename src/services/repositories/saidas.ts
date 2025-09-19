@@ -55,5 +55,5 @@ export const SaidaRepository = {
    */
   async remove(id: string): Promise<void> {
     await db.saidas.delete(id);
-  }
+  },
 };

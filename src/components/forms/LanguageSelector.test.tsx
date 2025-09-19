@@ -91,7 +91,7 @@ describe('LanguageSelector', () => {
       if (!select) throw new Error('Language selector not found');
 
       const optionValues = Array.from(select.querySelectorAll('option')).map(
-        (option) => option.value
+        (option) => option.value,
       );
 
       expect(optionValues).toContain('es-ES');

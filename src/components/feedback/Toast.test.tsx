@@ -15,7 +15,10 @@ const Buttons: React.FC = () => {
       <button data-testid="success" onClick={() => toast.success('All good!')}>
         success
       </button>
-      <button data-testid="error" onClick={() => toast.error('Something went wrong!')}>
+      <button
+        data-testid="error"
+        onClick={() => toast.error('Something went wrong!')}
+      >
         error
       </button>
     </div>
@@ -31,12 +34,14 @@ const renderToasts = () => {
     root.render(
       <ToastProvider>
         <Buttons />
-      </ToastProvider>
+      </ToastProvider>,
     );
   });
 
   const getButton = (testId: string) =>
-    container.querySelector<HTMLButtonElement>(`button[data-testid="${testId}"]`);
+    container.querySelector<HTMLButtonElement>(
+      `button[data-testid="${testId}"]`,
+    );
 
   const cleanup = () => {
     act(() => {

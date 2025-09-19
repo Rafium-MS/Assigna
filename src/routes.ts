@@ -18,7 +18,10 @@ const readOnlyRoles = [...publisherRoles, 'viewer'] as const;
 export const routes: Record<TabKey, RouteDefinition> = {
   territories: { path: '/', allowedRoles: managementRoles },
   streets: { path: '/streets', allowedRoles: managementRoles },
-  buildingsVillages: { path: '/buildings-villages', allowedRoles: managementRoles },
+  buildingsVillages: {
+    path: '/buildings-villages',
+    allowedRoles: managementRoles,
+  },
   letters: { path: '/letters', allowedRoles: publisherRoles },
   exits: { path: '/exits', allowedRoles: managementRoles },
   assignments: { path: '/assignments', allowedRoles: managementRoles },
@@ -26,14 +29,13 @@ export const routes: Record<TabKey, RouteDefinition> = {
   todayAssignments: { path: '/today', allowedRoles: readOnlyRoles },
   calendar: { path: '/calendar', allowedRoles: readOnlyRoles },
   suggestions: { path: '/suggestions', allowedRoles: managementRoles },
-  notAtHome: { path: '/nao-em-casa', allowedRoles: publisherRoles }
+  notAtHome: { path: '/nao-em-casa', allowedRoles: publisherRoles },
 };
 
 export const routePaths = Object.fromEntries(
-  Object.entries(routes).map(([key, config]) => [key, config.path])
+  Object.entries(routes).map(([key, config]) => [key, config.path]),
 ) as Record<TabKey, string>;
 
-export const routeEntries = Object.entries(routes) as Array<[
-  TabKey,
-  RouteDefinition
-]>;
+export const routeEntries = Object.entries(routes) as Array<
+  [TabKey, RouteDefinition]
+>;

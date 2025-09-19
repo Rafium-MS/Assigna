@@ -34,7 +34,10 @@ export const SchedulerControls: React.FC = () => {
           type="datetime-local"
           value={dateValue}
           onChange={(e) =>
-            setConfig({ ...config, nextRun: new Date(e.target.value).getTime() })
+            setConfig({
+              ...config,
+              nextRun: new Date(e.target.value).getTime(),
+            })
           }
           className="rounded border px-2 py-1"
         />

@@ -26,13 +26,17 @@ export const useTerritorios = () => {
      */
     addTerritorio: useCallback(
       async (territorio: Omit<Territorio, 'id' | 'publisherId'>) => {
-        const record: Territorio = { id: generateId(), publisherId: currentUserId, ...territorio };
+        const record: Territorio = {
+          id: generateId(),
+          publisherId: currentUserId,
+          ...territorio,
+        };
         await TerritorioRepository.add(record);
         dispatch({ type: 'ADD_TERRITORIO', payload: record });
         toast.success('Território salvo');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     /**
      * Updates an existing territory.
@@ -40,7 +44,10 @@ export const useTerritorios = () => {
      * @param territorio Updated territory data.
      */
     updateTerritorio: useCallback(
-      async (id: string, territorio: Omit<Territorio, 'id' | 'publisherId'>) => {
+      async (
+        id: string,
+        territorio: Omit<Territorio, 'id' | 'publisherId'>,
+      ) => {
         const existing = territorios.find((item) => item.id === id);
         const publisherId = existing?.publisherId ?? currentUserId;
         const record: Territorio = { id, publisherId, ...territorio };
@@ -49,7 +56,7 @@ export const useTerritorios = () => {
         toast.success('Território atualizado');
         return record;
       },
-      [currentUserId, dispatch, territorios, toast]
+      [currentUserId, dispatch, territorios, toast],
     ),
     /**
      * Removes a territory from the repository.
@@ -61,7 +68,7 @@ export const useTerritorios = () => {
         dispatch({ type: 'REMOVE_TERRITORIO', payload: id });
         toast.success('Território removido');
       },
-      [dispatch, toast]
+      [dispatch, toast],
     ),
   } as const;
 };

@@ -20,7 +20,9 @@ vi.mock('../utils/csv', () => ({
 
 const STORAGE_KEY = 'tm.exportScheduler';
 
-(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+(
+  globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+).IS_REACT_ACT_ENVIRONMENT = true;
 
 async function renderHook<T>(hook: () => T) {
   const container = document.createElement('div');
@@ -76,8 +78,12 @@ describe('useMonthlyExportScheduler', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(storedConfig));
     const setItemSpy = vi.spyOn(Storage.prototype, 'setItem');
 
-    const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
+    const { useMonthlyExportScheduler } = await import(
+      './useMonthlyExportScheduler'
+    );
+    const { result, unmount } = await renderHook(() =>
+      useMonthlyExportScheduler('publisher-1'),
+    );
 
     try {
       expect(result.current.config).toEqual(storedConfig);
@@ -85,11 +91,14 @@ describe('useMonthlyExportScheduler', () => {
       await flushEffects();
       expect(setItemSpy).toHaveBeenCalledWith(
         STORAGE_KEY,
-        JSON.stringify(storedConfig)
+        JSON.stringify(storedConfig),
       );
 
       setItemSpy.mockClear();
-      const updatedConfig = { enabled: true, nextRun: storedConfig.nextRun + 1 };
+      const updatedConfig = {
+        enabled: true,
+        nextRun: storedConfig.nextRun + 1,
+      };
 
       await act(async () => {
         result.current.setConfig(updatedConfig);
@@ -98,7 +107,7 @@ describe('useMonthlyExportScheduler', () => {
       await flushEffects();
       expect(setItemSpy).toHaveBeenCalledWith(
         STORAGE_KEY,
-        JSON.stringify(updatedConfig)
+        JSON.stringify(updatedConfig),
       );
     } finally {
       setItemSpy.mockRestore();
@@ -110,7 +119,10 @@ describe('useMonthlyExportScheduler', () => {
     vi.useFakeTimers();
 
     const nextRun = Date.UTC(2024, 0, 15);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ enabled: true, nextRun }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ enabled: true, nextRun }),
+    );
 
     const designacoes = [
       {
@@ -128,8 +140,12 @@ describe('useMonthlyExportScheduler', () => {
 
     vi.setSystemTime(new Date('2024-02-01T00:00:00.000Z'));
 
-    const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { result, unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
+    const { useMonthlyExportScheduler } = await import(
+      './useMonthlyExportScheduler'
+    );
+    const { result, unmount } = await renderHook(() =>
+      useMonthlyExportScheduler('publisher-1'),
+    );
 
     try {
       expect(result.current.config).toEqual({ enabled: true, nextRun });
@@ -149,12 +165,12 @@ describe('useMonthlyExportScheduler', () => {
             total: 1,
           },
         ],
-        ['saidaId', 'month', 'total']
+        ['saidaId', 'month', 'total'],
       );
       expect(downloadFileMock).toHaveBeenCalledWith(
         'csv-data',
         'monthly-summary-2024-02-01.csv',
-        'text/csv'
+        'text/csv',
       );
 
       const expectedNextRunDate = new Date(nextRun);
@@ -172,10 +188,17 @@ describe('useMonthlyExportScheduler', () => {
     const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
 
     const nextRun = Date.now() + 60 * 60 * 1000;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ enabled: true, nextRun }));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ enabled: true, nextRun }),
+    );
 
-    const { useMonthlyExportScheduler } = await import('./useMonthlyExportScheduler');
-    const { unmount } = await renderHook(() => useMonthlyExportScheduler('publisher-1'));
+    const { useMonthlyExportScheduler } = await import(
+      './useMonthlyExportScheduler'
+    );
+    const { unmount } = await renderHook(() =>
+      useMonthlyExportScheduler('publisher-1'),
+    );
 
     try {
       await flushEffects();

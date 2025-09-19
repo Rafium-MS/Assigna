@@ -86,9 +86,14 @@ function getElementText(element: Element): string {
   return element.textContent?.trim() ?? '';
 }
 
-function queryAllByText(container: HTMLElement, matcher: TextMatcher): HTMLElement[] {
+function queryAllByText(
+  container: HTMLElement,
+  matcher: TextMatcher,
+): HTMLElement[] {
   const elements = Array.from(container.querySelectorAll<HTMLElement>('*'));
-  return elements.filter((element) => matchText(getElementText(element), matcher));
+  return elements.filter((element) =>
+    matchText(getElementText(element), matcher),
+  );
 }
 
 function getByText(container: HTMLElement, matcher: TextMatcher): HTMLElement {
@@ -99,7 +104,10 @@ function getByText(container: HTMLElement, matcher: TextMatcher): HTMLElement {
   return matches[0];
 }
 
-function queryByText(container: HTMLElement, matcher: TextMatcher): HTMLElement | null {
+function queryByText(
+  container: HTMLElement,
+  matcher: TextMatcher,
+): HTMLElement | null {
   const matches = queryAllByText(container, matcher);
   return matches[0] ?? null;
 }
@@ -131,7 +139,11 @@ interface RoleOptions {
   name?: TextMatcher;
 }
 
-function queryAllByRole(container: HTMLElement, role: string, options?: RoleOptions): HTMLElement[] {
+function queryAllByRole(
+  container: HTMLElement,
+  role: string,
+  options?: RoleOptions,
+): HTMLElement[] {
   const elements = Array.from(container.querySelectorAll<HTMLElement>('*'));
   return elements.filter((element) => {
     const elementRole = getRole(element);
@@ -147,7 +159,11 @@ function queryAllByRole(container: HTMLElement, role: string, options?: RoleOpti
   });
 }
 
-function getAllByRole(container: HTMLElement, role: string, options?: RoleOptions): HTMLElement[] {
+function getAllByRole(
+  container: HTMLElement,
+  role: string,
+  options?: RoleOptions,
+): HTMLElement[] {
   const matches = queryAllByRole(container, role, options);
   if (matches.length === 0) {
     throw new Error(`Unable to find an element with role: ${role}`);
@@ -155,25 +171,40 @@ function getAllByRole(container: HTMLElement, role: string, options?: RoleOption
   return matches;
 }
 
-function getByRole(container: HTMLElement, role: string, options?: RoleOptions): HTMLElement {
+function getByRole(
+  container: HTMLElement,
+  role: string,
+  options?: RoleOptions,
+): HTMLElement {
   const matches = getAllByRole(container, role, options);
   return matches[0];
 }
 
-function queryByRole(container: HTMLElement, role: string, options?: RoleOptions): HTMLElement | null {
+function queryByRole(
+  container: HTMLElement,
+  role: string,
+  options?: RoleOptions,
+): HTMLElement | null {
   const matches = queryAllByRole(container, role, options);
   return matches[0] ?? null;
 }
 
-function getByPlaceholderText(container: HTMLElement, matcher: TextMatcher): HTMLElement {
-  const elements = Array.from(container.querySelectorAll<HTMLElement>('[placeholder]'));
+function getByPlaceholderText(
+  container: HTMLElement,
+  matcher: TextMatcher,
+): HTMLElement {
+  const elements = Array.from(
+    container.querySelectorAll<HTMLElement>('[placeholder]'),
+  );
   for (const element of elements) {
     const placeholder = element.getAttribute('placeholder') ?? '';
     if (matchText(placeholder, matcher)) {
       return element;
     }
   }
-  throw new Error(`Unable to find an element with placeholder: ${String(matcher)}`);
+  throw new Error(
+    `Unable to find an element with placeholder: ${String(matcher)}`,
+  );
 }
 
 function escapeTestId(value: string): string {
@@ -192,10 +223,14 @@ function getByTestId(container: HTMLElement, testId: string): HTMLElement {
 export const screen = {
   getByText: (matcher: TextMatcher) => getByText(document.body, matcher),
   queryByText: (matcher: TextMatcher) => queryByText(document.body, matcher),
-  getByRole: (role: string, options?: RoleOptions) => getByRole(document.body, role, options),
-  queryByRole: (role: string, options?: RoleOptions) => queryByRole(document.body, role, options),
-  getAllByRole: (role: string, options?: RoleOptions) => getAllByRole(document.body, role, options),
-  getByPlaceholderText: (matcher: TextMatcher) => getByPlaceholderText(document.body, matcher),
+  getByRole: (role: string, options?: RoleOptions) =>
+    getByRole(document.body, role, options),
+  queryByRole: (role: string, options?: RoleOptions) =>
+    queryByRole(document.body, role, options),
+  getAllByRole: (role: string, options?: RoleOptions) =>
+    getAllByRole(document.body, role, options),
+  getByPlaceholderText: (matcher: TextMatcher) =>
+    getByPlaceholderText(document.body, matcher),
   getByTestId: (testId: string) => getByTestId(document.body, testId),
 };
 
@@ -204,7 +239,10 @@ interface WaitForOptions {
   interval?: number;
 }
 
-export async function waitFor<T>(callback: () => T | Promise<T>, options: WaitForOptions = {}): Promise<T> {
+export async function waitFor<T>(
+  callback: () => T | Promise<T>,
+  options: WaitForOptions = {},
+): Promise<T> {
   const { timeout = 1000, interval = 16 } = options;
   const endTime = Date.now() + timeout;
   let lastError: unknown;

@@ -55,5 +55,5 @@ export const DesignacaoRepository = {
    */
   async remove(id: string): Promise<void> {
     await db.designacoes.delete(id);
-  }
+  },
 };

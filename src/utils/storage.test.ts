@@ -9,7 +9,9 @@ type LocalStorageMock = {
 
 const createLocalStorageMock = (): LocalStorageMock => {
   const store = new Map<string, string>();
-  const getItem = vi.fn((key: string) => (store.has(key) ? store.get(key)! : null));
+  const getItem = vi.fn((key: string) =>
+    store.has(key) ? store.get(key)! : null,
+  );
   const setItem = vi.fn((key: string, value: string) => {
     store.set(key, value);
   });
@@ -53,7 +55,10 @@ describe('storage utils', () => {
     const payload = { id: 1, name: 'Ana' };
 
     save('user', payload);
-    expect(storageMock.setItem).toHaveBeenCalledWith('user', JSON.stringify(payload));
+    expect(storageMock.setItem).toHaveBeenCalledWith(
+      'user',
+      JSON.stringify(payload),
+    );
 
     const loaded = load<typeof payload>('user');
     expect(loaded).toEqual(payload);

@@ -47,9 +47,12 @@ describe('RouteGuard', () => {
             }
           />
           <Route path="/unauthorized" element={<div>{fallbackLabel}</div>} />
-          <Route path={authRoutes.register} element={<div>{registerLabel}</div>} />
+          <Route
+            path={authRoutes.register}
+            element={<div>{registerLabel}</div>}
+          />
         </Routes>
-      </BrowserRouter>
+      </BrowserRouter>,
     );
   };
 

@@ -1,21 +1,33 @@
-import { createContext, useEffect, useReducer, useState, Dispatch, ReactNode } from 'react';
+import {
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+  Dispatch,
+  ReactNode,
+} from 'react';
 import {
   TerritorioRepository,
   SaidaRepository,
   DesignacaoRepository,
   SugestaoRepository,
   NaoEmCasaRepository,
-  UserRepository
+  UserRepository,
 } from '../services/repositories';
 import { appReducer, initialState, AppState, Action } from './appReducer';
-import { loadPersistedAuthState, persistAuthState, clearPersistedAuthState } from './localStore';
+import {
+  loadPersistedAuthState,
+  persistAuthState,
+  clearPersistedAuthState,
+} from './localStore';
 
-export const AppContext = createContext<{ state: AppState; dispatch: Dispatch<Action> }>(
-  {
-    state: initialState,
-    dispatch: () => undefined,
-  }
-);
+export const AppContext = createContext<{
+  state: AppState;
+  dispatch: Dispatch<Action>;
+}>({
+  state: initialState,
+  dispatch: () => undefined,
+});
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
@@ -65,14 +77,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        const [territorios, saidas, designacoes, sugestoes, naoEmCasa, users] = await Promise.all([
-          TerritorioRepository.forPublisher(currentUserId),
-          SaidaRepository.forPublisher(currentUserId),
-          DesignacaoRepository.forPublisher(currentUserId),
-          SugestaoRepository.forPublisher(currentUserId),
-          NaoEmCasaRepository.forPublisher(currentUserId),
-          UserRepository.all()
-        ]);
+        const [territorios, saidas, designacoes, sugestoes, naoEmCasa, users] =
+          await Promise.all([
+            TerritorioRepository.forPublisher(currentUserId),
+            SaidaRepository.forPublisher(currentUserId),
+            DesignacaoRepository.forPublisher(currentUserId),
+            SugestaoRepository.forPublisher(currentUserId),
+            NaoEmCasaRepository.forPublisher(currentUserId),
+            UserRepository.all(),
+          ]);
 
         if (!active) return;
 
@@ -104,5 +117,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [authHydrated, state.auth]);
 
-  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AppContext.Provider>
+  );
 };

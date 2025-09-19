@@ -11,12 +11,15 @@ import { migrate } from './services/db';
 if ('serviceWorker' in navigator) {
   let refreshing = false;
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(async reg => {
+    navigator.serviceWorker.register('/sw.js').then(async (reg) => {
       reg.onupdatefound = () => {
         const newWorker = reg.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
               if (confirm(i18n.t('app.updateAvailable'))) {
                 newWorker.postMessage({ type: 'SKIP_WAITING' });
               }
@@ -28,9 +31,11 @@ if ('serviceWorker' in navigator) {
       if ('Notification' in window) {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
-          const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-          });
+          const sub =
+            (await reg.pushManager.getSubscription()) ||
+            (await reg.pushManager.subscribe({
+              userVisibleOnly: true,
+            }));
           localStorage.setItem('pushEndpoint', sub.endpoint);
         }
       }
@@ -60,9 +65,8 @@ async function bootstrap(): Promise<void> {
           </ConfirmProvider>
         </ToastProvider>
       </AppProvider>
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }
 
 void bootstrap();
-

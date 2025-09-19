@@ -6,7 +6,7 @@ import {
   SugestaoRepository,
   TerritorioRepository,
   NaoEmCasaRepository,
-  UserRepository
+  UserRepository,
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
 import { db, SCHEMA_VERSION, ensureAdminMasterUserSeeded } from '../db';
@@ -32,7 +32,9 @@ const prepareMetadata = (data: ExportedData) => {
  * @param source The file, blob or JSON string containing the exported data.
  * @returns The data that was imported.
  */
-export const importData = async (source: ImportSource): Promise<ExportedData> => {
+export const importData = async (
+  source: ImportSource,
+): Promise<ExportedData> => {
   const rawContent = await readSource(source);
 
   let parsedContent: unknown;
@@ -69,7 +71,7 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
       db.addresses,
       db.derivedTerritories,
       db.derivedTerritoryAddresses,
-      db.metadata
+      db.metadata,
     ],
     async () => {
       await Promise.all([
@@ -85,7 +87,7 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
         db.addresses.clear(),
         db.derivedTerritories.clear(),
         db.derivedTerritoryAddresses.clear(),
-        db.metadata.clear()
+        db.metadata.clear(),
       ]);
 
       if (data.territorios.length > 0) {
@@ -122,11 +124,13 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
         await db.derivedTerritories.bulkPut(data.derivedTerritories);
       }
       if (data.derivedTerritoryAddresses.length > 0) {
-        await db.derivedTerritoryAddresses.bulkPut(data.derivedTerritoryAddresses);
+        await db.derivedTerritoryAddresses.bulkPut(
+          data.derivedTerritoryAddresses,
+        );
       }
 
       await db.metadata.bulkPut(metadataRecords);
-    }
+    },
   );
 
   await ensureAdminMasterUserSeeded();

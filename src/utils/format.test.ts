@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from 'vitest';
 
 vi.mock('../i18n', () => ({
-  default: { language: 'en-US' }
+  default: { language: 'en-US' },
 }));
 
 describe('format utils', () => {

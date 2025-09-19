@@ -31,7 +31,7 @@ export const useNaoEmCasa = () => {
         toast.success('Retorno agendado');
         return record;
       },
-      [currentUserId, dispatch, toast]
+      [currentUserId, dispatch, toast],
     ),
     updateNaoEmCasa: useCallback(
       async (id: string, updates: Partial<Omit<NaoEmCasaRegistro, 'id'>>) => {
@@ -42,14 +42,16 @@ export const useNaoEmCasa = () => {
           ...updates,
           id,
           conversationConfirmed:
-            updates.conversationConfirmed ?? current.conversationConfirmed ?? false,
+            updates.conversationConfirmed ??
+            current.conversationConfirmed ??
+            false,
         };
         await NaoEmCasaRepository.add(record);
         dispatch({ type: 'UPDATE_NAO_EM_CASA', payload: record });
         toast.success('Registro atualizado');
         return record;
       },
-      [dispatch, registros, toast]
+      [dispatch, registros, toast],
     ),
     removeNaoEmCasa: useCallback(
       async (id: string) => {
@@ -57,7 +59,7 @@ export const useNaoEmCasa = () => {
         dispatch({ type: 'REMOVE_NAO_EM_CASA', payload: id });
         toast.success('Registro removido');
       },
-      [dispatch, toast]
+      [dispatch, toast],
     ),
   } as const;
 };
