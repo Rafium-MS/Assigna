@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
+import type { Address } from '../types/address';
 import { db } from '../services/db';
 import { TerritorioRepository } from '../services/repositories/territorios';
 import { useToast } from '../components/feedback/Toast';
 import { useAuth } from '../hooks/useAuth';
 import ImageAnnotator from '../components/ImageAnnotator';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 export default function RuasNumeracoesPage(): JSX.Element {
   const { t } = useTranslation();
@@ -16,7 +18,8 @@ export default function RuasNumeracoesPage(): JSX.Element {
   const [territories, setTerritories] = useState<Territorio[]>([]);
   const [streets, setStreets] = useState<Street[]>([]);
   const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
-  const [activeTab, setActiveTab] = useState<'ruas' | 'tipos' | 'resumo'>('ruas');
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [activeTab, setActiveTab] = useState<'ruas' | 'enderecos' | 'tipos' | 'resumo'>('ruas');
   const [editingPropertyTypeId, setEditingPropertyTypeId] = useState<number | null>(null);
   const [editingPropertyTypeName, setEditingPropertyTypeName] = useState<string>('');
   const [territoryId, setTerritoryId] = useState<string>('');
@@ -42,12 +45,14 @@ export default function RuasNumeracoesPage(): JSX.Element {
     async (id: string, publisher: string | null): Promise<void> => {
       if (!id || !publisher) {
         setStreets([]);
+        setAddresses([]);
         return;
       }
 
       const matchingTerritory = territories.find(territoryItem => territoryItem.id === id);
       if (!matchingTerritory || matchingTerritory.publisherId !== publisher) {
         setStreets([]);
+        setAddresses([]);
         return;
       }
 
@@ -56,6 +61,17 @@ export default function RuasNumeracoesPage(): JSX.Element {
         return;
       }
       setStreets(territoryStreets);
+      const streetIds = territoryStreets
+        .map(street => street.id)
+        .filter((streetId): streetId is number => typeof streetId === 'number');
+      const territoryAddresses =
+        streetIds.length > 0
+          ? await db.addresses.where('streetId').anyOf(streetIds).toArray()
+          : [];
+      if (territoryIdRef.current !== id) {
+        return;
+      }
+      setAddresses(territoryAddresses);
     },
     [territories]
   );
@@ -72,6 +88,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
           setTerritories([]);
           setPropertyTypes([]);
           setStreets([]);
+          setAddresses([]);
           setTerritoryId('');
           return;
         }
@@ -111,6 +128,7 @@ export default function RuasNumeracoesPage(): JSX.Element {
         setTerritories([]);
         setPropertyTypes([]);
         setStreets([]);
+        setAddresses([]);
         setTerritoryId('');
         toast.error(t('ruasNumeracoes.feedback.loadError'));
       }
@@ -228,6 +246,143 @@ export default function RuasNumeracoesPage(): JSX.Element {
     [cancelEditPropertyType, editingPropertyTypeId, refreshPropertyTypes, t, toast]
   );
 
+  const handleCreateAddress = useCallback(
+    async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+      event.preventDefault();
+      if (!territoryId) {
+        return;
+      }
+
+      const form = event.currentTarget;
+      const formData = new FormData(form);
+      const parseInteger = (value: FormDataEntryValue | null): number | null => {
+        if (typeof value !== 'string') {
+          return null;
+        }
+        const trimmed = value.trim();
+        if (trimmed.length === 0) {
+          return null;
+        }
+        const parsed = Number.parseInt(trimmed, 10);
+        return Number.isNaN(parsed) ? null : parsed;
+      };
+
+      const streetId = parseInteger(formData.get('streetId'));
+      const propertyTypeId = parseInteger(formData.get('propertyTypeId'));
+      const numberStart = parseInteger(formData.get('numberStart'));
+      const numberEnd = parseInteger(formData.get('numberEnd'));
+
+      if (
+        streetId === null ||
+        propertyTypeId === null ||
+        numberStart === null ||
+        numberEnd === null
+      ) {
+        return;
+      }
+
+      const streetExists = territoryStreets.some(street => street.id === streetId);
+      const propertyTypeExists = propertyTypes.some(type => type.id === propertyTypeId);
+      if (!streetExists || !propertyTypeExists) {
+        return;
+      }
+
+      const currentPublisherId = publisherId;
+      if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+        return;
+      }
+
+      const startNumber = Math.min(numberStart, numberEnd);
+      const endNumber = Math.max(numberStart, numberEnd);
+
+      try {
+        await db.addresses.put({
+          streetId,
+          numberStart: startNumber,
+          numberEnd: endNumber,
+          propertyTypeId
+        });
+        await refreshTerritoryData(territoryId, currentPublisherId);
+        form.reset();
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [
+      propertyTypes,
+      publisherId,
+      refreshTerritoryData,
+      territory,
+      territoryId,
+      territoryStreets
+    ]
+  );
+
+  const handleMarkSuccessfulVisit = useCallback(
+    async (address: Address): Promise<void> => {
+      const addressId = address.id;
+      if (addressId === undefined) {
+        return;
+      }
+
+      const currentPublisherId = publisherId;
+      if (!currentPublisherId || !territory || territory.publisherId !== currentPublisherId) {
+        return;
+      }
+
+      const now = new Date();
+      const lastSuccessfulVisit = now.toISOString();
+      const nextVisitAllowed = new Date(now.getTime() + ADDRESS_VISIT_COOLDOWN_MS).toISOString();
+
+      try {
+        await db.addresses.update(addressId, { lastSuccessfulVisit, nextVisitAllowed });
+        setAddresses(previousAddresses =>
+          previousAddresses.map(item =>
+            item.id === addressId
+              ? { ...item, lastSuccessfulVisit, nextVisitAllowed }
+              : item
+          )
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [publisherId, territory]
+  );
+
+  const addressRows = useMemo(() => {
+    const streetMap = new Map<number, string>();
+    territoryStreets.forEach(street => {
+      if (street.id !== undefined) {
+        streetMap.set(street.id, street.name);
+      }
+    });
+
+    const propertyTypeMap = new Map<number, string>();
+    propertyTypes.forEach(type => {
+      if (type.id !== undefined) {
+        propertyTypeMap.set(type.id, type.name);
+      }
+    });
+
+    return addresses.map(address => ({
+      ...address,
+      streetName: streetMap.get(address.streetId) ?? '',
+      propertyTypeName: propertyTypeMap.get(address.propertyTypeId) ?? ''
+    }));
+  }, [addresses, propertyTypes, territoryStreets]);
+
+  const formatDateTime = useCallback((value: string | null | undefined): string | null => {
+    if (!value) {
+      return null;
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return null;
+    }
+    return date.toLocaleString();
+  }, []);
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="border rounded p-2">
@@ -262,6 +417,13 @@ export default function RuasNumeracoesPage(): JSX.Element {
             onClick={() => setActiveTab('ruas')}
           >
             {t('ruasNumeracoes.tabs.streets')}
+          </button>
+          <button
+            type="button"
+            className={activeTab === 'enderecos' ? 'font-bold' : ''}
+            onClick={() => setActiveTab('enderecos')}
+          >
+            {t('ruasNumeracoes.tabs.addresses')}
           </button>
           <button
             type="button"
@@ -308,6 +470,122 @@ export default function RuasNumeracoesPage(): JSX.Element {
                       <td>{s.name}</td>
                     </tr>
                   ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+        {activeTab === 'enderecos' && (
+          <div>
+            <form
+              onSubmit={handleCreateAddress}
+              className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">
+                  {t('ruasNumeracoes.addressesForm.selectStreet')}
+                </span>
+                <select name="streetId" className="border p-1">
+                  <option value="">
+                    {t('ruasNumeracoes.addressesForm.selectStreet')}
+                  </option>
+                  {territoryStreets.map(street => (
+                    <option key={street.id ?? street.name} value={street.id}>
+                      {street.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">
+                  {t('ruasNumeracoes.addressesForm.selectType')}
+                </span>
+                <select name="propertyTypeId" className="border p-1">
+                  <option value="">
+                    {t('ruasNumeracoes.addressesForm.selectType')}
+                  </option>
+                  {propertyTypes.map(type => (
+                    <option key={type.id ?? type.name} value={type.id}>
+                      {type.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">
+                  {t('ruasNumeracoes.addressesForm.numberStart')}
+                </span>
+                <input name="numberStart" type="number" className="border p-1" />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                <span className="font-medium">
+                  {t('ruasNumeracoes.addressesForm.numberEnd')}
+                </span>
+                <input name="numberEnd" type="number" className="border p-1" />
+              </label>
+              <div className="sm:col-span-2 lg:col-span-3">
+                <button type="submit" className="border px-2 py-1 w-full sm:w-auto">
+                  {t('common.create')}
+                </button>
+              </div>
+            </form>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[640px] text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.street')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.start')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.end')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.type')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.lastVisit')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.nextVisit')}
+                    </th>
+                    <th className="px-2 py-1 text-left whitespace-nowrap">
+                      {t('ruasNumeracoes.addressesTable.actions')}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {addressRows.map((address, index) => {
+                    const lastVisit =
+                      formatDateTime(address.lastSuccessfulVisit) ??
+                      t('ruasNumeracoes.addressesTable.neverVisited');
+                    const nextVisit =
+                      formatDateTime(address.nextVisitAllowed) ??
+                      t('ruasNumeracoes.addressesTable.cooldownNotScheduled');
+                    return (
+                      <tr key={address.id ?? `${address.streetId}-${index}`}>
+                        <td className="px-2 py-1">{address.streetName || '—'}</td>
+                        <td className="px-2 py-1">{address.numberStart}</td>
+                        <td className="px-2 py-1">{address.numberEnd}</td>
+                        <td className="px-2 py-1">{address.propertyTypeName || '—'}</td>
+                        <td className="px-2 py-1">{lastVisit}</td>
+                        <td className="px-2 py-1">{nextVisit}</td>
+                        <td className="px-2 py-1">
+                          <button
+                            type="button"
+                            className="border px-2 py-1"
+                            onClick={() => {
+                              void handleMarkSuccessfulVisit(address);
+                            }}
+                          >
+                            {t('ruasNumeracoes.addressesTable.markVisit')}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -426,6 +704,11 @@ export default function RuasNumeracoesPage(): JSX.Element {
             <p>
               {t('ruasNumeracoes.summary.totalStreets', {
                 count: territoryStreets.length
+              })}
+            </p>
+            <p>
+              {t('ruasNumeracoes.summary.totalAddresses', {
+                count: addresses.length
               })}
             </p>
             <p>

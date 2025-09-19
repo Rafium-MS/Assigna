@@ -1,14 +1,18 @@
 import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
 import type { PropertyType } from '../types/property-type';
+import type { Address } from '../types/address';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 
 const {
   territoriesStore,
   streetsStore,
   propertyTypesStore,
+  addressesStore,
   defaultStreetsWhere,
+  defaultAddressesWhere,
   dbMock,
   toastMock,
   useAuthMock,
@@ -17,6 +21,7 @@ const {
   const territoriesStore: Territorio[] = [];
   const streetsStore: Street[] = [];
   const propertyTypesStore: PropertyType[] = [];
+  const addressesStore: Address[] = [];
 
   const nextNumericId = (collection: Array<{ id?: number }>): number => {
     const maxId = collection.reduce((max, item) => {
@@ -34,6 +39,30 @@ const {
         return streetsStore
           .filter(street => street[field] === value)
           .map(street => ({ ...street }));
+      }
+    })
+  });
+
+  const defaultAddressesWhere = (field: keyof Address) => ({
+    equals: (value: Address[keyof Address]) => ({
+      async toArray() {
+        return addressesStore
+          .filter(address => address[field] === value)
+          .map(address => ({ ...address }));
+      }
+    }),
+    anyOf: (...values: Array<Address[keyof Address]>) => ({
+      async toArray() {
+        const normalizedValues = ((): Address[keyof Address][] => {
+          if (values.length === 1 && Array.isArray(values[0])) {
+            return values[0] as unknown as Address[keyof Address][];
+          }
+          return values;
+        })();
+        const valueSet = new Set(normalizedValues);
+        return addressesStore
+          .filter(address => valueSet.has(address[field]))
+          .map(address => ({ ...address }));
       }
     })
   });
@@ -87,6 +116,29 @@ const {
           propertyTypesStore.splice(index, 1);
         }
       })
+    },
+    addresses: {
+      toArray: vi.fn(async () => addressesStore.map(address => ({ ...address }))),
+      where: vi.fn(defaultAddressesWhere),
+      put: vi.fn(async (address: Address) => {
+        const id = typeof address.id === 'number' ? address.id : nextNumericId(addressesStore);
+        const record: Address = { id, ...address };
+        const index = addressesStore.findIndex(item => item.id === id);
+        if (index >= 0) {
+          addressesStore[index] = record;
+        } else {
+          addressesStore.push(record);
+        }
+        return id;
+      }),
+      update: vi.fn(async (id: number, changes: Partial<Address>) => {
+        const index = addressesStore.findIndex(item => item.id === id);
+        if (index >= 0) {
+          addressesStore[index] = { ...addressesStore[index], ...changes };
+          return 1;
+        }
+        return 0;
+      })
     }
   };
 
@@ -94,7 +146,9 @@ const {
     territoriesStore,
     streetsStore,
     propertyTypesStore,
+    addressesStore,
     defaultStreetsWhere,
+    defaultAddressesWhere,
     dbMock,
     toastMock,
     useAuthMock,
@@ -155,6 +209,27 @@ const basePropertyTypes: PropertyType[] = [
   { id: 20, name: 'Apartamento' }
 ];
 
+const baseAddresses: Address[] = [
+  {
+    id: 100,
+    streetId: 1,
+    numberStart: 1,
+    numberEnd: 10,
+    propertyTypeId: 10,
+    lastSuccessfulVisit: null,
+    nextVisitAllowed: null
+  },
+  {
+    id: 200,
+    streetId: 2,
+    numberStart: 100,
+    numberEnd: 200,
+    propertyTypeId: 20,
+    lastSuccessfulVisit: null,
+    nextVisitAllowed: null
+  }
+];
+
 const setInputValue = (input: HTMLInputElement, value: string): void => {
   const prototype = Object.getPrototypeOf(input) as HTMLInputElement;
   const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
@@ -166,6 +241,44 @@ const setInputValue = (input: HTMLInputElement, value: string): void => {
   }
   input.dispatchEvent(new Event('input', { bubbles: true }));
   input.dispatchEvent(new Event('change', { bubbles: true }));
+};
+
+const setSelectValue = (select: HTMLSelectElement, value: string): void => {
+  const prototype = Object.getPrototypeOf(select) as HTMLSelectElement;
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'value');
+  const setter = descriptor?.set ?? Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value')?.set;
+  if (setter) {
+    setter.call(select, value);
+  } else {
+    select.value = value;
+  }
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+};
+
+const getSelectWithinLabel = (labelText: string): HTMLSelectElement => {
+  const labelNode = screen.getByText(labelText);
+  const label = labelNode.closest('label');
+  if (!label) {
+    throw new Error(`Unable to find label element for text: ${labelText}`);
+  }
+  const select = label.querySelector('select');
+  if (!select) {
+    throw new Error(`Unable to find select for label: ${labelText}`);
+  }
+  return select;
+};
+
+const getInputWithinLabel = (labelText: string): HTMLInputElement => {
+  const labelNode = screen.getByText(labelText);
+  const label = labelNode.closest('label');
+  if (!label) {
+    throw new Error(`Unable to find label element for text: ${labelText}`);
+  }
+  const input = label.querySelector('input');
+  if (!input) {
+    throw new Error(`Unable to find input for label: ${labelText}`);
+  }
+  return input as HTMLInputElement;
 };
 
 beforeEach(() => {
@@ -185,6 +298,7 @@ beforeEach(() => {
   territoriesStore.splice(0, territoriesStore.length, ...baseTerritories.map(territory => ({ ...territory })));
   streetsStore.splice(0, streetsStore.length, ...baseStreets.map(street => ({ ...street })));
   propertyTypesStore.splice(0, propertyTypesStore.length, ...basePropertyTypes.map(type => ({ ...type })));
+  addressesStore.splice(0, addressesStore.length, ...baseAddresses.map(address => ({ ...address })));
 
   dbMock.territorios.toArray.mockClear();
   dbMock.streets.toArray.mockClear();
@@ -193,6 +307,10 @@ beforeEach(() => {
   dbMock.propertyTypes.toArray.mockClear();
   dbMock.propertyTypes.put.mockClear();
   dbMock.propertyTypes.delete.mockClear();
+  dbMock.addresses.toArray.mockClear();
+  dbMock.addresses.where.mockClear();
+  dbMock.addresses.put.mockClear();
+  dbMock.addresses.update.mockClear();
 
   territorioRepositoryMock.forPublisher.mockClear();
 
@@ -200,6 +318,7 @@ beforeEach(() => {
   toastMock.error.mockClear();
 
   dbMock.streets.where.mockImplementation(defaultStreetsWhere);
+  dbMock.addresses.where.mockImplementation(defaultAddressesWhere);
 });
 
 afterEach(() => {
@@ -418,8 +537,144 @@ describe('RuasNumeracoesPage', () => {
       summaryTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     });
 
-    expect(screen.getByText('ruasNumeracoes.summary.totalStreets (1)')).toBeTruthy();
-    expect(screen.getByText('ruasNumeracoes.summary.totalPropertyTypes (2)')).toBeTruthy();
-    expect(screen.queryByText('ruasNumeracoes.summary.totalAddresses')).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByText('ruasNumeracoes.summary.totalStreets (1)')).toBeTruthy();
+      expect(screen.getByText('ruasNumeracoes.summary.totalAddresses (1)')).toBeTruthy();
+      expect(screen.getByText('ruasNumeracoes.summary.totalPropertyTypes (2)')).toBeTruthy();
+    });
+  });
+
+  it('lists addresses for the active territory', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+    });
+
+    const addressesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.addresses'
+    });
+
+    await act(async () => {
+      addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    await waitFor(() => {
+      const rows = Array.from(document.querySelectorAll('table tbody tr'));
+      expect(rows).toHaveLength(1);
+    });
+
+    const rows = Array.from(document.querySelectorAll('table tbody tr'));
+    const [row] = rows;
+    const rowText = row.textContent ?? '';
+    expect(rowText).toContain('Rua Principal');
+    expect(rowText).toContain('1');
+    expect(rowText).toContain('10');
+    expect(rowText).toContain('Casa');
+    expect(rowText).toContain('ruasNumeracoes.addressesTable.neverVisited');
+    expect(rowText).toContain('ruasNumeracoes.addressesTable.cooldownNotScheduled');
+    expect(rowText).not.toContain('200');
+  });
+
+  it('creates an address for the current territory', async () => {
+    render(<RuasNumeracoesPage />);
+
+    await waitFor(() => {
+      expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+    });
+
+    const addressesTab = screen.getByRole('button', {
+      name: 'ruasNumeracoes.tabs.addresses'
+    });
+
+    await act(async () => {
+      addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+
+    const streetSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectStreet');
+    const typeSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectType');
+    const startInput = getInputWithinLabel('ruasNumeracoes.addressesForm.numberStart');
+    const endInput = getInputWithinLabel('ruasNumeracoes.addressesForm.numberEnd');
+
+    setSelectValue(streetSelect, '1');
+    setSelectValue(typeSelect, '20');
+    setInputValue(startInput, '50');
+    setInputValue(endInput, '60');
+
+    const form = streetSelect.closest('form');
+    expect(form).toBeTruthy();
+
+    await act(async () => {
+      form?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(dbMock.addresses.put).toHaveBeenCalledWith({
+        streetId: 1,
+        numberStart: 50,
+        numberEnd: 60,
+        propertyTypeId: 20
+      });
+    });
+
+    await waitFor(() => {
+      const rows = Array.from(document.querySelectorAll('table tbody tr'));
+      const hasNewRow = rows.some(row =>
+        row.textContent?.includes('50') && row.textContent?.includes('60')
+      );
+      expect(hasNewRow).toBe(true);
+    });
+  });
+
+  it('marks an address as successfully visited', async () => {
+    vi.useFakeTimers();
+    const now = new Date('2024-05-01T12:00:00.000Z');
+    vi.setSystemTime(now);
+
+    try {
+      render(<RuasNumeracoesPage />);
+
+      await waitFor(() => {
+        expect(territorioRepositoryMock.forPublisher).toHaveBeenCalledWith('publisher-1');
+      });
+
+      const addressesTab = screen.getByRole('button', {
+        name: 'ruasNumeracoes.tabs.addresses'
+      });
+
+      await act(async () => {
+        addressesTab.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole('button', {
+            name: 'ruasNumeracoes.addressesTable.markVisit'
+          })
+        ).toBeTruthy();
+      });
+
+      const markButton = screen.getByRole('button', {
+        name: 'ruasNumeracoes.addressesTable.markVisit'
+      });
+
+      await act(async () => {
+        markButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      });
+
+      const expectedLast = now.toISOString();
+      const expectedNext = new Date(
+        now.getTime() + ADDRESS_VISIT_COOLDOWN_MS
+      ).toISOString();
+
+      await waitFor(() => {
+        expect(dbMock.addresses.update).toHaveBeenCalledWith(100, {
+          lastSuccessfulVisit: expectedLast,
+          nextVisitAllowed: expectedNext
+        });
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
