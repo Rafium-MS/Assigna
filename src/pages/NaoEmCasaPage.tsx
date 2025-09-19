@@ -9,7 +9,7 @@ import type { Street } from '../types/street';
 import type { Address } from '../types/address';
 import type { PropertyType } from '../types/property-type';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
-import { addDaysToIso, formatIsoDate } from '../utils/calendar';
+import { addDaysToIso, formatIsoDate, todayLocalIso } from '../utils/calendar';
 
 const FOLLOW_UP_DELAY_DAYS = 120;
 
@@ -114,7 +114,7 @@ const NaoEmCasaPage: React.FC = () => {
   const { registros, addNaoEmCasa, updateNaoEmCasa } = useNaoEmCasa();
   const { t } = useTranslation();
 
-  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const todayIso = useMemo(() => todayLocalIso(), []);
 
   const activeDesignacoes = useMemo(
     () =>
@@ -287,7 +287,7 @@ const NaoEmCasaPage: React.FC = () => {
 
   const handleMarkCompleted = useCallback(
     async (registro: NaoEmCasaRegistro) => {
-      const completionDate = new Date().toISOString().slice(0, 10);
+      const completionDate = todayLocalIso();
       await updateNaoEmCasa(registro.id, {
         completedAt: completionDate,
         conversationConfirmed: true,
