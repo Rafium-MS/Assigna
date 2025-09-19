@@ -214,7 +214,7 @@ const baseAddresses: Address[] = [
     id: 100,
     streetId: 1,
     numberStart: 1,
-    numberEnd: 10,
+    numberEnd: 1,
     propertyTypeId: 10,
     lastSuccessfulVisit: null,
     nextVisitAllowed: null
@@ -223,7 +223,7 @@ const baseAddresses: Address[] = [
     id: 200,
     streetId: 2,
     numberStart: 100,
-    numberEnd: 200,
+    numberEnd: 100,
     propertyTypeId: 20,
     lastSuccessfulVisit: null,
     nextVisitAllowed: null
@@ -569,7 +569,6 @@ describe('RuasNumeracoesPage', () => {
     const rowText = row.textContent ?? '';
     expect(rowText).toContain('Rua Principal');
     expect(rowText).toContain('1');
-    expect(rowText).toContain('10');
     expect(rowText).toContain('Casa');
     expect(rowText).toContain('ruasNumeracoes.addressesTable.neverVisited');
     expect(rowText).toContain('ruasNumeracoes.addressesTable.cooldownNotScheduled');
@@ -593,13 +592,11 @@ describe('RuasNumeracoesPage', () => {
 
     const streetSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectStreet');
     const typeSelect = getSelectWithinLabel('ruasNumeracoes.addressesForm.selectType');
-    const startInput = getInputWithinLabel('ruasNumeracoes.addressesForm.numberStart');
-    const endInput = getInputWithinLabel('ruasNumeracoes.addressesForm.numberEnd');
+    const numberInput = getInputWithinLabel('ruasNumeracoes.addressesForm.number');
 
     setSelectValue(streetSelect, '1');
     setSelectValue(typeSelect, '20');
-    setInputValue(startInput, '50');
-    setInputValue(endInput, '60');
+    setInputValue(numberInput, '50');
 
     const form = streetSelect.closest('form');
     expect(form).toBeTruthy();
@@ -612,16 +609,14 @@ describe('RuasNumeracoesPage', () => {
       expect(dbMock.addresses.put).toHaveBeenCalledWith({
         streetId: 1,
         numberStart: 50,
-        numberEnd: 60,
+        numberEnd: 50,
         propertyTypeId: 20
       });
     });
 
     await waitFor(() => {
       const rows = Array.from(document.querySelectorAll('table tbody tr'));
-      const hasNewRow = rows.some(row =>
-        row.textContent?.includes('50') && row.textContent?.includes('60')
-      );
+      const hasNewRow = rows.some(row => row.textContent?.includes('50'));
       expect(hasNewRow).toBe(true);
     });
   });

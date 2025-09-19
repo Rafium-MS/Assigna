@@ -3,6 +3,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 
 import type { Territorio } from '../types/territorio';
 import type { Street } from '../types/street';
+import type { Address } from '../types/address';
 
 const {
   useAuthMock,
@@ -68,6 +69,15 @@ const {
         },
       })),
       put: vi.fn(),
+    },
+    addresses: {
+      where: vi.fn((_field: keyof Address) => ({
+        anyOf: (..._values: Array<Address[keyof Address]>) => ({
+          async toArray() {
+            return [] as Address[];
+          },
+        }),
+      })),
     },
   };
 
