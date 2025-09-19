@@ -455,6 +455,29 @@
     "signOut": "Sair",
     "invalidCredentials": "Credenciais inválidas. Verifique os dados e tente novamente."
   },
+  "register": {
+    "title": "Crie sua conta",
+    "subtitle": "Preencha os dados abaixo para criar uma nova conta.",
+    "cta": "Criar conta",
+    "submit": "Criar conta",
+    "submitting": "Criando...",
+    "alreadyHaveAccount": "Já possui uma conta?",
+    "signInHint": "Use o formulário de acesso no topo da página.",
+    "redirectMessage": "Crie uma conta ou faça login para acessar {{from}}.",
+    "success": "Conta criada com sucesso! Você já está autenticado.",
+    "fields": {
+      "name": "Nome",
+      "email": "E-mail",
+      "password": "Senha"
+    },
+    "errors": {
+      "nameRequired": "Informe seu nome",
+      "emailInvalid": "Informe um e-mail válido",
+      "emailTaken": "Este e-mail já está associado a uma conta",
+      "passwordLength": "Utilize pelo menos {{min}} caracteres",
+      "generic": "Não foi possível criar sua conta. Tente novamente."
+    }
+  },
   "language": {
     "english": "Inglês",
     "portuguese": "Português",

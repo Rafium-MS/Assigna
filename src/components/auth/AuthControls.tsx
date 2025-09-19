@@ -1,8 +1,10 @@
 import { FormEvent, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { Button, Input, Label } from '../ui';
 import { useToast } from '../feedback/Toast';
+import { authRoutes } from '../../routes';
 
 interface AuthControlsProps {
   className?: string;
@@ -88,13 +90,21 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
           className="w-28"
         />
       </div>
-      <Button
-        type="submit"
-        className="bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
-        disabled={!canSubmit}
-      >
-        {t('auth.signIn')}
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button
+          type="submit"
+          className="bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!canSubmit}
+        >
+          {t('auth.signIn')}
+        </Button>
+        <Link
+          to={authRoutes.register}
+          className="text-sm text-emerald-600 hover:underline"
+        >
+          {t('register.cta')}
+        </Link>
+      </div>
     </form>
   );
 };

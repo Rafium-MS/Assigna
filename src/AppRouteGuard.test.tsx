@@ -4,11 +4,12 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 
 import { RouteGuard } from './App';
-import { routes } from './routes';
+import { authRoutes, routes } from './routes';
 import { ADMIN_MASTER_ROLE } from './constants/roles';
 
 describe('RouteGuard', () => {
   const fallbackLabel = 'Acesso negado';
+  const registerLabel = 'Registro';
   const ManagementComponent = () => <div>Gestão</div>;
   const LettersComponent = () => <div>Cartas</div>;
   const UsersComponent = () => <div>Usuários</div>;
@@ -46,10 +47,26 @@ describe('RouteGuard', () => {
             }
           />
           <Route path="/unauthorized" element={<div>{fallbackLabel}</div>} />
+          <Route path={authRoutes.register} element={<div>{registerLabel}</div>} />
         </Routes>
       </BrowserRouter>
     );
   };
+
+  it('redirects unauthenticated visitors to the registration route', async () => {
+    expect(RouteGuard).toBeDefined();
+
+    renderGuard({
+      component: ManagementComponent,
+      allowedRoles: routes.territories.allowedRoles,
+      currentRole: null,
+      path: routes.territories.path,
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText(registerLabel)).toBeDefined();
+    });
+  });
 
   it('redirects management-only routes when the user role is not permitted', async () => {
     expect(RouteGuard).toBeDefined();
