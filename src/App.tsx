@@ -199,6 +199,7 @@ export const AppContent = () => {
   const currentRole = currentUser?.role ?? null;
   const normalizedRole = currentRole?.toLowerCase() ?? null;
   const canManageScheduler = normalizedRole === ADMIN_MASTER_ROLE_NORMALIZED;
+  const canManageData = normalizedRole === ADMIN_MASTER_ROLE_NORMALIZED;
 
   return (
     <Shell>
@@ -224,7 +225,7 @@ export const AppContent = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       {canManageScheduler && <SchedulerControls />}
-      <DataManagementControls />
+      {canManageData && <DataManagementControls />}
     </Shell>
   );
 };
