@@ -9,6 +9,14 @@ import {
   DEFAULT_PROPERTY_TYPE_NAMES,
   ensureDefaultPropertyTypesSeeded
 } from './db';
+import {
+  ADMIN_MASTER_DEFAULT_PASSWORD,
+  ADMIN_MASTER_DEFAULT_ROLE,
+  ADMIN_MASTER_DEFAULT_NAME,
+  ADMIN_MASTER_DEFAULT_EMAIL,
+  ADMIN_MASTER_USERNAME
+} from '../constants/auth';
+import { hashPassword } from '../utils/password';
 import { TerritorioRepository, BuildingVillageRepository, NaoEmCasaRepository } from './repositories';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
@@ -168,6 +176,17 @@ describe('IndexedDB persistence', () => {
     await BuildingVillageRepository.add(buildingVillage);
     const stored = await BuildingVillageRepository.forPublisher('publisher-migrate');
     expect(stored).toContainEqual(buildingVillage);
+
+    const adminUser = await db.users.get(ADMIN_MASTER_USERNAME);
+    expect(adminUser).toBeTruthy();
+    if (!adminUser) {
+      throw new Error('Admin user was not created during migration');
+    }
+    expect(adminUser.role).toBe(ADMIN_MASTER_DEFAULT_ROLE);
+    expect(adminUser.name).toBe(ADMIN_MASTER_DEFAULT_NAME);
+    expect(adminUser.email).toBe(ADMIN_MASTER_DEFAULT_EMAIL);
+    const expectedHash = await hashPassword(ADMIN_MASTER_DEFAULT_PASSWORD);
+    expect(adminUser.passwordHash).toBe(expectedHash);
   });
 
   it('ensures default property types exist without duplication', async () => {

@@ -286,6 +286,13 @@
       "name": "Name",
       "email": "Email",
       "role": "Role",
+      "password": "Password",
+      "passwordPlaceholder": "Set a secure password",
+      "passwordConfirmation": "Confirm password",
+      "passwordConfirmationPlaceholder": "Repeat the password",
+      "passwordHint": "Fill both fields to set or update the password. Leave them blank to keep the current one.",
+      "passwordRequired": "Please provide a password.",
+      "passwordMismatch": "Passwords do not match.",
       "namePlaceholder": "Full name",
       "emailPlaceholder": "name@example.com",
       "save": "Save user",
@@ -303,7 +310,8 @@
     "toast": {
       "createSuccess": "User saved",
       "updateSuccess": "User updated",
-      "deleteSuccess": "User removed"
+      "deleteSuccess": "User removed",
+      "saveError": "Unable to save the user."
     },
     "roles": {
       "admin_master": "Admin master",
@@ -360,7 +368,8 @@
     "actions": {
       "saveDefaults": "Save defaults",
       "generate": "Generate Suggestions",
-      "applyAll": "Apply All"
+      "applyAll": "Apply All",
+      "viewTour": "View tour"
     },
     "labels": {
       "startDate": "Start date",
@@ -391,6 +400,10 @@
     "toast": {
       "nothingToApply": "Nothing to apply",
       "applied": "Suggestions applied"
+    },
+    "tour": {
+      "progress": "Step {{current}} of {{total}}",
+      "finish": "Finish tour"
     },
     "reasons": {
       "exitLoad": "Exit load {{value}}%",
@@ -430,6 +443,15 @@
       "light": "Light",
       "dark": "Dark"
     }
+  },
+  "auth": {
+    "identifierLabel": "Identifier",
+    "identifierPlaceholder": "Username or email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Password",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "invalidCredentials": "Invalid credentials. Please check your details and try again."
   },
   "language": {
     "english": "English",

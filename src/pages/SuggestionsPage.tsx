@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../components/feedback/Toast';
+import { GuidedTour, GuidedTourStep } from '../components/feedback/GuidedTour';
 import { Card, Button, Input, Label } from '../components/ui';
 import { useTerritorios } from '../hooks/useTerritorios';
 import { useSaidas } from '../hooks/useSaidas';
@@ -32,6 +33,66 @@ const SuggestionsPage: React.FC = () => {
   const [balanceWeight, setBalanceWeight] = useState<number>(rules.balanceWeight);
   const [generated, setGenerated] = useState<Suggestion[] | null>(null);
   const [rankings, setRankings] = useState<Record<string, { territorioId: string; score: number; reasons: string[] }[]>>({});
+  const [tourStep, setTourStep] = useState<number | null>(null);
+
+  const startDateRef = useRef<HTMLDivElement>(null);
+  const durationRef = useRef<HTMLDivElement>(null);
+  const avoidCountRef = useRef<HTMLDivElement>(null);
+  const monthsPerExitRef = useRef<HTMLDivElement>(null);
+  const recentWeightRef = useRef<HTMLDivElement>(null);
+  const balanceWeightRef = useRef<HTMLDivElement>(null);
+
+  const tourSteps: GuidedTourStep[] = useMemo(
+    () => [
+      {
+        ref: startDateRef,
+        title: t('suggestions.labels.startDate'),
+        description: t('suggestions.tooltips.startDate'),
+      },
+      {
+        ref: durationRef,
+        title: t('suggestions.labels.duration'),
+        description: t('suggestions.tooltips.duration'),
+      },
+      {
+        ref: avoidCountRef,
+        title: t('suggestions.labels.avoidCount'),
+        description: t('suggestions.tooltips.avoidCount'),
+      },
+      {
+        ref: monthsPerExitRef,
+        title: t('suggestions.labels.monthsPerExit'),
+        description: t('suggestions.tooltips.monthsPerExit'),
+      },
+      {
+        ref: recentWeightRef,
+        title: t('suggestions.labels.recentWeight'),
+        description: t('suggestions.tooltips.recentWeight'),
+      },
+      {
+        ref: balanceWeightRef,
+        title: t('suggestions.labels.balanceWeight'),
+        description: t('suggestions.tooltips.balanceWeight'),
+      },
+    ],
+    [t],
+  );
+
+  const isTourOpen = tourStep !== null;
+
+  const openTour = () => setTourStep(0);
+  const closeTour = () => setTourStep(null);
+  const handleTourNext = () =>
+    setTourStep((prev) => {
+      if (prev === null) return prev;
+      if (prev >= tourSteps.length - 1) return null;
+      return prev + 1;
+    });
+  const handleTourPrevious = () =>
+    setTourStep((prev) => {
+      if (prev === null || prev <= 0) return prev;
+      return prev - 1;
+    });
 
   const generate = () => {
     if (territorios.length === 0 || saidas.length === 0) {
@@ -137,35 +198,89 @@ const SuggestionsPage: React.FC = () => {
       <Card
         title={t('suggestions.cards.rules')}
         actions={
-          <Button onClick={saveRuleDefaults} className="bg-neutral-100">
-            {t('suggestions.actions.saveDefaults')}
-          </Button>
+          <>
+            <Button onClick={openTour} className="bg-blue-600 text-white">
+              {t('suggestions.actions.viewTour')}
+            </Button>
+            <Button onClick={saveRuleDefaults} className="bg-neutral-100">
+              {t('suggestions.actions.saveDefaults')}
+            </Button>
+          </>
         }
       >
         <div className="grid md:grid-cols-6 gap-3">
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.startDate')}>{t('suggestions.labels.startDate')}</Label>
-            <Input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
+          <div ref={startDateRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-startDate" title={t('suggestions.tooltips.startDate')}>
+              {t('suggestions.labels.startDate')}
+            </Label>
+            <Input
+              id="suggestion-rule-startDate"
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+            />
           </div>
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.duration')}>{t('suggestions.labels.duration')}</Label>
-            <Input type="number" min={1} value={duration} onChange={(event) => setDuration(Number(event.target.value) || 1)} />
+          <div ref={durationRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-duration" title={t('suggestions.tooltips.duration')}>
+              {t('suggestions.labels.duration')}
+            </Label>
+            <Input
+              id="suggestion-rule-duration"
+              type="number"
+              min={1}
+              value={duration}
+              onChange={(event) => setDuration(Number(event.target.value) || 1)}
+            />
           </div>
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.avoidCount')}>{t('suggestions.labels.avoidCount')}</Label>
-            <Input type="number" min={0} value={avoidCount} onChange={(event) => setAvoidCount(Number(event.target.value) || 0)} />
+          <div ref={avoidCountRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-avoidCount" title={t('suggestions.tooltips.avoidCount')}>
+              {t('suggestions.labels.avoidCount')}
+            </Label>
+            <Input
+              id="suggestion-rule-avoidCount"
+              type="number"
+              min={0}
+              value={avoidCount}
+              onChange={(event) => setAvoidCount(Number(event.target.value) || 0)}
+            />
           </div>
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.monthsPerExit')}>{t('suggestions.labels.monthsPerExit')}</Label>
-            <Input type="number" min={0} value={monthsPerExit} onChange={(event) => setMonthsPerExit(Number(event.target.value) || 0)} />
+          <div ref={monthsPerExitRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-monthsPerExit" title={t('suggestions.tooltips.monthsPerExit')}>
+              {t('suggestions.labels.monthsPerExit')}
+            </Label>
+            <Input
+              id="suggestion-rule-monthsPerExit"
+              type="number"
+              min={0}
+              value={monthsPerExit}
+              onChange={(event) => setMonthsPerExit(Number(event.target.value) || 0)}
+            />
           </div>
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.recentWeight')}>{t('suggestions.labels.recentWeight')}</Label>
-            <Input type="number" min={0} step="0.1" value={recentWeight} onChange={(event) => setRecentWeight(Number(event.target.value) || 0)} />
+          <div ref={recentWeightRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-recentWeight" title={t('suggestions.tooltips.recentWeight')}>
+              {t('suggestions.labels.recentWeight')}
+            </Label>
+            <Input
+              id="suggestion-rule-recentWeight"
+              type="number"
+              min={0}
+              step="0.1"
+              value={recentWeight}
+              onChange={(event) => setRecentWeight(Number(event.target.value) || 0)}
+            />
           </div>
-          <div className="grid gap-1">
-            <Label title={t('suggestions.tooltips.balanceWeight')}>{t('suggestions.labels.balanceWeight')}</Label>
-            <Input type="number" min={0} step="0.1" value={balanceWeight} onChange={(event) => setBalanceWeight(Number(event.target.value) || 0)} />
+          <div ref={balanceWeightRef} className="grid gap-1">
+            <Label htmlFor="suggestion-rule-balanceWeight" title={t('suggestions.tooltips.balanceWeight')}>
+              {t('suggestions.labels.balanceWeight')}
+            </Label>
+            <Input
+              id="suggestion-rule-balanceWeight"
+              type="number"
+              min={0}
+              step="0.1"
+              value={balanceWeight}
+              onChange={(event) => setBalanceWeight(Number(event.target.value) || 0)}
+            />
           </div>
           <div className="flex items-end">
             <Button onClick={generate} className="bg-black text-white w-full">
@@ -174,6 +289,15 @@ const SuggestionsPage: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      <GuidedTour
+        steps={tourSteps}
+        open={isTourOpen}
+        stepIndex={tourStep ?? 0}
+        onClose={closeTour}
+        onNext={handleTourNext}
+        onPrevious={handleTourPrevious}
+      />
 
       <Card
         title={t('suggestions.cards.generated')}
