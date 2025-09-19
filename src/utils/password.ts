@@ -47,9 +47,12 @@ const getSubtleCrypto = async (): Promise<SubtleCrypto> => {
     return subtle;
   }
 
-  if (typeof process !== 'undefined' && typeof process.versions?.node === 'string') {
+  const processInfo = (globalThis as { process?: { versions?: { node?: string } } }).process;
+  if (typeof processInfo?.versions?.node === 'string') {
     const { webcrypto } = await import('node:crypto');
-    return webcrypto.subtle;
+    if (webcrypto?.subtle) {
+      return webcrypto.subtle;
+    }
   }
 
   throw new Error('SubtleCrypto API is not available in this environment');
