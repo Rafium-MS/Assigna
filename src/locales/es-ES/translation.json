@@ -284,6 +284,13 @@
       "name": "Nombre",
       "email": "Correo electrónico",
       "role": "Rol",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Define una contraseña segura",
+      "passwordConfirmation": "Confirmar contraseña",
+      "passwordConfirmationPlaceholder": "Repite la contraseña",
+      "passwordHint": "Completa ambos campos para definir o actualizar la contraseña. Déjalos en blanco para mantener la actual.",
+      "passwordRequired": "Ingresa una contraseña.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
       "namePlaceholder": "Nombre completo",
       "emailPlaceholder": "nombre@ejemplo.com",
       "save": "Guardar usuario",
@@ -301,7 +308,8 @@
     "toast": {
       "createSuccess": "Usuario guardado",
       "updateSuccess": "Usuario actualizado",
-      "deleteSuccess": "Usuario eliminado"
+      "deleteSuccess": "Usuario eliminado",
+      "saveError": "No se pudo guardar el usuario."
     },
     "roles": {
       "admin_master": "Administrador maestro",
@@ -428,6 +436,15 @@
       "light": "Claro",
       "dark": "Oscuro"
     }
+  },
+  "auth": {
+    "identifierLabel": "Identificación",
+    "identifierPlaceholder": "Usuario o correo",
+    "passwordLabel": "Contraseña",
+    "passwordPlaceholder": "Contraseña",
+    "signIn": "Iniciar sesión",
+    "signOut": "Cerrar sesión",
+    "invalidCredentials": "Credenciales no válidas. Verifica los datos e inténtalo de nuevo."
   },
   "language": {
     "english": "Inglés",

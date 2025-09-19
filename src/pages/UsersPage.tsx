@@ -5,17 +5,22 @@ import { Card, Button, Input, Label } from '../components/ui';
 import { useUsers } from '../hooks/useUsers';
 import type { User } from '../types/user';
 import { AVAILABLE_ROLES, type UserRole } from '../constants/roles';
+import { useToast } from '../components/feedback/Toast';
 
 const DEFAULT_ROLE: UserRole = 'viewer';
 
 const UsersPage: React.FC = () => {
   const { t } = useTranslation();
   const confirm = useConfirm();
+  const toast = useToast();
   const { users, addUser, updateUser, removeUser } = useUsers();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<UserRole>(DEFAULT_ROLE);
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const sortedUsers = useMemo(() => {
     return [...users].sort((a, b) =>
@@ -28,23 +33,70 @@ const UsersPage: React.FC = () => {
     setName('');
     setEmail('');
     setRole(DEFAULT_ROLE);
+    setPassword('');
+    setPasswordConfirm('');
+    setIsSubmitting(false);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const trimmedPasswordConfirm = passwordConfirm.trim();
     if (!trimmedName) {
       return;
     }
 
-    if (editingId) {
-      await updateUser(editingId, { name: trimmedName, email: trimmedEmail, role });
-    } else {
-      await addUser({ name: trimmedName, email: trimmedEmail, role });
+    if (!editingId) {
+      if (!trimmedPassword) {
+        toast.error(t('users.form.passwordRequired'));
+        return;
+      }
+      if (trimmedPassword !== trimmedPasswordConfirm) {
+        toast.error(t('users.form.passwordMismatch'));
+        return;
+      }
+    } else if (trimmedPassword || trimmedPasswordConfirm) {
+      if (!trimmedPassword || !trimmedPasswordConfirm) {
+        toast.error(t('users.form.passwordMismatch'));
+        return;
+      }
+      if (trimmedPassword !== trimmedPasswordConfirm) {
+        toast.error(t('users.form.passwordMismatch'));
+        return;
+      }
     }
 
-    resetForm();
+    try {
+      setIsSubmitting(true);
+      if (editingId) {
+        await updateUser(editingId, {
+          name: trimmedName,
+          email: trimmedEmail,
+          role,
+          password: trimmedPassword ? trimmedPassword : undefined,
+        });
+      } else {
+        await addUser({
+          name: trimmedName,
+          email: trimmedEmail,
+          role,
+          password: trimmedPassword,
+        });
+      }
+
+      resetForm();
+    } catch (error) {
+      if (error instanceof Error && error.message === 'PASSWORD_REQUIRED') {
+        toast.error(t('users.form.passwordRequired'));
+        return;
+      }
+      console.error('Failed to save user', error);
+      toast.error(t('users.toast.saveError'));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleEdit = (user: User) => {
@@ -52,6 +104,8 @@ const UsersPage: React.FC = () => {
     setName(user.name);
     setEmail(user.email);
     setRole(user.role);
+    setPassword('');
+    setPasswordConfirm('');
   };
 
   const handleDelete = async (user: User) => {
@@ -69,8 +123,8 @@ const UsersPage: React.FC = () => {
   return (
     <div className="grid gap-4">
       <Card title={editingId ? t('users.form.editTitle') : t('users.form.createTitle')}>
-        <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-4">
-          <div className="grid gap-1">
+        <form onSubmit={handleSubmit} className="grid gap-3 md:grid-cols-6">
+          <div className="grid gap-1 md:col-span-2">
             <Label htmlFor="user-name">{t('users.form.name')}</Label>
             <Input
               id="user-name"
@@ -79,7 +133,7 @@ const UsersPage: React.FC = () => {
               placeholder={t('users.form.namePlaceholder')}
             />
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-1 md:col-span-2">
             <Label htmlFor="user-email">{t('users.form.email')}</Label>
             <Input
               id="user-email"
@@ -89,7 +143,7 @@ const UsersPage: React.FC = () => {
               placeholder={t('users.form.emailPlaceholder')}
             />
           </div>
-          <div className="grid gap-1">
+          <div className="grid gap-1 md:col-span-2">
             <Label htmlFor="user-role">{t('users.form.role')}</Label>
             <select
               id="user-role"
@@ -104,13 +158,42 @@ const UsersPage: React.FC = () => {
               ))}
             </select>
           </div>
-          <div className="flex items-end justify-end gap-2">
+          <div className="grid gap-1 md:col-span-3">
+            <Label htmlFor="user-password">{t('users.form.password')}</Label>
+            <Input
+              id="user-password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={t('users.form.passwordPlaceholder')}
+              autoComplete={editingId ? 'new-password' : 'new-password'}
+            />
+          </div>
+          <div className="grid gap-1 md:col-span-3">
+            <Label htmlFor="user-password-confirm">
+              {t('users.form.passwordConfirmation')}
+            </Label>
+            <Input
+              id="user-password-confirm"
+              type="password"
+              value={passwordConfirm}
+              onChange={(event) => setPasswordConfirm(event.target.value)}
+              placeholder={t('users.form.passwordConfirmationPlaceholder')}
+              autoComplete={editingId ? 'new-password' : 'new-password'}
+            />
+            <p className="text-xs text-neutral-500">{t('users.form.passwordHint')}</p>
+          </div>
+          <div className="flex items-end justify-end gap-2 md:col-span-6">
             {editingId && (
               <Button type="button" className="bg-neutral-100" onClick={resetForm}>
                 {t('users.form.cancel')}
               </Button>
             )}
-            <Button type="submit" className="bg-black text-white">
+            <Button
+              type="submit"
+              className="bg-black text-white"
+              disabled={isSubmitting}
+            >
               {editingId ? t('users.form.update') : t('users.form.save')}
             </Button>
           </div>

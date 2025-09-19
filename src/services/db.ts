@@ -16,6 +16,14 @@ import type { DerivedTerritory } from '../types/derived-territory';
 import type { NaoEmCasaRegistro } from '../types/nao-em-casa';
 import { ADDRESS_VISIT_COOLDOWN_MS } from '../constants/addresses';
 import type { User } from '../types/user';
+import {
+  ADMIN_MASTER_DEFAULT_EMAIL,
+  ADMIN_MASTER_DEFAULT_NAME,
+  ADMIN_MASTER_DEFAULT_PASSWORD,
+  ADMIN_MASTER_DEFAULT_ROLE,
+  ADMIN_MASTER_USERNAME
+} from '../constants/auth';
+import { hashPassword } from '../utils/password';
 
 export const DEFAULT_PROPERTY_TYPE_NAMES = [
   'Prédio',
@@ -264,6 +272,32 @@ class AppDB extends Dexie {
             }
           });
       });
+    this.version(11)
+      .stores({
+        territorios: 'id, nome, publisherId',
+        saidas: 'id, nome, diaDaSemana, publisherId',
+        designacoes: 'id, territorioId, saidaId, publisherId',
+        sugestoes: '[territorioId+saidaId], territorioId, saidaId, publisherId',
+        metadata: 'key',
+        streets: '++id, territoryId, name',
+        property_types: '++id, name',
+        addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+        buildingsVillages: 'id, territory_id, publisherId',
+        derived_territories: '++id, baseTerritoryId, name',
+        derived_territory_addresses: '[derivedTerritoryId+addressId]',
+        nao_em_casa: 'id, territorioId, followUpAt, completedAt, conversationConfirmed, publisherId',
+        users: 'id, email, role'
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table('users')
+          .toCollection()
+          .modify((record: Record<string, unknown>) => {
+            if (typeof record.passwordHash !== 'string') {
+              record.passwordHash = '';
+            }
+          });
+      });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
@@ -280,7 +314,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 10;
+export const SCHEMA_VERSION = 11;
 
 async function ensureDefaultPropertyTypes(): Promise<void> {
   await db.transaction('rw', db.propertyTypes, async () => {
@@ -314,6 +348,64 @@ async function ensureDefaultPropertyTypes(): Promise<void> {
  */
 export async function ensureDefaultPropertyTypesSeeded(): Promise<void> {
   await ensureDefaultPropertyTypes();
+}
+
+/**
+ * Ensures the default admin master user exists with a valid password hash.
+ */
+export async function ensureAdminMasterUserSeeded(): Promise<void> {
+  const existing = await db.users.get(ADMIN_MASTER_USERNAME);
+  const now = new Date().toISOString();
+
+  if (!existing) {
+    const passwordHash = await hashPassword(ADMIN_MASTER_DEFAULT_PASSWORD);
+    const record: User = {
+      id: ADMIN_MASTER_USERNAME,
+      name: ADMIN_MASTER_DEFAULT_NAME,
+      email: ADMIN_MASTER_DEFAULT_EMAIL,
+      role: ADMIN_MASTER_DEFAULT_ROLE,
+      passwordHash,
+      createdAt: now,
+      updatedAt: now
+    };
+    await db.users.put(record);
+    return;
+  }
+
+  const updates: Partial<User> = {};
+  let shouldUpdate = false;
+
+  if (typeof existing.passwordHash !== 'string' || existing.passwordHash.trim().length === 0) {
+    updates.passwordHash = await hashPassword(ADMIN_MASTER_DEFAULT_PASSWORD);
+    shouldUpdate = true;
+  }
+
+  if (existing.role !== ADMIN_MASTER_DEFAULT_ROLE) {
+    updates.role = ADMIN_MASTER_DEFAULT_ROLE;
+    shouldUpdate = true;
+  }
+
+  if (typeof existing.name !== 'string' || existing.name.trim().length === 0) {
+    updates.name = ADMIN_MASTER_DEFAULT_NAME;
+    shouldUpdate = true;
+  }
+
+  if (typeof existing.email !== 'string' || existing.email.trim().length === 0) {
+    updates.email = ADMIN_MASTER_DEFAULT_EMAIL;
+    shouldUpdate = true;
+  }
+
+  if (typeof existing.createdAt !== 'string' || existing.createdAt.trim().length === 0) {
+    updates.createdAt = now;
+    shouldUpdate = true;
+  }
+
+  if (shouldUpdate) {
+    updates.updatedAt = now;
+    await db.users.put({ ...existing, ...updates, id: existing.id });
+  } else if (typeof existing.updatedAt !== 'string' || existing.updatedAt.trim().length === 0) {
+    await db.users.put({ ...existing, updatedAt: now });
+  }
 }
 
 /**
@@ -733,6 +825,7 @@ export async function migrate(): Promise<void> {
   if (current < 8) {
     await ensureDefaultPropertyTypesSeeded();
   }
+  await ensureAdminMasterUserSeeded();
   if (current < SCHEMA_VERSION) {
     await setSchemaVersion(SCHEMA_VERSION);
   }

@@ -18,6 +18,7 @@ import type { Sugestao } from '../../types/sugestao';
 import type { Territorio } from '../../types/territorio';
 import type { NaoEmCasaRegistro } from '../../types/nao-em-casa';
 import type { User } from '../../types/user';
+import { ADMIN_MASTER_USERNAME } from '../../constants/auth';
 
 beforeEach(async () => {
   await db.delete();
@@ -700,6 +701,7 @@ describe('UserRepository', () => {
         name: 'Alice',
         email: 'alice@example.com',
         role: 'admin',
+        passwordHash: 'hash-1',
         createdAt: '2024-01-01T00:00:00.000Z',
         updatedAt: '2024-01-01T00:00:00.000Z'
       },
@@ -708,6 +710,7 @@ describe('UserRepository', () => {
         name: 'Bob',
         email: 'bob@example.com',
         role: 'publisher',
+        passwordHash: 'hash-2',
         createdAt: '2024-01-02T00:00:00.000Z',
         updatedAt: '2024-01-02T00:00:00.000Z'
       }
@@ -715,7 +718,9 @@ describe('UserRepository', () => {
 
     await UserRepository.bulkAdd(users);
 
-    await expect(UserRepository.all()).resolves.toEqual(users);
+    const stored = await UserRepository.all();
+    expect(stored).toEqual(expect.arrayContaining(users));
+    expect(stored.some((user) => user.id === ADMIN_MASTER_USERNAME)).toBe(true);
   });
 
   it('updates an existing user', async () => {
@@ -724,6 +729,7 @@ describe('UserRepository', () => {
       name: 'Carol',
       email: 'carol@example.com',
       role: 'viewer',
+      passwordHash: 'hash-3',
       createdAt: '2024-03-01T00:00:00.000Z',
       updatedAt: '2024-03-01T00:00:00.000Z'
     };
@@ -733,12 +739,14 @@ describe('UserRepository', () => {
     const updated: User = {
       ...user,
       name: 'Caroline',
+      passwordHash: 'hash-3-updated',
       updatedAt: '2024-03-05T00:00:00.000Z'
     };
 
     await UserRepository.update(updated);
 
-    await expect(UserRepository.all()).resolves.toEqual([updated]);
+    const stored = await UserRepository.all();
+    expect(stored).toEqual(expect.arrayContaining([updated]));
   });
 
   it('removes a user by id', async () => {
@@ -747,6 +755,7 @@ describe('UserRepository', () => {
       name: 'Dave',
       email: 'dave@example.com',
       role: 'manager',
+      passwordHash: 'hash-4',
       createdAt: '2024-04-01T00:00:00.000Z',
       updatedAt: '2024-04-01T00:00:00.000Z'
     };
@@ -754,6 +763,42 @@ describe('UserRepository', () => {
     await UserRepository.add(user);
     await UserRepository.remove(user.id);
 
-    await expect(UserRepository.all()).resolves.toEqual([]);
+    const stored = await UserRepository.all();
+    expect(stored.some(({ id }) => id === user.id)).toBe(false);
+    expect(stored.some(({ id }) => id === ADMIN_MASTER_USERNAME)).toBe(true);
+  });
+
+  it('finds a user by id', async () => {
+    const user: User = {
+      id: 'user-lookup',
+      name: 'Lookup User',
+      email: 'lookup@example.com',
+      role: 'viewer',
+      passwordHash: 'hash-lookup',
+      createdAt: '2024-05-01T00:00:00.000Z',
+      updatedAt: '2024-05-01T00:00:00.000Z'
+    };
+
+    await UserRepository.add(user);
+
+    await expect(UserRepository.findById('user-lookup')).resolves.toEqual(user);
+    await expect(UserRepository.findById('')).resolves.toBeUndefined();
+  });
+
+  it('finds a user by email ignoring case', async () => {
+    const user: User = {
+      id: 'user-email-lookup',
+      name: 'Email Lookup',
+      email: 'case@example.com',
+      role: 'manager',
+      passwordHash: 'hash-email',
+      createdAt: '2024-05-02T00:00:00.000Z',
+      updatedAt: '2024-05-02T00:00:00.000Z'
+    };
+
+    await UserRepository.add(user);
+
+    await expect(UserRepository.findByEmail('CASE@EXAMPLE.COM')).resolves.toEqual(user);
+    await expect(UserRepository.findByEmail('')).resolves.toBeUndefined();
   });
 });

@@ -133,6 +133,7 @@ const userSchema = z.object({
   name: z.string(),
   email: z.string(),
   role: z.enum(AVAILABLE_ROLES),
+  passwordHash: z.string().optional().default(''),
   createdAt: z.string(),
   updatedAt: z.string()
 });

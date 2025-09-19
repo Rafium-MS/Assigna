@@ -53,6 +53,23 @@ VITE_NOTIFICATIONS_API_URL="https://sua-api.com"
 
 Quando essa variável não estiver definida, as notificações de devolução permanecerão apenas no modo offline.
 
+As credenciais padrão do usuário administrador podem ser personalizadas com as variáveis abaixo:
+
+```bash
+VITE_ADMIN_MASTER_NAME="Nome exibido"
+VITE_ADMIN_MASTER_EMAIL="admin@exemplo.com"
+VITE_ADMIN_MASTER_PASSWORD="sua_senha_segura"
+```
+
+Por padrão o usuário `admin_master` é criado com a senha `assigna123`. Recomenda-se alterar essas credenciais em produção.
+
+## Autenticação
+
+- O login requer um identificador (ID do usuário ou e-mail) e senha.
+- Um usuário inicial `admin_master` é criado automaticamente para acesso administrativo.
+- A senha padrão é `assigna123` e pode ser ajustada pelas variáveis de ambiente listadas acima.
+- As senhas são armazenadas como hash SHA-256 e podem ser atualizadas ao editar o usuário em **Usuários**.
+
 ## Internacionalização (i18n)
 - Idiomas suportados: `en-US`, `pt-BR` e `es-ES`.
 - O idioma selecionado persiste em `localStorage` sob a chave `locale`.
@@ -82,7 +99,7 @@ Quando essa variável não estiver definida, as notificações de devolução pe
 
 ## Banco de Dados (Offline)
 - Todos os dados são armazenados no **IndexedDB** via **Dexie.js** (`src/services/db.ts`).
-- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação. A versão atual é controlada pela constante `SCHEMA_VERSION`, definida em [`src/services/db.ts`](src/services/db.ts) (atualmente em 10).
+- Migrações de esquema são aplicadas automaticamente ao abrir a aplicação. A versão atual é controlada pela constante `SCHEMA_VERSION`, definida em [`src/services/db.ts`](src/services/db.ts) (atualmente em 11).
 - Campos de visitas em endereços: `lastSuccessfulVisit` e `nextVisitAllowed`.
 
 ## Screenshots
