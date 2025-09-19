@@ -9,7 +9,7 @@ import { useSaidas } from '../hooks/useSaidas';
 import { useDesignacoes } from '../hooks/useDesignacoes';
 import { useSuggestionRules } from '../hooks/useSuggestionRules';
 import type { Designacao } from '../types/designacao';
-import { addDaysToIso, formatIsoDate, nextDateForWeekday } from '../utils/calendar';
+import { addDaysToIso, formatIsoDate, nextDateForWeekday, todayLocalIso } from '../utils/calendar';
 import { findName } from '../utils/lookups';
 import { getLastAssignmentDate } from '../utils/assignments';
 
@@ -21,7 +21,7 @@ const AssignmentsPage: React.FC = () => {
   const confirm = useConfirm();
   const toast = useToast();
   const { t } = useTranslation();
-  const todayIso = new Date().toISOString().slice(0, 10);
+  const todayIso = todayLocalIso();
   const [territorioId, setTerritorioId] = useState('');
   const [saidaId, setSaidaId] = useState('');
   const [startDate, setStartDate] = useState(todayIso);
