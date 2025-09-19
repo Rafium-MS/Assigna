@@ -1,18 +1,52 @@
 import * as React from 'react';
 
 const RouterContext = React.createContext({
-  location: { pathname: '/' },
+  location: { pathname: '/', state: undefined },
   navigate: () => {
     throw new Error('navigate called outside of a router context');
   }
 });
 
 const isBrowser = typeof window !== 'undefined';
+const ROUTER_STATE_KEY = '__assigna_router_state__';
 
-const readPathname = () => {
-  if (!isBrowser) return '/';
+const createHistoryState = (pathname, state) => ({
+  [ROUTER_STATE_KEY]: true,
+  pathname,
+  state
+});
+
+const readLocation = stateOverride => {
+  if (!isBrowser) {
+    const candidate =
+      stateOverride && typeof stateOverride === 'object' ? stateOverride : undefined;
+    const rawPathname =
+      typeof candidate?.pathname === 'string' && candidate.pathname.length > 0
+        ? candidate.pathname
+        : '/';
+    return {
+      pathname: normalizePath(rawPathname),
+      state: candidate?.state
+    };
+  }
+
   const { pathname } = window.location;
-  return pathname || '/';
+  const rawState = stateOverride ?? window.history.state;
+  if (rawState && rawState[ROUTER_STATE_KEY]) {
+    const storedPathname =
+      typeof rawState.pathname === 'string' && rawState.pathname.length > 0
+        ? rawState.pathname
+        : pathname;
+    return {
+      pathname: normalizePath(storedPathname || '/'),
+      state: rawState.state
+    };
+  }
+
+  return {
+    pathname: normalizePath(pathname || '/'),
+    state: undefined
+  };
 };
 
 function normalizePath(path) {
@@ -35,32 +69,48 @@ function matchLoose(path, pathname) {
 }
 
 export function BrowserRouter({ children }) {
-  const [pathname, setPathname] = React.useState(() => readPathname());
+  const [location, setLocation] = React.useState(() => readLocation());
 
   React.useEffect(() => {
     if (!isBrowser) return undefined;
     const handler = () => {
-      setPathname(readPathname());
+      setLocation(readLocation());
     };
     window.addEventListener('popstate', handler);
     return () => window.removeEventListener('popstate', handler);
   }, []);
 
-  const navigate = React.useCallback((to, options = {}) => {
-    const target = typeof to === 'string' ? to : to?.pathname ?? '/';
-    if (isBrowser) {
-      if (options.replace) {
-        window.history.replaceState({}, '', target);
-      } else {
-        window.history.pushState({}, '', target);
-      }
-      setPathname(readPathname());
-    } else {
-      setPathname(target);
+  React.useEffect(() => {
+    if (!isBrowser) return undefined;
+    const current = readLocation();
+    const historyState = window.history.state;
+    if (!historyState || historyState[ROUTER_STATE_KEY] !== true) {
+      const normalizedPath = current.pathname;
+      window.history.replaceState(
+        createHistoryState(normalizedPath, current.state),
+        '',
+        normalizedPath
+      );
     }
+    return undefined;
   }, []);
 
-  const location = React.useMemo(() => ({ pathname }), [pathname]);
+  const navigate = React.useCallback((to, options = {}) => {
+    const target = typeof to === 'string' ? to : to?.pathname ?? '/';
+    const normalizedTarget = normalizePath(target);
+    const state = options.state;
+    if (isBrowser) {
+      const historyState = createHistoryState(normalizedTarget, state);
+      if (options.replace) {
+        window.history.replaceState(historyState, '', normalizedTarget);
+      } else {
+        window.history.pushState(historyState, '', normalizedTarget);
+      }
+      setLocation({ pathname: normalizedTarget, state });
+    } else {
+      setLocation({ pathname: normalizedTarget, state });
+    }
+  }, []);
 
   const value = React.useMemo(
     () => ({
@@ -89,12 +139,12 @@ export function useLocation() {
   return context.location;
 }
 
-export function Navigate({ to, replace = false }) {
+export function Navigate({ to, replace = false, state }) {
   const navigate = useNavigate();
   React.useEffect(() => {
     const target = typeof to === 'string' ? to : to?.pathname ?? '/';
-    navigate(target, { replace });
-  }, [navigate, replace, to]);
+    navigate(target, { replace, state });
+  }, [navigate, replace, state, to]);
   return null;
 }
 
@@ -126,7 +176,7 @@ function isModifiedEvent(event) {
   return event.metaKey || event.altKey || event.ctrlKey || event.shiftKey;
 }
 
-export function Link({ to, onClick, replace = false, ...rest }) {
+export function Link({ to, onClick, replace = false, state, ...rest }) {
   const { navigate } = React.useContext(RouterContext);
   const href = useHref(to);
 
@@ -145,7 +195,7 @@ export function Link({ to, onClick, replace = false, ...rest }) {
     }
 
     event.preventDefault();
-    navigate(href, { replace });
+    navigate(href, { replace, state });
   };
 
   return React.createElement('a', { ...rest, href, onClick: handleClick });
@@ -157,6 +207,7 @@ export function NavLink({
   children,
   end = false,
   onClick,
+  state,
   ...rest
 }) {
   const { location, navigate } = React.useContext(RouterContext);
@@ -186,7 +237,7 @@ export function NavLink({
       return;
     }
     event.preventDefault();
-    navigate(href);
+    navigate(href, { state });
   };
 
   return React.createElement(
