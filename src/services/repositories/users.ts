@@ -1,9 +1,25 @@
 import type { User } from '../../types/user';
-import { db } from '../db';
+import { db, ensureAdminMasterUserSeeded } from '../db';
 
 export const UserRepository = {
   async all(): Promise<User[]> {
     return db.users.toArray();
+  },
+
+  async findById(id: string): Promise<User | undefined> {
+    const trimmed = id.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+    return db.users.get(trimmed);
+  },
+
+  async findByEmail(email: string): Promise<User | undefined> {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      return undefined;
+    }
+    return db.users.where('email').equalsIgnoreCase(trimmed).first();
   },
 
   async add(user: User): Promise<void> {
@@ -27,5 +43,6 @@ export const UserRepository = {
 
   async clear(): Promise<void> {
     await db.users.clear();
+    await ensureAdminMasterUserSeeded();
   },
 };

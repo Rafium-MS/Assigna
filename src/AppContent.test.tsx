@@ -14,7 +14,7 @@ vi.mock('react-i18next', () => ({
 const mockAuthState = {
   currentUser: null as AuthUser | null,
   isAuthenticated: false,
-  signIn: vi.fn(),
+  signIn: vi.fn().mockResolvedValue(null),
   signOut: vi.fn(),
 };
 
@@ -70,6 +70,7 @@ describe('AppContent scheduler controls visibility', () => {
   beforeEach(() => {
     mockAuthState.currentUser = null;
     mockAuthState.isAuthenticated = false;
+    mockAuthState.signIn.mockResolvedValue(null);
   });
 
   afterEach(() => {

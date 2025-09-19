@@ -9,7 +9,7 @@ import {
   UserRepository
 } from '../repositories';
 import { BuildingVillageRepository } from '../repositories/buildings_villages';
-import { db, SCHEMA_VERSION } from '../db';
+import { db, SCHEMA_VERSION, ensureAdminMasterUserSeeded } from '../db';
 
 type ImportSource = File | Blob | string;
 
@@ -126,6 +126,8 @@ export const importData = async (source: ImportSource): Promise<ExportedData> =>
       await db.metadata.bulkPut(metadataRecords);
     }
   );
+
+  await ensureAdminMasterUserSeeded();
 
   return { ...data, metadata: metadataRecords, version: SCHEMA_VERSION };
 };

@@ -30,6 +30,8 @@ function createRepositoryMock() {
     clear: vi.fn().mockResolvedValue(undefined),
     bulkAdd: vi.fn().mockResolvedValue(undefined),
     all: vi.fn().mockResolvedValue([]),
+    findById: vi.fn().mockResolvedValue(undefined),
+    findByEmail: vi.fn().mockResolvedValue(undefined),
     forPublisher: vi.fn().mockResolvedValue([]),
   };
 }
@@ -119,6 +121,7 @@ const createAppState = (): AppState => ({
       name: 'Alice',
       email: 'alice@example.com',
       role: 'admin',
+      passwordHash: 'hash-1',
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-02T00:00:00.000Z',
     },
@@ -379,7 +382,12 @@ describe('App context hooks', () => {
       const selectSpy = vi.spyOn(selectors, 'selectUsers').mockReturnValue(state.users);
 
       const { addUser } = useUsers();
-      await addUser({ name: 'Charlie', email: 'charlie@example.com', role: 'manager' });
+      await addUser({
+        name: 'Charlie',
+        email: 'charlie@example.com',
+        role: 'manager',
+        password: 'secret123',
+      });
 
       expect(mockedUseContext).toHaveBeenCalledWith(AppContext);
       expect(dispatch).toHaveBeenCalledWith(

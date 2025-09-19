@@ -1,14 +1,19 @@
 import { FormEvent, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { Button, Input, Label } from '../ui';
+import { useToast } from '../feedback/Toast';
 
 interface AuthControlsProps {
   className?: string;
 }
 
 export const AuthControls = ({ className = '' }: AuthControlsProps) => {
+  const { t } = useTranslation();
   const { currentUser, signIn, signOut } = useAuth();
-  const [credentials, setCredentials] = useState({ id: '', role: '' });
+  const toast = useToast();
+  const [credentials, setCredentials] = useState({ identifier: '', password: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (currentUser) {
     return (
@@ -22,25 +27,33 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
           onClick={signOut}
           className="bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Sair
+          {t('auth.signOut')}
         </Button>
       </div>
     );
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const trimmedId = credentials.id.trim();
-    const trimmedRole = credentials.role.trim();
-    if (!trimmedId || !trimmedRole) {
+    const trimmedIdentifier = credentials.identifier.trim();
+    const trimmedPassword = credentials.password.trim();
+    if (!trimmedIdentifier || !trimmedPassword) {
       return;
     }
 
-    signIn({ id: trimmedId, role: trimmedRole });
-    setCredentials({ id: '', role: '' });
+    setIsSubmitting(true);
+    const result = await signIn({ identifier: trimmedIdentifier, password: trimmedPassword });
+    setIsSubmitting(false);
+    if (!result) {
+      toast.error(t('auth.invalidCredentials'));
+      return;
+    }
+
+    setCredentials({ identifier: '', password: '' });
   };
 
-  const canSubmit = credentials.id.trim().length > 0 && credentials.role.trim().length > 0;
+  const canSubmit =
+    credentials.identifier.trim().length > 0 && credentials.password.trim().length > 0 && !isSubmitting;
 
   return (
     <form
@@ -50,27 +63,28 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
     >
       <div className="flex flex-col">
         <Label htmlFor="auth-id" className="sr-only">
-          Identificação
+          {t('auth.identifierLabel')}
         </Label>
         <Input
           id="auth-id"
-          value={credentials.id}
-          onChange={(event) => setCredentials((prev) => ({ ...prev, id: event.target.value }))}
-          placeholder="Usuário"
+          value={credentials.identifier}
+          onChange={(event) => setCredentials((prev) => ({ ...prev, identifier: event.target.value }))}
+          placeholder={t('auth.identifierPlaceholder')}
           autoComplete="username"
           className="w-32"
         />
       </div>
       <div className="flex flex-col">
-        <Label htmlFor="auth-role" className="sr-only">
-          Função
+        <Label htmlFor="auth-password" className="sr-only">
+          {t('auth.passwordLabel')}
         </Label>
         <Input
-          id="auth-role"
-          value={credentials.role}
-          onChange={(event) => setCredentials((prev) => ({ ...prev, role: event.target.value }))}
-          placeholder="Função"
-          autoComplete="organization-title"
+          id="auth-password"
+          type="password"
+          value={credentials.password}
+          onChange={(event) => setCredentials((prev) => ({ ...prev, password: event.target.value }))}
+          placeholder={t('auth.passwordPlaceholder')}
+          autoComplete="current-password"
           className="w-28"
         />
       </div>
@@ -79,7 +93,7 @@ export const AuthControls = ({ className = '' }: AuthControlsProps) => {
         className="bg-emerald-500 text-white hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
         disabled={!canSubmit}
       >
-        Entrar
+        {t('auth.signIn')}
       </Button>
     </form>
   );

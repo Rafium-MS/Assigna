@@ -288,6 +288,13 @@
       "name": "Nome",
       "email": "E-mail",
       "role": "Papel",
+      "password": "Senha",
+      "passwordPlaceholder": "Defina uma senha segura",
+      "passwordConfirmation": "Confirmar senha",
+      "passwordConfirmationPlaceholder": "Repita a senha",
+      "passwordHint": "Preencha ambos os campos para definir ou alterar a senha. Deixe em branco para manter a atual.",
+      "passwordRequired": "Informe uma senha.",
+      "passwordMismatch": "As senhas não coincidem.",
       "namePlaceholder": "Nome completo",
       "emailPlaceholder": "nome@exemplo.com",
       "save": "Salvar usuário",
@@ -305,7 +312,8 @@
     "toast": {
       "createSuccess": "Usuário salvo",
       "updateSuccess": "Usuário atualizado",
-      "deleteSuccess": "Usuário removido"
+      "deleteSuccess": "Usuário removido",
+      "saveError": "Não foi possível salvar o usuário."
     },
     "roles": {
       "admin_master": "Admin master",
@@ -432,6 +440,15 @@
       "light": "Claro",
       "dark": "Escuro"
     }
+  },
+  "auth": {
+    "identifierLabel": "Identificação",
+    "identifierPlaceholder": "Usuário ou e-mail",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "Senha",
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "invalidCredentials": "Credenciais inválidas. Verifique os dados e tente novamente."
   },
   "language": {
     "english": "Inglês",

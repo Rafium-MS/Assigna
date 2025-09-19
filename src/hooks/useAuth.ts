@@ -2,16 +2,18 @@ import { useCallback } from 'react';
 import { useApp } from './useApp';
 import { selectCurrentUser } from '../store/selectors';
 import type { AuthUser } from '../store/appReducer';
+import { UserRepository } from '../services/repositories';
+import { verifyPassword } from '../utils/password';
 
 export interface SignInPayload {
-  id: string;
-  role: string;
+  identifier: string;
+  password: string;
 }
 
 export interface UseAuthResult {
   currentUser: AuthUser | null;
   isAuthenticated: boolean;
-  signIn: (payload: SignInPayload) => AuthUser | null;
+  signIn: (payload: SignInPayload) => Promise<AuthUser | null>;
   signOut: () => void;
 }
 
@@ -20,23 +22,40 @@ export const useAuth = (): UseAuthResult => {
   const currentUser = selectCurrentUser(state);
 
   const signIn = useCallback(
-    ({ id, role }: SignInPayload) => {
-      const trimmedId = id.trim();
-      const trimmedRole = role.trim();
-      if (!trimmedId || !trimmedRole) {
+    async ({ identifier, password }: SignInPayload) => {
+      const trimmedIdentifier = identifier.trim();
+      const trimmedPassword = password.trim();
+      if (!trimmedIdentifier || !trimmedPassword) {
         return null;
       }
 
-      const now = new Date().toISOString();
-      const payload: AuthUser = {
-        id: trimmedId,
-        role: trimmedRole,
-        createdAt: currentUser?.id === trimmedId ? currentUser.createdAt : now,
-        updatedAt: now,
-      };
+      try {
+        const user =
+          (await UserRepository.findByEmail(trimmedIdentifier)) ??
+          (await UserRepository.findById(trimmedIdentifier));
+        if (!user) {
+          return null;
+        }
 
-      dispatch({ type: 'SIGN_IN', payload });
-      return payload;
+        const isValid = await verifyPassword(trimmedPassword, user.passwordHash);
+        if (!isValid) {
+          return null;
+        }
+
+        const now = new Date().toISOString();
+        const payload: AuthUser = {
+          id: user.id,
+          role: user.role,
+          createdAt: currentUser?.id === user.id ? currentUser.createdAt : now,
+          updatedAt: now,
+        };
+
+        dispatch({ type: 'SIGN_IN', payload });
+        return payload;
+      } catch (error) {
+        console.error('Failed to sign in', error);
+        return null;
+      }
     },
     [currentUser, dispatch],
   );

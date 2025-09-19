@@ -178,7 +178,7 @@ beforeEach(() => {
       updatedAt: '2024-01-01T00:00:00.000Z'
     },
     isAuthenticated: true,
-    signIn: vi.fn(),
+    signIn: vi.fn().mockResolvedValue(null),
     signOut: vi.fn()
   });
 
