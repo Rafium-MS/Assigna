@@ -27,6 +27,12 @@ interface AddressDetails {
   category: AddressCategory;
 }
 
+interface StreetGroup {
+  key: string;
+  name: string;
+  addresses: AddressDetails[];
+}
+
 const categorizeProperty = (name: string | null | undefined): AddressCategory => {
   if (!name) {
     return 'other';
@@ -60,6 +66,46 @@ const buildAddressKey = (
     return `id:${address.id}`;
   }
   return `combo:${territorioId}:${address.streetId}:${address.numberStart}:${address.numberEnd}`;
+};
+
+const groupDetailsByStreet = (
+  details: AddressDetails[],
+  unknownStreetLabel: string,
+): StreetGroup[] => {
+  const groups = new Map<string, StreetGroup>();
+  for (const detail of details) {
+    const streetId = detail.address.streetId;
+    const key =
+      streetId != null
+        ? `id:${streetId}`
+        : `name:${detail.streetName ?? unknownStreetLabel}`;
+    const name = detail.streetName ?? unknownStreetLabel;
+    const existing = groups.get(key);
+    if (existing) {
+      existing.addresses.push(detail);
+    } else {
+      groups.set(key, { key, name, addresses: [detail] });
+    }
+  }
+
+  const sortedGroups = Array.from(groups.values()).sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+  );
+
+  sortedGroups.forEach((group) => {
+    group.addresses.sort((a, b) => {
+      const primaryA = a.address.numberStart ?? a.address.numberEnd ?? Number.POSITIVE_INFINITY;
+      const primaryB = b.address.numberStart ?? b.address.numberEnd ?? Number.POSITIVE_INFINITY;
+      if (primaryA !== primaryB) {
+        return primaryA - primaryB;
+      }
+      const secondaryA = a.address.numberEnd ?? a.address.numberStart ?? Number.POSITIVE_INFINITY;
+      const secondaryB = b.address.numberEnd ?? b.address.numberStart ?? Number.POSITIVE_INFINITY;
+      return secondaryA - secondaryB;
+    });
+  });
+
+  return sortedGroups;
 };
 
 const NaoEmCasaPage: React.FC = () => {
@@ -190,9 +236,30 @@ const NaoEmCasaPage: React.FC = () => {
   );
 
   const handleRecordNotAtHome = useCallback(
-    async (territorioId: string, detail: AddressDetails) => {
+    async (
+      territorioId: string,
+      detail: AddressDetails,
+      existingRecord?: NaoEmCasaRegistro | null,
+    ) => {
       const followUpAt = addDaysToIso(todayIso, FOLLOW_UP_DELAY_DAYS);
       const { address, streetName, propertyTypeName } = detail;
+      if (existingRecord) {
+        await updateNaoEmCasa(existingRecord.id, {
+          territorioId,
+          addressId: address.id ?? null,
+          streetId: address.streetId,
+          streetName,
+          numberStart: address.numberStart,
+          numberEnd: address.numberEnd,
+          propertyTypeId: address.propertyTypeId,
+          propertyTypeName,
+          recordedAt: todayIso,
+          followUpAt,
+          completedAt: null,
+          conversationConfirmed: false,
+        });
+        return;
+      }
       await addNaoEmCasa({
         territorioId,
         addressId: address.id ?? null,
@@ -205,15 +272,26 @@ const NaoEmCasaPage: React.FC = () => {
         recordedAt: todayIso,
         followUpAt,
         completedAt: null,
+        conversationConfirmed: false,
       });
     },
-    [addNaoEmCasa, todayIso],
+    [addNaoEmCasa, todayIso, updateNaoEmCasa],
+  );
+
+  const handleToggleConversation = useCallback(
+    async (registro: NaoEmCasaRegistro, confirmed: boolean) => {
+      await updateNaoEmCasa(registro.id, { conversationConfirmed: confirmed });
+    },
+    [updateNaoEmCasa],
   );
 
   const handleMarkCompleted = useCallback(
     async (registro: NaoEmCasaRegistro) => {
       const completionDate = new Date().toISOString().slice(0, 10);
-      await updateNaoEmCasa(registro.id, { completedAt: completionDate });
+      await updateNaoEmCasa(registro.id, {
+        completedAt: completionDate,
+        conversationConfirmed: true,
+      });
     },
     [updateNaoEmCasa],
   );
@@ -237,6 +315,8 @@ const NaoEmCasaPage: React.FC = () => {
           <div className="grid gap-6">
             {activeTerritories.map((territorio) => {
               const details = getAddressDetails(territorio.id);
+              const unknownStreetLabel = t('naoEmCasa.unknownStreet');
+              const streets = groupDetailsByStreet(details, unknownStreetLabel);
               return (
                 <div key={territorio.id} className="flex flex-col gap-4">
                   <div className="flex flex-col md:flex-row gap-4">
@@ -258,60 +338,91 @@ const NaoEmCasaPage: React.FC = () => {
                       {details.length === 0 ? (
                         <p className="text-neutral-500">{t('naoEmCasa.noAddresses')}</p>
                       ) : (
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="text-left border-b">
-                              <th className="py-2">{t('naoEmCasa.table.street')}</th>
-                              <th>{t('naoEmCasa.table.numbers')}</th>
-                              <th>{t('naoEmCasa.table.type')}</th>
-                              <th>{t('naoEmCasa.table.actions')}</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {details.map((detail) => {
-                              const { address } = detail;
-                              const key = buildAddressKey(territorio.id, address);
-                              const pending = pendingByKey.get(key);
-                              const categoryLabel =
-                                detail.category === 'residential'
-                                  ? t('naoEmCasa.residential')
-                                  : detail.category === 'commercial'
-                                  ? t('naoEmCasa.commercial')
-                                  : t('naoEmCasa.other');
-                              return (
-                                <tr key={key} className="border-b last:border-0">
-                                  <td className="py-2">
-                                    {detail.streetName ?? t('naoEmCasa.unknownStreet')}
-                                  </td>
-                                  <td>{formatRangeValues(address.numberStart, address.numberEnd)}</td>
-                                  <td>
-                                    <div className="flex flex-col">
-                                      <span>{detail.propertyTypeName ?? t('naoEmCasa.unknownType')}</span>
-                                      <span className="text-xs text-neutral-500">{categoryLabel}</span>
+                        <div className="grid gap-3">
+                          {streets.map((street) => (
+                            <details key={street.key} className="rounded-xl border bg-white">
+                              <summary className="flex cursor-pointer select-none items-center justify-between gap-2 px-4 py-3 font-medium">
+                                <span>{street.name}</span>
+                                <span className="text-sm text-neutral-500">
+                                  {t('naoEmCasa.streetAddresses', { count: street.addresses.length })}
+                                </span>
+                              </summary>
+                              <div className="border-t">
+                                {street.addresses.map((detail) => {
+                                  const { address } = detail;
+                                  const key = buildAddressKey(territorio.id, address);
+                                  const pending = pendingByKey.get(key);
+                                  const conversationConfirmed = pending?.conversationConfirmed ?? false;
+                                  const categoryLabel =
+                                    detail.category === 'residential'
+                                      ? t('naoEmCasa.residential')
+                                      : detail.category === 'commercial'
+                                      ? t('naoEmCasa.commercial')
+                                      : t('naoEmCasa.other');
+                                  const rangeLabel = formatRangeValues(address.numberStart, address.numberEnd);
+                                  const disableRecordButton = conversationConfirmed;
+                                  return (
+                                    <div
+                                      key={key}
+                                      className="flex flex-col gap-3 border-b border-neutral-200 px-4 py-3 last:border-b-0"
+                                    >
+                                      <div className="flex flex-col gap-1">
+                                        <p className="font-medium">
+                                          {t('naoEmCasa.addressLabel', {
+                                            street: detail.streetName ?? t('naoEmCasa.unknownStreet'),
+                                            range: rangeLabel,
+                                          })}
+                                        </p>
+                                        <p className="text-sm text-neutral-500">
+                                          <span>{detail.propertyTypeName ?? t('naoEmCasa.unknownType')}</span>
+                                          <span className="ml-2 text-xs text-neutral-400">{categoryLabel}</span>
+                                        </p>
+                                        {pending && (
+                                          <p className="text-xs text-neutral-500">
+                                            {t('naoEmCasa.scheduledFor', {
+                                              date: formatIsoDate(pending.followUpAt),
+                                            })}
+                                          </p>
+                                        )}
+                                        {conversationConfirmed && (
+                                          <p className="text-xs font-medium text-green-600">
+                                            {t('naoEmCasa.conversationConfirmedLabel')}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                        <label
+                                          className={`flex items-center gap-2 text-sm ${
+                                            pending ? 'text-neutral-700' : 'text-neutral-400'
+                                          }`}
+                                        >
+                                          <input
+                                            type="checkbox"
+                                            className="h-4 w-4 rounded border-neutral-300 text-blue-600 focus:ring-blue-500"
+                                            disabled={!pending}
+                                            checked={conversationConfirmed}
+                                            onChange={(event) =>
+                                              pending && handleToggleConversation(pending, event.target.checked)
+                                            }
+                                          />
+                                          {t('naoEmCasa.confirmConversation')}
+                                        </label>
+                                        <Button
+                                          type="button"
+                                          className="bg-blue-600 text-white disabled:cursor-not-allowed disabled:opacity-60"
+                                          disabled={disableRecordButton}
+                                          onClick={() => handleRecordNotAtHome(territorio.id, detail, pending)}
+                                        >
+                                          {t('naoEmCasa.recordNotAtHome')}
+                                        </Button>
+                                      </div>
                                     </div>
-                                  </td>
-                                  <td className="py-2">
-                                    {pending ? (
-                                      <span className="text-sm text-neutral-500">
-                                        {t('naoEmCasa.scheduledFor', {
-                                          date: formatIsoDate(pending.followUpAt),
-                                        })}
-                                      </span>
-                                    ) : (
-                                      <Button
-                                        type="button"
-                                        onClick={() => handleRecordNotAtHome(territorio.id, detail)}
-                                        className="bg-blue-600 text-white"
-                                      >
-                                        {t('naoEmCasa.recordNotAtHome')}
-                                      </Button>
-                                    )}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
+                                  );
+                                })}
+                              </div>
+                            </details>
+                          ))}
+                        </div>
                       )}
                     </div>
                   </div>

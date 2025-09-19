@@ -238,6 +238,32 @@ class AppDB extends Dexie {
       nao_em_casa: 'id, territorioId, followUpAt, completedAt, publisherId',
       users: 'id, email, role'
     });
+    this.version(10)
+      .stores({
+        territorios: 'id, nome, publisherId',
+        saidas: 'id, nome, diaDaSemana, publisherId',
+        designacoes: 'id, territorioId, saidaId, publisherId',
+        sugestoes: '[territorioId+saidaId], territorioId, saidaId, publisherId',
+        metadata: 'key',
+        streets: '++id, territoryId, name',
+        property_types: '++id, name',
+        addresses: '++id, streetId, numberStart, numberEnd, lastSuccessfulVisit, nextVisitAllowed',
+        buildingsVillages: 'id, territory_id, publisherId',
+        derived_territories: '++id, baseTerritoryId, name',
+        derived_territory_addresses: '[derivedTerritoryId+addressId]',
+        nao_em_casa: 'id, territorioId, followUpAt, completedAt, conversationConfirmed, publisherId',
+        users: 'id, email, role'
+      })
+      .upgrade(async (transaction) => {
+        await transaction
+          .table('nao_em_casa')
+          .toCollection()
+          .modify((record: Record<string, unknown>) => {
+            if (typeof record.conversationConfirmed !== 'boolean') {
+              record.conversationConfirmed = false;
+            }
+          });
+      });
     this.buildingsVillages = this.table('buildingsVillages');
     this.propertyTypes = this.table('property_types');
     this.derivedTerritories = this.table('derived_territories');
@@ -254,7 +280,7 @@ export const db = new AppDB();
 /**
  * The current version of the database schema.
  */
-export const SCHEMA_VERSION = 9;
+export const SCHEMA_VERSION = 10;
 
 async function ensureDefaultPropertyTypes(): Promise<void> {
   await db.transaction('rw', db.propertyTypes, async () => {

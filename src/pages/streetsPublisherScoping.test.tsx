@@ -11,7 +11,6 @@ const {
   dbMock,
   translationMock,
   requestedStreetTerritories,
-  requestedAddressStreetIds,
 } = vi.hoisted(() => {
   const currentUser = {
     id: 'publisher-1',

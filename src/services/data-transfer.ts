@@ -113,7 +113,8 @@ const naoEmCasaSchema = z.object({
   propertyTypeName: z.string().nullable().optional(),
   recordedAt: z.string(),
   followUpAt: z.string(),
-  completedAt: z.string().nullable().optional()
+  completedAt: z.string().nullable().optional(),
+  conversationConfirmed: z.boolean().optional().default(false)
 });
 
 const derivedTerritorySchema = z.object({
