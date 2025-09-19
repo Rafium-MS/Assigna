@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { formatLocalDateTimeForInput } from './calendar';
+import { formatLocalDateForInput, formatLocalDateTimeForInput, todayLocalIso } from './calendar';
 
 describe('calendar utils', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   test('formatLocalDateTimeForInput adjusts positive timezone offsets', () => {
@@ -18,5 +19,26 @@ describe('calendar utils', () => {
     vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(-120);
 
     expect(formatLocalDateTimeForInput(date)).toBe('2024-05-01T02:15');
+  });
+
+  test('formatLocalDateForInput adjusts timezone offsets for the previous day', () => {
+    const date = new Date('2024-05-01T02:00:00Z');
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(180);
+
+    expect(formatLocalDateForInput(date)).toBe('2024-04-30');
+  });
+
+  test('formatLocalDateForInput adjusts timezone offsets for the next day', () => {
+    const date = new Date('2024-05-01T23:30:00Z');
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(-180);
+
+    expect(formatLocalDateForInput(date)).toBe('2024-05-02');
+  });
+
+  test('todayLocalIso returns the local ISO date for the current day', () => {
+    vi.setSystemTime(new Date('2024-05-01T01:00:00Z'));
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(180);
+
+    expect(todayLocalIso()).toBe('2024-04-30');
   });
 });

@@ -7,7 +7,7 @@ import { useTerritorios } from '../hooks/useTerritorios';
 import { useSaidas } from '../hooks/useSaidas';
 import { useDesignacoes } from '../hooks/useDesignacoes';
 import { useSuggestionRules } from '../hooks/useSuggestionRules';
-import { addDaysToIso, formatIsoDate, nextDateForWeekday } from '../utils/calendar';
+import { addDaysToIso, formatIsoDate, nextDateForWeekday, todayLocalIso } from '../utils/calendar';
 import { findName } from '../utils/lookups';
 import { getLastAssignmentDate } from '../utils/assignments';
 
@@ -25,7 +25,7 @@ const SuggestionsPage: React.FC = () => {
   const [rules, setRules] = useSuggestionRules();
   const toast = useToast();
   const { t } = useTranslation();
-  const [startDate, setStartDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  const [startDate, setStartDate] = useState<string>(() => todayLocalIso());
   const [duration, setDuration] = useState<number>(rules.defaultDurationDays);
   const [avoidCount, setAvoidCount] = useState<number>(rules.avoidLastAssignments);
   const [monthsPerExit, setMonthsPerExit] = useState<number>(rules.avoidMonthsPerExit);
