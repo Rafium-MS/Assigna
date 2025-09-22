@@ -8,6 +8,9 @@
 [![Languages](https://img.shields.io/github/languages/top/leocosta1/territory-manager-vite)](https://github.com/leocosta1/territory-manager-vite/search?l=typescript)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://prettier.io)
+[![Live Demo](https://img.shields.io/badge/live_demo-black?style=flat-square&logo=github)](https://leocosta1.github.io/territory-manager-vite/)
+
+[**Live Demo**](httpshttps://leocosta1.github.io/territory-manager-vite/)
 
 Gerencie territórios, saídas e designações de forma offline.
 
