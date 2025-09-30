@@ -9,4 +9,5 @@ export type TabKey =
   | 'todayAssignments'
   | 'calendar'
   | 'suggestions'
-  | 'notAtHome';
+  | 'notAtHome'
+  | 'campaign';

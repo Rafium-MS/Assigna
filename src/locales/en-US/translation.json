@@ -50,6 +50,7 @@
     "calendar": "Calendar",
     "suggestions": "Suggestions",
     "notAtHome": "Not at Home",
+    "campaign": "Campaign",
     "dashboard": "Dashboard",
     "reports": "Reports",
     "maps": "Maps",
@@ -425,6 +426,22 @@
     "overdue": "Overdue",
     "dueIn": "D-{{diff}}",
     "noAssignments": "No assignments."
+  },
+  "campaign": {
+    "title": "New Campaign",
+    "description": "Manage your campaign details here.",
+    "name": "Campaign Name",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "presets": "Designation Presets",
+    "presetsPlaceholder": "E.g.:\nMonday: Morning, Afternoon\nTuesday: Morning\n...",
+    "create": "Create Campaign",
+    "validation": {
+      "nameRequired": "Campaign name is required",
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "presetsRequired": "Presets are required"
+    }
   },
   "reports": {
     "title": "Reports"

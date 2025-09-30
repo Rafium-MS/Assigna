@@ -50,6 +50,7 @@
     "calendar": "Calendário",
     "suggestions": "Sugestões",
     "notAtHome": "Não em Casa",
+    "campaign": "Campanha",
     "dashboard": "Painel",
     "reports": "Relatórios",
     "maps": "Mapas",
@@ -426,6 +427,22 @@
     "overdue": "Atrasado",
     "dueIn": "D-{{diff}}",
     "noAssignments": "Sem designações."
+  },
+  "campaign": {
+    "title": "Nova Campanha",
+    "description": "Gerencie os detalhes da sua campanha aqui.",
+    "name": "Nome da Campanha",
+    "startDate": "Data de Início",
+    "endDate": "Data de Fim",
+    "presets": "Predefinições de Designação",
+    "presetsPlaceholder": "Ex:\nSegunda-feira: Manhã, Tarde\nTerça-feira: Manhã\n...",
+    "create": "Criar Campanha",
+    "validation": {
+      "nameRequired": "O nome da campanha é obrigatório",
+      "startDateRequired": "A data de início é obrigatória",
+      "endDateRequired": "A data de fim é obrigatória",
+      "presetsRequired": "As predefinições são obrigatórias"
+    }
   },
   "reports": {
     "title": "Relatórios"

@@ -18,6 +18,7 @@ import NaoEmCasaPage from './pages/NaoEmCasaPage';
 import UsersPage from './pages/UsersPage';
 import TodayAssignmentsPage from './pages/TodayAssignmentsPage';
 import RegisterPage from './pages/RegisterPage';
+import CampaignPage from './pages/CampaignPage';
 import { AppProvider } from './store/AppProvider';
 import { useApp } from './hooks/useApp';
 import { useAuth } from './hooks/useAuth';
@@ -59,6 +60,7 @@ const pagesByTab: Record<TabKey, ComponentType> = {
   calendar: CalendarPage,
   suggestions: SuggestionsPage,
   notAtHome: NaoEmCasaPage,
+  campaign: CampaignPage,
 };
 
 interface GuardedRouteProps {
