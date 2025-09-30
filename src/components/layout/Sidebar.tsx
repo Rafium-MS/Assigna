@@ -97,6 +97,19 @@ const SuggestIcon = () => (
   </svg>
 );
 
+const CampaignIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    className={iconCls}
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
+    <path d="M22 12A10 10 0 0 0 12 2v10h10z" />
+  </svg>
+);
+
 const UsersIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -177,6 +190,7 @@ const items: Array<{ id: TabKey; label: string; icon: React.ReactNode }> = [
   { id: 'calendar', label: 'sidebar.calendar', icon: <CalendarIcon /> },
   { id: 'notAtHome', label: 'sidebar.notAtHome', icon: <HomeOffIcon /> },
   { id: 'suggestions', label: 'sidebar.suggestions', icon: <SuggestIcon /> },
+  { id: 'campaign', label: 'sidebar.campaign', icon: <CampaignIcon /> },
 ];
 
 const ADMIN_MASTER_ROLE_NORMALIZED = ADMIN_MASTER_ROLE.toLowerCase();

@@ -30,6 +30,7 @@ export const routes: Record<TabKey, RouteDefinition> = {
   calendar: { path: '/calendar', allowedRoles: readOnlyRoles },
   suggestions: { path: '/suggestions', allowedRoles: managementRoles },
   notAtHome: { path: '/nao-em-casa', allowedRoles: publisherRoles },
+  campaign: { path: '/campaign', allowedRoles: managementRoles },
 };
 
 export const routePaths = Object.fromEntries(
